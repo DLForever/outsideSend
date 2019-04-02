@@ -4,7 +4,9 @@
         <div class="collapse-btn" @click="collapseChage">
             <i class="el-icon-menu"></i>
         </div>
-        <div class="logo">后台管理系统</div>
+        <div class="logo">
+            <a href="/" style="color: #fff;"><span>送测管理系统</span></a>
+        </div>
         <div class="header-right">
             <div class="header-user-con">
                 <!-- 全屏显示 -->
@@ -14,14 +16,28 @@
                     </el-tooltip>
                 </div>
                 <!-- 消息中心 -->
-                <div class="btn-bell">
+                <el-badge :value="message_count" class="item" >
+                    <el-tooltip effect="dark" :content="message_count?`有${message_count}条未读消息`:`消息中心`" placement="bottom">
+                        <router-link to="/notifications">
+                            <i class="el-icon-bell"></i>
+                        </router-link>
+                    </el-tooltip>
+                </el-badge>
+                <!-- <el-badge :value="message_count" class="item" >
+                    <el-tooltip effect="dark" :content="message_count?`有${message_count}条未读消息`:`消息中心`" placement="bottom">
+                        <router-link to="/notifications">
+                            <i class="el-icon-bell"></i>
+                        </router-link>
+                    </el-tooltip>
+                </el-badge> -->
+                <!-- <div class="btn-bell">
                     <el-tooltip effect="dark" :content="message?`有${message}条未读消息`:`消息中心`" placement="bottom">
                         <router-link to="/tabs">
                             <i class="el-icon-bell"></i>
                         </router-link>
                     </el-tooltip>
                     <span class="btn-bell-badge" v-if="message"></span>
-                </div>
+                </div> -->
                 <!-- 用户头像 -->
                 <div class="user-avator"><img src="../../assets/img/img.jpg"></div>
                 <!-- 用户名下拉菜单 -->
@@ -30,12 +46,6 @@
                         {{username}} <i class="el-icon-caret-bottom"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                        <a href="http://blog.gdfengshuo.com/about/" target="_blank">
-                            <el-dropdown-item>关于作者</el-dropdown-item>
-                        </a>
-                        <a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
-                            <el-dropdown-item>项目仓库</el-dropdown-item>
-                        </a>
                         <el-dropdown-item divided  command="loginout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -50,9 +60,19 @@
             return {
                 collapse: false,
                 fullscreen: false,
-                name: 'linxin',
-                message: 2
+                name: 'lyh',
+                message: 2,
+                defaultActiveIndex: '/'
             }
+        },
+        props:{
+            clearInte: Function,
+            message_count:Number,
+            notifications:Array,
+        },
+        created() {
+            // 组件创建完后获取数据
+            this.fetchNavData()
         },
         computed:{
             username(){
@@ -64,6 +84,7 @@
             // 用户名下拉菜单选择事件
             handleCommand(command) {
                 if(command == 'loginout'){
+                    this.clearInte()
                     localStorage.removeItem('ms_username')
                     this.$router.push('/login');
                 }
@@ -99,11 +120,62 @@
                     }
                 }
                 this.fullscreen = !this.fullscreen;
-            }
+            },
+            fetchNavData() { // 初始化菜单激活项
+                let cur_path = this.$route.path
+                let routers = this.$router.options.routes
+                let nav_type = '', nav_name = ''
+                for (let i = 0; i < routers.length; i++) {
+                    let children = routers[i].children
+                    if (children) {
+                        for (let j = 0; j < children.length; j++) {
+                            if (children[j].path === cur_path) {
+                                nav_type = routers[i].type
+                                nav_name = routers[i].name
+                                break
+                            }
+                            // 如果还有子菜单
+                            if (children[j].children) {
+                                let grandChildren = children[j].children
+                                for (let z = 0; z < grandChildren.length; z++) {
+                                    if (grandChildren[z].path === cur_path) {
+                                        nav_type = routers[i].type
+                                        nav_name = routers[i].name
+                                        break
+                                    }
+                                    if(grandChildren[z].children) {
+                                        let threeChildren = grandChildren[z].children
+                                        for (let y = 0; y < threeChildren.length; y++) {
+                                            if (threeChildren[y].path === cur_path) {
+                                                nav_type = routers[i].type
+                                                nav_name = routers[i].name
+                                                break
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                this.$store.state.topNavState = nav_type
+                this.$store.dispatch('setLeftNavState', nav_name)
+                // this.$store.state.leftNavState = nav_name
+                if (nav_type == 'home') {
+                    this.defaultActiveIndex = '/'
+                } else {
+                    this.defaultActiveIndex = '/' + nav_name + 'Department'
+                }
+            },
         },
         mounted(){
             if(document.body.clientWidth < 1500){
                 this.collapseChage();
+            }
+        },
+        watch: {
+            '$route': function(to, from) {
+                this.fetchNavData()
             }
         }
     }
@@ -181,5 +253,24 @@
     }
     .el-dropdown-menu__item{
         text-align: center;
+    }
+    .topbar-title {
+        float: left;
+        text-align: left;
+        padding-left: 10px;
+        /*border-left: 1px solid #000;*/
+    }
+    .topbar-title .el-menu--horizontal {
+        background-color: transparent;
+    }
+    .el-menu--horizontal > .el-menu-item:not(.is-disabled):hover, .el-menu--horizontal > .el-menu-item:not(.is-disabled):focus, .el-menu--horizontal > .el-menu-item.is-active {
+        color: #fff;
+        background-color: transparent;
+        border-bottom: 3px solid #409EFF !important;
+    }
+    .topbar-title .el-menu--horizontal > .el-menu-item {
+        height: 70px;
+        line-height: 70px;
+        color: #fff;
     }
 </style>

@@ -27,8 +27,8 @@
         data: function(){
             return {
                 ruleForm: {
-                    username: 'admin',
-                    password: '123123'
+                    username: '',
+                    password: ''
                 },
                 rules: {
                     username: [
@@ -37,21 +37,76 @@
                     password: [
                         { required: true, message: '请输入密码', trigger: 'blur' }
                     ]
-                }
+                },
+                checked: true
             }
         },
+        mounted() {
+            this.getCookie()
+        },
         methods: {
-            submitForm(formName) {
+            submitForm2(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        localStorage.setItem('ms_username',this.ruleForm.username);
+                        localStorage.setItem('ms_username',this.ruleForm.name);
                         this.$router.push('/');
                     } else {
                         console.log('error submit!!');
                         return false;
                     }
                 });
-            }
+            },
+            submitForm(formName) {
+                if(this.checked == true) {
+                    this.setCookie(this.ruleForm.username, this.ruleForm.password, 7)
+                }else {
+                    this.clearCookie()
+                }
+                this.$refs[formName].validate((valid) => {
+                    if(valid) {
+                        this.$axios.post('/authentication', {
+                                username: this.ruleForm.username,
+                                password: this.ruleForm.password
+                        },
+                        ).then((res) => {
+                            localStorage.setItem('ms_username', res.data.data.name)
+                            localStorage.setItem('token', res.data.data.token)
+                            localStorage.setItem('notifyid', JSON.stringify([])) //保存消息id到本地
+                            this.$router.push('/');
+                        }).catch((res) => {
+                            this.$message.error('用户名或密码错误')
+                        })
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            //设置cookie
+            setCookie(c_name, c_pwd, exdays) {
+                let exdate = new Date()
+                exdate.setTime(exdate.getTime() + 24 * 60 * 60 * 100 * exdays)
+                window.document.cookie = "username" + "=" + c_name + ";path=/;expires=" + exdate.toGMTString()
+                window.document.cookie = "userPwd" + "=" + c_pwd + ";path/;expires=" + exdate.toGMTString()
+            },
+            //读取cookie
+            getCookie: function() {
+                if (document.cookie.length > 0) {
+                    let arr = document.cookie.split(';')
+                    for(let i=0; i < arr.length; i++) {
+                        let arr2 = arr[i].split('=')
+                        if(arr2[0] == 'username') {
+                            this.ruleForm.username = arr2[1]
+                        }else if(arr2[0] == ' userPwd') {
+                            this.ruleForm.password = arr2[1]
+                        }
+                    }
+                }
+            },
+            //清除cookie
+            clearCookie: function() {
+                this.setCookie('', '', -1)
+            },
         }
     }
 </script>

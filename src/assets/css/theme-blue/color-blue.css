@@ -1,0 +1,29 @@
+.header{
+    background-color: #407EBE;
+}
+.login-wrap{
+    background: rgba(56, 157, 170, 0.82);;
+}
+.plugins-tips{
+    background: #f2f2f2;
+}
+.plugins-tips a{
+    color: #407EBE;
+}
+.el-upload--text em {
+    color: #407EBE;
+}
+.pure-button{
+    background: #407EBE;
+}
+.pagination > .active > a, .pagination > .active > a:hover, .pagination > .active > a:focus, .pagination > .active > span, .pagination > .active > span:hover, .pagination > .active > span:focus {
+    background-color: #407EBE !important;
+    border-color: #407EBE !important;
+}
+.tags-li.active {
+    border: 1px solid #407EBE;
+    background-color: #407EBE;
+}
+.collapse-btn:hover{
+    background: #407EBE;
+}
