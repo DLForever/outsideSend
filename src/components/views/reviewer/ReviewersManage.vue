@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goodsfill"></i> 测评管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 测评管理</el-breadcrumb-item>
                 <el-breadcrumb-item>测评任务管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -26,7 +26,7 @@
                     <el-select v-model="statusSelect" placeholder="请选择" class="handle-select mr10">
                         <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
-                    <el-button @click="clear_filter" type="default">重置</el-button>
+                    <el-button style="margin-left: 5px" @click="clear_filter" type="default">重置</el-button>
                     <el-button @click="filter_product" type="primary">查询</el-button>
                 </div>
             </div>
@@ -87,6 +87,9 @@
                                     <el-button type="text" @click="toReviewers(scope.$index, scope.row)">查看送测记录
                                         <!-- <router-link to="./reviewersinfomanage"></router-link> -->
                                     </el-button>
+                                </el-dropdown-item>
+                                <el-dropdown-item>
+                                    <el-button @click="handleRefuse(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp拒绝</el-button>
                                 </el-dropdown-item>
                                 <!-- <el-dropdown-item>
                                     <el-button @click="showPictures(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp图片</el-button>
@@ -279,7 +282,7 @@
             <el-button v-else type="primary" @click="isaddPlan=!isaddPlan">增加任务</el-button>
             <template v-if="isaddPlan">
                 <el-button type="warning" icon="el-icon-refresh" @click="cancelAddPlan">取消</el-button>
-                <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="plan_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
+                <el-date-picker style="margin-right: 10px; margin-bottom: 5px; margin-left: 5px;" v-model="plan_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
                 <el-input-number style="margin-bottom: 5px;" v-model="plan_sum" :min="0" label="数量"></el-input-number>
             </template>
             <el-button style="float: right;" type="primary" @click="checkSelf">通过审核</el-button>
@@ -341,19 +344,34 @@
                     <template slot-scope="scope">
                         <template v-if="scope.row.edit">
                             <el-input-number style="margin-bottom: 5px;" v-model="scope.row.plan_sum" :min="0"></el-input-number>
-                            <el-button class="cancel-btn" size="small" icon="el-icon-refresh" type="warning" @click="cancelEdit(scope.row)">取消</el-button>
+                            <el-button style="margin-left: 5px" class="cancel-btn" size="small" icon="el-icon-refresh" type="warning" @click="cancelEdit(scope.row)">取消</el-button>
                         </template>
                         <span v-else>{{scope.row.plan_sum}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="start_sum" label="已进行的数量" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column label="操作" show-overflow-tooltip>
+                <el-table-column prop="accept_sum" label="接受数量" show-overflow-tooltip>
                     <template slot-scope="scope">
-                        <el-button v-if="!scope.row.edit" @click="handleCreate(scope.$index, scope.row)" :disabled="scope.row.noshow" type="primary">添加送测记录</el-button>
-                        <el-button v-if="scope.row.edit" @click="saveupdateplan(scope.row)" :disabled="scope.row.noshow" icon="el-icon-circle-check-outline" type="success">确认</el-button>
-                        <el-button v-else type="warning" size="small" icon="el-icon-edit" :disabled="scope.row.noshow" @click="scope.row.edit=!scope.row.edit">编辑</el-button>
-                        <el-button v-if="!scope.row.edit" @click="handleDeletePlan(scope.$index, scope.row)" :disabled="scope.row.noshow" type="danger">删除</el-button>
+                        <template v-if="scope.row.editAccept">
+                            <el-input-number style="margin-bottom: 5px;" v-model="scope.row.accept_sum" :min="0"></el-input-number>
+                            <el-button style="margin-left: 5px" class="cancel-btn" size="small" icon="el-icon-refresh" type="warning" @click="cancelEditAccept(scope.row)">取消</el-button>
+                        </template>
+                        <span v-else>{{scope.row.accept_sum}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="450" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <template v-if="!scope.row.editAccept">
+                            <el-button v-if="!scope.row.edit" @click="handleCreate(scope.$index, scope.row)" :disabled="scope.row.noshow" type="primary" icon="el-icon-plus">添加送测记录</el-button>
+                            <el-button v-if="scope.row.edit" @click="saveupdateplan(scope.row)" :disabled="scope.row.noshow" icon="el-icon-circle-check-outline" type="success">确认</el-button>
+                            <el-button v-else type="warning" size="small" icon="el-icon-edit" :disabled="scope.row.noshow" @click="scope.row.edit=!scope.row.edit">编辑</el-button>
+                            <el-button v-if="!scope.row.edit" icon="el-icon-delete" @click="handleDeletePlan(scope.$index, scope.row)" :disabled="scope.row.noshow" type="danger">删除</el-button>
+                        </template>
+                        <template v-if="!scope.row.edit">
+                            <el-button v-if="scope.row.editAccept" @click="saveAccept(scope.row)" :disabled="scope.row.noshow" icon="el-icon-circle-check-outline" type="success">确认</el-button>
+                            <el-button v-else type="success" size="small" icon="el-icon-edit" :disabled="scope.row.noshow" @click="scope.row.editAccept=!scope.row.editAccept">处理计划周期</el-button>
+                        </template>
                     </template>
                 </el-table-column>
             </el-table>
@@ -514,7 +532,7 @@
                 user_options2: [],
                 fileList2: [],
                 statusSelect: '',
-                statusOptions: [{value: 1, label: '已提交申请'}, {value: 2, label: '已通过审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已完成'}],
+                statusOptions: [{value: 1, label: '已提交申请'}, {value: 2, label: '已通过审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已完成'}, {value: 8, label: '已拒绝'}],
                 picturestList2: [],
                 detailOptions: [],
                 detailOptions2: [],
@@ -635,7 +653,8 @@
                 paytype_options: ['PayPal', '微信'],
                 currency_options: ['美金', '英镑', '欧元', '日元'],
                 keyword_options: [],
-                table_loading: true
+                table_loading: true,
+                username: ''
             }
         },
         created() {
@@ -670,6 +689,7 @@
                     5: 'primary',
                     6: 'success',
                     10: 'success',
+                    8: 'warning'
                 }
                 return statusMap[status]
             },
@@ -702,6 +722,8 @@
                                 data2.originalSum = data2.plan_sum
                                 data2.edit = false
                                 data2.noshow = false
+                                data2.editAccept = false
+                                data2.originalaccept = data2.accept_sum
                             })
                         })
                         this.tableData = res.data.data
@@ -727,6 +749,8 @@
                                 data2.originalSum = data2.plan_sum
                                 data2.edit = false
                                 data2.noshow = false
+                                data2.editAccept = false
+                                data2.originalaccept = data2.accept_sum
                             })
                         })
                         this.tableData = res.data.data
@@ -878,6 +902,8 @@
                 this.delVisible = false;
             },
             handleDetails(index, row) {
+                this.username = ''
+                this.username = row.username
                 this.detailOptions3 = []
                 let tempkeywords = row.keywords.split(',')
                 let tempkeywordindex = row.keyword_index.split(',')
@@ -1226,9 +1252,36 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        row.originalSum = row.plan_sum
-                        this.$message.success("更新成功")
+                        if (this.username != null) {
+                            row.plan_sum = row.originalSum
+                            this.$message.success("请求已提交，等待送测人同意！")
+                        } else {
+                            row.originalSum = row.plan_sum
+                            this.$message.success("更新成功")
+                        }
                         row.edit = false
+                        // this.updateplanVisible = false
+                        // this.detailVisible = false
+                    }
+                }).catch((res) => {
+
+                }).finally(() => {
+                    this.submitDisabled = false
+                })
+            },
+            saveAccept(row) {
+                this.submitDisabled = true
+                let params = {
+                    period_id: row.id,
+                    accept_sum: row.accept_sum
+                }
+                this.$axios.post('/tasks/' + this.task_id + '/process_period', params
+                ).then((res) => {
+                    if(res.data.code == 200) {
+                        this.getData()
+                        row.originalaccept = row.accept_sum
+                        this.$message.success("更新成功")
+                        row.editAccept = false
                         // this.updateplanVisible = false
                         // this.detailVisible = false
                     }
@@ -1258,7 +1311,7 @@
                         this.getData()
                         this.$message.success("增加成功")
                         this.isaddPlan = false
-                        this.detailOptions2.push({ plan_sum: this.plan_sum, plan_date: this.plan_date, start_sum: 0, noshow: true})
+                        this.detailOptions2.push({ plan_sum: this.plan_sum, plan_date: this.plan_date, start_sum: 0, accept_sum: 0,noshow: true})
                         this.plan_sum = 0
                         this.plan_date = ''
                     }
@@ -1273,20 +1326,26 @@
                 this.getData()
             },
             handleDeletePlan(index, row) {
-                this.$confirm('此操作将永久删除该任务, 是否继续?', '提示', {
+                this.$prompt('请输入删除备注', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'danger'
-                }).then(() => {
+                }).then(({value}) => {
                     let params = {
-                        task_period_id: row.id
+                        task_period_id: row.id,
+                        remark: value,
                     }
                     this.$axios.post('/tasks/' + this.task_id + '/delete_period', params
                     ).then((res) => {
                         if(res.data.code == 200) {
-                            this.detailOptions2.splice(index, 1);
+                            if (this.username != null) {
+                                this.$message.success("请求已提交,等待送测人同意！")
+                            } else {
+                                this.detailOptions2.splice(index, 1);
+                                this.$message.success("已删除")
+                            }
                             this.getData()
-                            this.$message.success("删除成功")
+                            
                         }
                     }).catch(() => {
                         
@@ -1312,10 +1371,36 @@
                 row.plan_sum = row.originalSum
                 row.edit = false
             },
+            cancelEditAccept(row) {
+                row.accept_sum = row.originalaccept
+                row.editAccept = false
+            },
             cancelAddPlan() {
                 this.isaddPlan = false
                 this.plan_sum = 0
                 this.plan_date = ''
+            },
+            handleRefuse(index, row) {
+                this.$prompt('请输入拒绝备注', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'danger'
+                }).then(( {value} ) => {
+                    let params = {
+                        remark: value
+                    }
+                    this.$axios.post('/tasks/' + row.id + '/reject_task', params
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.getData()
+                            this.$message.success("拒绝成功")
+                        }
+                    }).catch(() => {
+                        
+                    })
+                }).catch(() => {
+                    // this.$message.info('已取消拒绝')
+                })
             },
             getStatusName(status) {
                 if(status == 1) {
@@ -1332,6 +1417,8 @@
                     return "已计划完成"
                 }else if(status == 7) {
                     return "已完成"
+                }else if(status == 8) {
+                    return "已拒绝"
                 }else {
                     return '其他'
                 }

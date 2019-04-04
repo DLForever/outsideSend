@@ -56,6 +56,11 @@ export default new Router({
                     meta: { title: '测评记录管理' }
                 },
                 {
+                    path: '/reviewerschangemanage',
+                    component: resolve => require(['../components/views/reviewer/ReviewersChangeManage.vue'], resolve),
+                    meta: { title: '任务变更管理' }
+                },
+                {
                     path: '/fansmanage',
                     component: resolve => require(['../components/views/reviewer/FansManage.vue'], resolve),
                     meta: { title: '粉丝管理' }

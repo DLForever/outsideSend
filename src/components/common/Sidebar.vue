@@ -52,7 +52,7 @@
                         },
                         {
                             index: 'addroles',
-                            title: '创建角色'
+                            title: '创建角色',
                         },
                         {
                             index: 'usersmanage',
@@ -77,6 +77,10 @@
                         {
                             index: 'reviewersinfomanage',
                             title: '测评记录管理'
+                        },
+                        {
+                            index: 'reviewerschangemanage',
+                            title: '任务变更管理'
                         },
                         {
                             index: 'fansmanage',

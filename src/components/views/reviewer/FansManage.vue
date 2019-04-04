@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goodsfill"></i> 测评管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 测评管理</el-breadcrumb-item>
                 <el-breadcrumb-item>粉丝管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -11,7 +11,7 @@
                 <el-button type="primary" @click="exportFans">导出粉丝</el-button>
                 <div class="fnsku_filter">
                     粉丝号:
-                    <el-input style="width:150px" placeholder="请输入粉丝号" v-model.trim="search_fan"></el-input>
+                    <el-input class="handle-input mr10" placeholder="请输入粉丝号" v-model.trim="search_fan"></el-input>
                     <el-button @click="clear_filter" type="default">重置</el-button>
                     <el-button @click="filter_product" type="primary">查询</el-button>
                 </div>
@@ -576,7 +576,7 @@
     }
 
     .handle-input {
-        width: 300px;
+        width: 150px;
         display: inline-block;
     }
     .del-dialog-cnt{
@@ -609,5 +609,8 @@
     }
     .img_carousel {
         max-width: 40rem;
+    }
+    .mr10{
+        margin-right: 10px;
     }
 </style>

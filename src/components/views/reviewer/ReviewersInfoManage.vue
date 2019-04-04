@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goodsfill"></i> 测评管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 测评管理</el-breadcrumb-item>
                 <el-breadcrumb-item>测评任务管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -13,9 +13,9 @@
                 <div style="float: right;">
                     <template v-if="search_show[0].dateDis">
                         <!-- 日期: -->
-                        <el-date-picker v-model="date_filter" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions2" unlink-panels value-format="yyyy-MM-dd"></el-date-picker>
+                        <el-date-picker class="mr10" v-model="date_filter" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions2" unlink-panels value-format="yyyy-MM-dd"></el-date-picker>
                     </template>
-                    <el-select v-model="search_selects" multiple placeholder="展示其他搜索栏目" @change="showSearch">
+                    <el-select class="mr10" v-model="search_selects" multiple placeholder="展示其他搜索栏目" @change="showSearch">
                         <el-option v-for="item in search_options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                     <el-button @click="clear_filter" type="default">重置</el-button>
@@ -33,7 +33,7 @@
                         <el-input style="width:130px;" v-model.trim="filter_shopname" placeholder="请输入店铺名称"></el-input>
                     </template>
                     站点:
-                    <el-select v-model="site_filter" class="handle-select mr10">
+                    <el-select v-model="site_filter" class="handle-select">
                         <el-option v-for="item in site_options" :key="item" :label="item" :value="item"></el-option>
                     </el-select>
                     ASIN:
@@ -42,7 +42,7 @@
                     <el-input style="width:150px" placeholder="请输入订单号" v-model.trim="search_number"></el-input>
                     <template v-if="search_show[3].userDis">
                         送测人员:
-                        <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择送测人" class="handle-select mr10">
+                        <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择送测人" class="handle-select">
                             <el-option v-for="item in user_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
                             <infinite-loading :on-infinite="onInfinite_user" ref="infiniteLoading"></infinite-loading>
                         </el-select>
@@ -529,7 +529,7 @@
                 search_keyword: '',
                 feedbackVisible: false,
                 status: '',
-                statusOptions: [{value: 1, label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}, {value: 5, label: '失败'}, {value: 6, label: '等待评论'}, {value: 7, label: '需返佣金'}],
+                statusOptions: [{value: 1, label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}, {value: 5, label: '失败'}, {value: 6, label: '等待评论'}, {value: 7, label: '需返佣金'}, {value: 8, label: '反馈待审核'}],
                 statusSelect: '',
                 user_id_filter: '',
                 query: undefined,
@@ -1327,6 +1327,8 @@
                     return "等待评论"
                 }else if(status == 7) {
                     return "需返佣金"
+                }else if(status == 8) {
+                    return "反馈待审核"
                 }else {
                     return '其他'
                 }
@@ -1385,5 +1387,8 @@
     }
     .img_carousel {
         max-width: 40rem;
+    }
+    .mr10{
+        margin-right: 10px;
     }
 </style>

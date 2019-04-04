@@ -144,7 +144,6 @@
 			next()
 		},
 		created() {
-            this.getData();
             this.getRoles()
             this.getPolicies()
         },

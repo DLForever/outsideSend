@@ -13,10 +13,11 @@
                         <el-button slot="prepend" icon="el-icon-lx-lock"></el-button>
                     </el-input>
                 </el-form-item>
+                <el-checkbox v-model="checked">记住密码</el-checkbox>
+                <br><br>
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
                 </div>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
             </el-form>
         </div>
     </div>

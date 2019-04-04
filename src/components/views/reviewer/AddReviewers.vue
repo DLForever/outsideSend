@@ -2,7 +2,7 @@
 	<div>
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
-				<el-breadcrumb-item><i class="el-icon-lx-goodsfill"></i> 测评管理</el-breadcrumb-item>
+				<el-breadcrumb-item><i class="el-icon-lx-goods"></i> 测评管理</el-breadcrumb-item>
 				<el-breadcrumb-item>新建测评任务</el-breadcrumb-item>
 			</el-breadcrumb>
 		</div>
@@ -42,8 +42,8 @@
 											<el-input style="margin-bottom: 5px;" v-model.trim="p.keyword_index" placeholder="请输入关键词位置"></el-input>
 										</td>
 										<div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
-											<i style="margin-right: 5px;  font-size: 15px" class="el-icon-circle-plus" @click="keywordsAdd(index)"></i>
-											<i style="font-size: 15px" class="el-icon-remove" @click="keywordsDel(index)" v-if="keywordsArr.length >1"></i>
+											<i style="margin-right: 5px;  font-size: 15px;cursor: pointer;" class="el-icon-circle-plus" @click="keywordsAdd(index)"></i>
+											<i style="font-size: 15px;cursor: pointer;" class="el-icon-remove" @click="keywordsDel(index)" v-if="keywordsArr.length >1"></i>
 										</div>
 									</tbody>
 								</table>
@@ -58,8 +58,8 @@
 											<el-input-number style="margin-bottom: 5px;" v-model="p.time" :min="0" label="描述文字"></el-input-number>
 										</td>
 										<div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
-											<i style="margin-right: 5px;  font-size: 15px" class="el-icon-circle-plus" @click="orderAdd(index)"></i>
-											<i style="font-size: 15px" class="el-icon-remove" @click="orderDel(index)" v-if="date_time.length >1"></i>
+											<i style="margin-right: 5px;  font-size: 15px;cursor: pointer;" class="el-icon-circle-plus" @click="orderAdd(index)"></i>
+											<i style="font-size: 15px;cursor: pointer;" class="el-icon-remove" @click="orderDel(index)" v-if="date_time.length >1"></i>
 										</div>
 									</tbody>
 								</table>

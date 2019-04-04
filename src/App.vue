@@ -6,6 +6,6 @@
 <style>
     @import "./assets/css/main.css";
     @import "./assets/css/theme-blue/color-blue.css";
-    /*@import "./assets/css/color-dark.css";     深色主题*/
+    /*@import "./assets/css/color-dark.css";*/
     /*@import "./assets/css/theme-green/color-green.css";*/
 </style>
