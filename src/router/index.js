@@ -58,6 +58,7 @@ export default new Router({
                 {
                     path: '/reviewerschangemanage',
                     component: resolve => require(['../components/views/reviewer/ReviewersChangeManage.vue'], resolve),
+                    name: 'Reviewerschangemanage',
                     meta: { title: '任务变更管理' }
                 },
                 {

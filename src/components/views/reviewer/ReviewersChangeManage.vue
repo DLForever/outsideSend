@@ -293,7 +293,10 @@
                 };
                 this.table_loading = true
                 this.export_token = localStorage.getItem('token')
-                this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess
+                if (!this.$route.params.task_id) {
+                    this.$route.params.task_id = ''
+                }
+                this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess + '&task_id=' + this.$route.params.task_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.tableData = res.data.data
@@ -310,7 +313,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess
+                this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess + '&task_id=' + this.$route.params.task_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.tableData = res.data.data
@@ -330,6 +333,7 @@
                 this.user_id_filter = ''
                 this.apply_user_id = ''
                 this.isProcess = ''
+                this.$route.params.task_id = ''
                 this.getData()
             },
             formatter_created_at(row, column) {

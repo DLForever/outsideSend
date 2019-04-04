@@ -89,6 +89,11 @@
                                     </el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item>
+                                    <el-button type="text" @click="toReviewersChange(scope.$index, scope.row)">查看变更记录
+                                        <!-- <router-link to="./reviewersinfomanage"></router-link> -->
+                                    </el-button>
+                                </el-dropdown-item>
+                                <el-dropdown-item>
                                     <el-button @click="handleRefuse(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp拒绝</el-button>
                                 </el-dropdown-item>
                                 <!-- <el-dropdown-item>
@@ -1128,6 +1133,10 @@
             },
             toReviewers(index, row) {
                 this.$router.push({name: 'Reviewersinfomanage', params: {task_id: row.id}})
+                this.$store.dispatch('setIsSkip', true)
+            },
+            toReviewersChange(index, row) {
+                this.$router.push({name: 'Reviewerschangemanage', params: {task_id: row.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
             orderAdd() {
