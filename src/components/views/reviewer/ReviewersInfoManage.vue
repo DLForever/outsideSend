@@ -151,6 +151,9 @@
                                 <el-dropdown-item>
                                     <el-button @click="handleFeedback(scope.$index, scope.row)" type="text">问题反馈</el-button>
                                 </el-dropdown-item>
+                                <el-dropdown-item>
+                                    <el-button @click="handleCheckFeedback(scope.$index, scope.row)" type="text">审核反馈</el-button>
+                                </el-dropdown-item>
                                 <!-- <el-dropdown-item>
                                     <el-button @click="showPictures(scope.$index, scope.row)" type="text">图片</el-button>
                                 </el-dropdown-item> -->
@@ -471,6 +474,27 @@
             <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?ids=' + exportIds + '&token=' + export_token">下载excel文件</a></el-button>
         </span>
         </el-dialog>
+
+        <!-- 审核反馈弹出框 -->
+        <el-dialog title="审核反馈" :visible.sync="checkVisible" width="60%">
+            <el-form ref="form" :model="form" label-width="100px">
+                <el-form-item label="是否通过" >
+                    <el-radio v-model="isProblem" label="1">是</el-radio>
+                    <el-radio v-model="isProblem" label="0">否</el-radio>
+                </el-form-item>
+                <template v-if="isProblem == '0'">
+                    <el-form-item label="变更状态">
+                        <el-select v-model="checkStatus" placeholder="请选择" class="handle-select mr10">
+                            <el-option v-for="item in checkOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </template>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="checkVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveCheck" :disabled="submitDisabled">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -676,7 +700,11 @@
               filter_shopname: '',
               filter_refund: false,
               filter_commission: false,
-              table_loading: true
+              table_loading: true,
+              checkOptions: [{value: 1, label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}, {value: 6, label: '等待评论'}, {value: 7, label: '需返佣金'}],
+              checkStatus: '',
+              checkVisible: false,
+              isProblem: ''
             }
         },
         created() {
@@ -1308,6 +1336,35 @@
                     if (tempIndex2 != -1) {
                         this.search_show[tempIndex2][data] = false
                     }
+                })
+            },
+            handleCheckFeedback(index, row) {
+                this.product_id = row.id
+                this.checkStatus = ''
+                this.isProblem = ''
+                this.checkVisible = true
+            },
+            saveCheck() {
+                if (this.isProblem == '') {
+                    this.$message.error('请选择是否通过')
+                    return false
+                }
+                this.submitDisabled = true
+                let params = {
+                    status: this.checkStatus,
+                    pass: this.isProblem
+                }
+                this.$axios.post('/task_records/' + this.product_id + '/process_feedback', params
+                ).then((res) => {
+                    if(res.data.code == 200) {
+                        this.getData()
+                        this.$message.success("处理成功")
+                        this.checkVisible = false
+                    }
+                }).catch((res) => {
+
+                }).finally(() => {
+                    this.submitDisabled = false
                 })
             },
             getStatusName(status, done_direct) {
