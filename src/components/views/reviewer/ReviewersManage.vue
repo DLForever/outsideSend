@@ -344,6 +344,11 @@
             <br>
             <el-table :data="detailOptions2" border style="width: 100%">
                 <el-table-column prop="plan_date" label="计划日期" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tooltip class="item" effect="dark" content="查看该日期的变更记录" placement="top">
+                            <span class="link-type" @click="toReviewersChange2(scope.$index, scope.row)">{{ scope.row.plan_date }}</span>
+                        </el-tooltip>
+                    </template>
                 </el-table-column>
                 <el-table-column prop="plan_sum" label="计划数量" show-overflow-tooltip>
                     <template slot-scope="scope">
@@ -1139,6 +1144,10 @@
                 this.$router.push({name: 'Reviewerschangemanage', params: {task_id: row.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
+            toReviewersChange2(index, row) {
+                this.$router.push({name: 'Reviewerschangemanage', params: {task_period_id: row.id}})
+                this.$store.dispatch('setIsSkip', true)
+            },
             orderAdd() {
                 this.date_time.push(this.add_date_time)
                 this.add_date_time = {
@@ -1483,5 +1492,13 @@
     }
     .img_carousel {
         max-width: 40rem;
+    }
+    .link-type,
+    .link-type:focus {
+      color: #337ab7;
+      cursor: pointer;
+    }
+    .link-type:hover {
+        color: rgb(32, 160, 255);
     }
 </style>
