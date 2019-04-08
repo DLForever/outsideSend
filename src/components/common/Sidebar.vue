@@ -161,11 +161,62 @@
                     //         }
                     //     ]
                     // }
+                ],
+                items2: [
+                    {
+                        icon: 'el-icon-lx-home',
+                        index: 'dashboard',
+                        title: '系统首页'
+                    },
+                    // {
+                    //     icon: 'el-icon-lx-group',
+                    //     index: '1',
+                    //     title: '用户管理',
+                    //     subs: [{
+                    //         index: 'addusers',
+                    //         title: '创建用户'
+                    //     },
+                    //     {
+                    //         index: 'addroles',
+                    //         title: '创建角色',
+                    //     },
+                    //     {
+                    //         index: 'usersmanage',
+                    //         title: '用户管理'
+                    //     },{
+                    //         index: 'rolesmanage',
+                    //         title: '角色管理'
+                    //     }]
+                    // },
+                    {
+                        icon: 'el-icon-lx-goods',
+                        index: '2',
+                        title: '测评管理',
+                        subs: [{
+                            index: 'addreviewers',
+                            title: '新建测评任务'
+                        },
+                        {
+                            index: 'reviewersmanage',
+                            title: '测评任务管理'
+                        },
+                        {
+                            index: 'reviewersinfomanage',
+                            title: '测评记录管理'
+                        },
+                        {
+                            index: 'reviewerschangemanage',
+                            title: '任务变更管理'
+                        }]
+                    },
                 ]
             }
         },
         computed:{
             onRoutes(){
+                if (localStorage.getItem('restrict') === 'true') {
+                    this.items = this.items2
+                }
                 return this.$route.path.replace('/','');
             }
         },

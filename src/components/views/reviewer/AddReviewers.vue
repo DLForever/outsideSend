@@ -281,7 +281,7 @@
 								this.getMessageCount()
 							}
 						}).catch((res) => {
-							console.log('err')
+							console.log(res)
 						}).finally((res) => {
 		                    this.submitDisabled = false
 		                })

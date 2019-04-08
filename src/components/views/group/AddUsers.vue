@@ -20,6 +20,10 @@
 							<el-form-item label="姓名" prop="name">
 								<el-input v-model.trim="form.name"></el-input>
 							</el-form-item>
+							<el-form-item label="是否限制" prop="restrict">
+								<el-radio v-model="form.restrict" label="1">是</el-radio>
+								<el-radio v-model="form.restrict" label="0">否</el-radio>
+							</el-form-item>
 							<el-form-item label="邮箱">
 								<el-input v-model.trim="form.email"></el-input>
 							</el-form-item>
@@ -109,7 +113,8 @@
 					role_ids: [],
 					policy_ids: [],
 					sex: '',
-					remark: ''
+					remark: '',
+					restrict: ''
 				},
 				rules: {
 					username: [{
@@ -125,6 +130,11 @@
 					password: [{
 						required: true,
 						message: '请输入密码',
+						trigger: 'blur'
+					}],
+					restrict: [{
+						required: true,
+						message: '请选择是否限制',
 						trigger: 'blur'
 					}],
 				},
@@ -168,7 +178,7 @@
                     	this.roleoptions = res.data.data
                     }
                 }).catch((res) => {
-                	console.log('error')
+                	console.log(res)
                 })
             },
             getPolicies() {
@@ -178,7 +188,7 @@
                     	this.policyoptions = res.data.data
                     }
                 }).catch((res) => {
-                	console.log('error')
+                	console.log(res)
                 })
             },
             getCategoryTree(categories,id){
@@ -225,6 +235,7 @@
 						formData.append('user[phone]', this.form.phone)
 						formData.append('user[remark]', this.form.remark)
 						formData.append('user[sex]', this.form.sex)
+						formData.append('user[restrict]', this.form.restrict)
 						this.form.role_ids.forEach((data) => {
 							formData.append('role_ids[]', data)
 						})

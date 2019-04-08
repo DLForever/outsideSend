@@ -24,8 +24,6 @@
                 </el-table-column>
                 <el-table-column prop="name" label="姓名" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="shop_sum" label="店铺数量" show-overflow-tooltip>
-                </el-table-column>
                 <el-table-column prop="email" label="邮箱" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="phone" label="电话" show-overflow-tooltip>
@@ -48,9 +46,9 @@
                                 <el-dropdown-item>
                                     <el-button @click="handleEdit(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp编&nbsp&nbsp辑&nbsp&nbsp</el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
+                                <!-- <el-dropdown-item>
                                     <el-button @click="handleEditShopCount(scope.$index, scope.row)" type="text">修改店铺数量</el-button>
-                                </el-dropdown-item>
+                                </el-dropdown-item> -->
                                 <el-dropdown-item>
                                     <el-button @click="handleEditPolicy(scope.$index, scope.row)" type="text">查看/修改权限</el-button>
                                 </el-dropdown-item>
@@ -80,6 +78,10 @@
                 </el-form-item>
                 <el-form-item label="密码">
                     <el-input v-model="form.password"></el-input>
+                </el-form-item>
+                <el-form-item label="是否限制" prop="restrict">
+                    <el-radio v-model="form.restrict" label="1">是</el-radio>
+                    <el-radio v-model="form.restrict" label="0">否</el-radio>
                 </el-form-item>
                 <el-form-item label="邮箱">
                     <el-input v-model="form.email"></el-input>
@@ -332,9 +334,15 @@
                     phone: item.phone,
                     remark: item.remark,
                     sex: String(item.sex),
-                    password: ''
+                    password: '',
+                    restrict: String(item.restrict)
                 }
-                this.category_id = this.category_id.concat(item.category_id)
+                if (this.form.restrict === 'false') {
+                    this.form.restrict = '0'
+                } else {
+                    this.form.restrict = '1'
+                }
+                // this.category_id = this.category_id.concat(item.category_id)
                 this.editVisible = true;
             },
 
@@ -366,6 +374,7 @@
                 formData.append('user[phone]', this.form.phone)
                 formData.append('user[remark]', this.form.remark)
                 formData.append('user[sex]', this.form.sex)
+                formData.append('user[restrict]', this.form.restrict)
                 this.$axios.patch('/users/' + this.form.id, formData).then((res) => {
                     if(res.data.code == 200) {
                         this.$message.success('更新成功！')

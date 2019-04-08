@@ -1,7 +1,7 @@
 <template>
     <div class="login-wrap">
         <div class="ms-login">
-            <div class="ms-title">后台管理系统</div>
+            <div class="ms-title">送测管理系统</div>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
                     <el-input v-model="ruleForm.username" placeholder="username">
@@ -70,10 +70,13 @@
                                 password: this.ruleForm.password
                         },
                         ).then((res) => {
-                            localStorage.setItem('ms_username', res.data.data.name)
-                            localStorage.setItem('token', res.data.data.token)
-                            localStorage.setItem('notifyid', JSON.stringify([])) //保存消息id到本地
-                            this.$router.push('/');
+                            if (res.data.code == 200) {
+                                localStorage.setItem('ms_username', res.data.data.name)
+                                localStorage.setItem('token', res.data.data.token)
+                                localStorage.setItem('notifyid', JSON.stringify([])) //保存消息id到本地
+                                localStorage.setItem('restrict', res.data.data.restrict)
+                                this.$router.push('/');
+                            }
                         }).catch((res) => {
                             this.$message.error('用户名或密码错误')
                         })

@@ -121,7 +121,7 @@
 
         <!-- 处理提示框 -->
         <el-dialog title="提示" :visible.sync="handleVisible" width="50%">
-            <el-form label-width="150px">
+            <el-form label-width="100px">
                 <el-form-item label="备注">
                     <el-input v-model="remark"></el-input>
                 </el-form-item>
@@ -129,7 +129,7 @@
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleVisible = false">取 消</el-button>
                 <el-button type="warning" @click="saveAgree(0)">拒 绝</el-button>
-                <el-button type="primary" @click="saveAgree(1)">确 定</el-button>
+                <el-button type="primary" @click="saveAgree(1)">通 过</el-button>
             </span>
         </el-dialog>
 
@@ -140,7 +140,7 @@
                 </el-table-column>
                 <el-table-column prop="apply_username" label="申请人" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="username" label="送测人" show-overflow-tooltip>
+                <el-table-column v-if="isRestrict === 'false'" prop="username" label="送测人" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
                 </el-table-column>
@@ -244,10 +244,12 @@
                 task_details: [],
                 detailOptions3: [],
                 isProcess: '',
-                isProcessOptions: [{label: '已处理', value: 1}, {label: '未处理', value: 0}]
+                isProcessOptions: [{label: '已处理', value: 1}, {label: '未处理', value: 0}],
+                isRestrict: ''
             }
         },
         created() {
+            this.isRestrict = localStorage.getItem('restrict')
             this.getData();
         },
         watch: {

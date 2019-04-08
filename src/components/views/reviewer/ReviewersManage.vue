@@ -8,7 +8,7 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button type="primary" @click="confirmDistribute">分配</el-button>
+                <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmDistribute">分配</el-button>
                 <div class="fnsku_filter">
                     <!-- 开发人员:
                     <el-input style="width:150px" placeholder="请输入开发人员" v-model.trim="search_shopname"></el-input> -->
@@ -37,8 +37,10 @@
                 </el-table-column>
                 <el-table-column prop="country" label="站点" width="50">
                 </el-table-column>
-                <el-table-column prop="username" label="送测人" width="70">
-                </el-table-column>
+                <template v-if="isRestrict === 'false'">
+                    <el-table-column prop="username" label="送测人" width="70">
+                    </el-table-column>
+                </template>
                 <el-table-column prop="apply_username" label="申请人" width="70">
                 </el-table-column>
                 <el-table-column prop="name" label="产品名称" show-overflow-tooltip>
@@ -93,7 +95,7 @@
                                         <!-- <router-link to="./reviewersinfomanage"></router-link> -->
                                     </el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
+                                <el-dropdown-item v-if="isRestrict === 'false'">
                                     <el-button @click="handleRefuse(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp拒绝</el-button>
                                 </el-dropdown-item>
                                 <!-- <el-dropdown-item>
@@ -297,7 +299,7 @@
                 </el-table-column>
                 <el-table-column prop="country" label="站点" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="username" label="送测人" show-overflow-tooltip>
+                <el-table-column v-if="isRestrict === 'false'" prop="username" label="送测人" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="apply_username" label="申请人" show-overflow-tooltip>
                 </el-table-column>
@@ -370,15 +372,15 @@
                         <span v-else>{{scope.row.accept_sum}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="450" show-overflow-tooltip>
+                <el-table-column label="操作" :width="isRestrict === 'false' ? 450 : 200" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <template v-if="!scope.row.editAccept">
-                            <el-button v-if="!scope.row.edit" @click="handleCreate(scope.$index, scope.row)" :disabled="scope.row.noshow" type="primary" icon="el-icon-plus">添加送测记录</el-button>
+                            <el-button v-if="!scope.row.edit && isRestrict === 'false'" @click="handleCreate(scope.$index, scope.row)" :disabled="scope.row.noshow" type="primary" icon="el-icon-plus">添加送测记录</el-button>
                             <el-button v-if="scope.row.edit" @click="saveupdateplan(scope.row)" :disabled="scope.row.noshow" icon="el-icon-circle-check-outline" type="success">确认</el-button>
                             <el-button v-else type="warning" size="small" icon="el-icon-edit" :disabled="scope.row.noshow" @click="scope.row.edit=!scope.row.edit">编辑</el-button>
                             <el-button v-if="!scope.row.edit" icon="el-icon-delete" @click="handleDeletePlan(scope.$index, scope.row)" :disabled="scope.row.noshow" type="danger">删除</el-button>
                         </template>
-                        <template v-if="!scope.row.edit">
+                        <template v-if="!scope.row.edit && isRestrict === 'false'">
                             <el-button v-if="scope.row.editAccept" @click="saveAccept(scope.row)" :disabled="scope.row.noshow" icon="el-icon-circle-check-outline" type="success">确认</el-button>
                             <el-button v-else type="success" size="small" icon="el-icon-edit" :disabled="scope.row.noshow" @click="scope.row.editAccept=!scope.row.editAccept">处理计划周期</el-button>
                         </template>
@@ -664,7 +666,8 @@
                 currency_options: ['美金', '英镑', '欧元', '日元'],
                 keyword_options: [],
                 table_loading: true,
-                username: ''
+                username: '',
+                isRestrict: ''
             }
         },
         created() {
@@ -675,6 +678,7 @@
                 this.$store.dispatch('setSkipPage', 1)
             }
             this.$store.dispatch('setIsSkip', false)
+            this.isRestrict = localStorage.getItem('restrict')
             this.getData();
         },
         watch: {
