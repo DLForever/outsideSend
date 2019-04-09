@@ -8,8 +8,10 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button type="primary" @click="exportReviewers">导出记录</el-button>
-                <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
+                <template v-if="isRestrict === 'false'">
+                    <el-button  type="primary" @click="exportReviewers">导出记录</el-button>
+                    <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
+                </template>
                 <div style="float: right;">
                     <template v-if="search_show[0].dateDis">
                         <!-- 日期: -->
@@ -1029,7 +1031,7 @@
                 }
                 this.submitDisabled = true
                 let formData = new FormData()
-                formData.append('remark', this.form.remark)
+                formData.append('remark', this.remark)
                 formData.append('need_refund', this.form.need_refund)
                 formData.append('refund_time', this.form.refund_time)
                 if(this.form.done_direct != undefined) {

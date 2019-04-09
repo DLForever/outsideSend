@@ -12,16 +12,22 @@
                 <div class="fnsku_filter">
                     <!-- 开发人员:
                     <el-input style="width:150px" placeholder="请输入开发人员" v-model.trim="search_shopname"></el-input> -->
-                    送测人员:
-                    <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择用户" class="handle-select mr10">
-                        <el-option v-for="item in user_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                        <infinite-loading :on-infinite="onInfinite_user" ref="infiniteLoading"></infinite-loading>
-                    </el-select>
-                    申请人员:
-                    <el-select v-model="apply_user_id" filterable remote :loading="loading2" @visible-change="selectVisble2" :remote-method="remoteMethod2" placeholder="选择用户" class="handle-select mr10">
-                        <el-option v-for="item in user_options2" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                        <infinite-loading :on-infinite="onInfinite_user2" ref="infiniteLoading2"></infinite-loading>
-                    </el-select>
+                    产品名称:
+                    <el-input style="width:150px;" v-model.trim="filter_name" placeholder="请输入产品名称"></el-input>
+                    ASIN:
+                    <el-input style="width:150px" placeholder="请输入ASIN" v-model.trim="search_asin"></el-input>
+                    <template v-if="isRestrict === 'false'">
+                        送测人员:
+                        <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择用户" class="handle-select mr10">
+                            <el-option v-for="item in user_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            <infinite-loading :on-infinite="onInfinite_user" ref="infiniteLoading"></infinite-loading>
+                        </el-select>
+                        申请人员:
+                        <el-select v-model="apply_user_id" filterable remote :loading="loading2" @visible-change="selectVisble2" :remote-method="remoteMethod2" placeholder="选择用户" class="handle-select mr10">
+                            <el-option v-for="item in user_options2" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            <infinite-loading :on-infinite="onInfinite_user2" ref="infiniteLoading2"></infinite-loading>
+                        </el-select>
+                    </template>
                     状态:
                     <el-select v-model="statusSelect" placeholder="请选择" class="handle-select mr10">
                         <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -667,7 +673,9 @@
                 keyword_options: [],
                 table_loading: true,
                 username: '',
-                isRestrict: ''
+                isRestrict: '',
+                filter_name: '',
+                search_asin: ''
             }
         },
         created() {
@@ -727,7 +735,7 @@
                 console.log('skipPage::::::')
                 console.log(this.$store.getters.skipPage)
                 this.table_loading = true
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.status + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -754,7 +762,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -783,6 +791,7 @@
                 this.user_id_filter = ''
                 this.apply_user_id = ''
                 this.statusSelect = ''
+                this.filter_name = '', this.search_asin = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
