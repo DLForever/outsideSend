@@ -150,7 +150,6 @@
 			}
 		},
 		beforeRouteEnter: (to, from, next) => {
-			console.log('Hi,i am comming')
 			next()
 		},
 		created() {

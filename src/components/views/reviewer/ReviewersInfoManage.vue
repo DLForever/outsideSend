@@ -159,7 +159,7 @@
                                         <el-button @click="handleAddRefund(scope.$index, scope.row)" type="text">添加返款</el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
-                                        <el-button @click="handleComRes(scope.$index, scope.row)" type="text">佣金/定金</el-button>
+                                        <el-button @click="handleComRes(scope.$index, scope.row)" type="text">佣金/本金</el-button>
                                     </el-dropdown-item>
                                 </template>
                                 <el-dropdown-item>
@@ -530,15 +530,15 @@
         </el-dialog>
 
         <!-- 佣金/定金 -->
-        <el-dialog title="佣金/定金" :visible.sync="comResVisible" width="60%">
+        <el-dialog title="佣金/本金" :visible.sync="comResVisible" width="60%">
             <el-form ref="form" :model="form" label-width="130px">
                 <el-form-item label="请选择收取的款项" >
                     <el-radio v-model="comRes" label="1">佣金</el-radio>
-                    <el-radio v-model="comRes" label="0">定金</el-radio>
+                    <el-radio v-model="comRes" label="0">本金</el-radio>
                 </el-form-item>
-                <el-form-item v-if="comRes === '1'" label="佣金">
+                <!-- <el-form-item v-if="comRes === '1'" label="佣金">
                     <el-input-number v-model="customer_commission" :min="0"></el-input-number>
-                </el-form-item>
+                </el-form-item> -->
                 <template v-if="comRes != ''">
                     <el-form-item label="图片">
                         <el-upload class="upload-demo" drag action="" :file-list="fileList" :on-remove="handleRemove" :auto-upload="false" :on-change="changeFile" :limit="5" multiple>
@@ -1478,6 +1478,10 @@
                 this.comResVisible = true
             },
             saveComRes() {
+                if (this.comRes === '') {
+                    this.$message.error('请选择收取的款项')
+                    return
+                }
                 this.submitDisabled = true
                 let formData = new FormData()
                 formData.append('remark', this.remark)

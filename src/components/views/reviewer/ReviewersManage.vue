@@ -91,6 +91,9 @@
                                 <el-dropdown-item>
                                     <el-button @click="handleDetails(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp详情</el-button>
                                 </el-dropdown-item>
+                                <el-dropdown-item v-if="isRestrict === 'false'">
+                                    <el-button @click="handleCheck(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp审核</el-button>
+                                </el-dropdown-item>
                                 <el-dropdown-item>
                                     <el-button type="text" @click="toReviewers(scope.$index, scope.row)">查看送测记录
                                         <!-- <router-link to="./reviewersinfomanage"></router-link> -->
@@ -298,7 +301,7 @@
                 <el-date-picker style="margin-right: 10px; margin-bottom: 5px; margin-left: 5px;" v-model="plan_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
                 <el-input-number style="margin-bottom: 5px;" v-model="plan_sum" :min="0" label="数量"></el-input-number>
             </template>
-            <el-button style="float: right;" type="primary" @click="checkSelf">通过审核</el-button>
+            <el-button style="float: right;" type="primary" @click="checkSelf">通过自审</el-button>
             <br><br>
             <el-table :data="detailOptions" border style="width: 100%">
                 <el-table-column prop="asin" label="ASIN" show-overflow-tooltip>
@@ -485,6 +488,24 @@
                 <el-button type="primary" @click="saveaddplan" :disabled="submitDisabled">确 定</el-button>
             </span>
         </el-dialog>
+
+        <!-- 审核提示框 -->
+        <el-dialog title="审核" :visible.sync="checkVisible" width="50%">
+            <el-form label-width="150px">
+                <!-- <el-form-item label="请选择收取的款项">
+                    <el-radio v-model="isagree" label="1">审核通过</el-radio>
+                    <el-radio v-model="isagree" label="0">不通过</el-radio>
+                </el-form-item> -->
+                <el-form-item label="佣金">
+                    <el-input-number v-model="customer_commission" :min="0"></el-input-number>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="checkVisible = false">取 消</el-button>
+                <!-- <el-button type="warning" @click="saveCheck(0)">拒 绝</el-button> -->
+                <el-button type="primary" @click="saveCheck(1)">通 过</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -550,7 +571,7 @@
                 user_options2: [],
                 fileList2: [],
                 statusSelect: '',
-                statusOptions: [{value: 1, label: '已提交申请'}, {value: 2, label: '已通过审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已完成'}, {value: 8, label: '已拒绝'}],
+                statusOptions: [{value: 1, label: '待自审'}, {value: 2, label: '待审核'}, {value: 9, label: '已审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已完成'}, {value: 8, label: '已拒绝'}],
                 picturestList2: [],
                 detailOptions: [],
                 detailOptions2: [],
@@ -675,7 +696,9 @@
                 username: '',
                 isRestrict: '',
                 filter_name: '',
-                search_asin: ''
+                search_asin: '',
+                customer_commission: 0,
+                isagree: ''
             }
         },
         created() {
@@ -808,10 +831,6 @@
             },
             filterTag(value, row) {
                 return row.tag === value;
-            },
-            check(index, row) {
-                this.idx = row.id
-                this.checkVisible = true
             },
             handleEdit(index, row) {
                 this.keywordsArr = []
@@ -1433,11 +1452,38 @@
                     // this.$message.info('已取消拒绝')
                 })
             },
+            handleCheck(index, row) {
+                this.form.id = row.id
+                this.isagree = ''
+                this.customer_commission = 0
+                this.checkVisible = true
+            },
+            saveCheck() {
+                // if (this.isagree === '') {
+                //     this.$message.error('请选择是否通过')
+                //     return
+                // }
+                this.submitDisabled = true
+                let params = {
+                    customer_commission: this.customer_commission,
+                }
+                this.$axios.post('/tasks/' + this.form.id + '/manager_check', params).then((res) => {
+                    if(res.data.code == 200) {
+                        this.$message.success('处理成功！')
+                        this.getData()
+                        this.checkVisible = false
+                    }
+                }).catch((res) => {
+                    console.log(res)
+                }).finally((res) => {
+                    this.submitDisabled = false
+                })
+            },
             getStatusName(status) {
                 if(status == 1) {
-                    return "已提交申请"
+                    return "待自审"
                 } else if(status == 2) {
-                    return "已通过审核"
+                    return "待审核"
                 } else if(status == 3) {
                     return "已删除"
                 }else if(status == 4) {
@@ -1450,6 +1496,8 @@
                     return "已完成"
                 }else if(status == 8) {
                     return "已拒绝"
+                }else if(status == 9) {
+                    return "已审核"
                 }else {
                     return '其他'
                 }
