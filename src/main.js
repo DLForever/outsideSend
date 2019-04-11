@@ -40,7 +40,7 @@ router.beforeEach((to, from, next) => {
 
 var defaultHost = window.location.protocol + "//" + window.location.hostname
 // var defaultHost = 'https://erp.superspeedus.com'
-var defaultHost = 'http://47.74.177.128'
+// var defaultHost = 'http://47.74.177.128'
 axios.defaults.baseURL = defaultHost
 
 

@@ -49,6 +49,13 @@
                             <infinite-loading :on-infinite="onInfinite_user" ref="infiniteLoading"></infinite-loading>
                         </el-select>
                     </template>
+                    <template v-if="search_show[4].applyuserDis">
+                        申请人员:
+                        <el-select v-model="apply_user_id" filterable remote :loading="loading2" @visible-change="selectVisble2" :remote-method="remoteMethod2" placeholder="选择用户" class="handle-select mr10">
+                            <el-option v-for="item in user_options2" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            <infinite-loading :on-infinite="onInfinite_user2" ref="infiniteLoading2"></infinite-loading>
+                        </el-select>
+                    </template>
                     状态:
                     <el-select v-model="statusSelect" placeholder="请选择" class="handle-select mr10">
                         <el-option v-for="item in isRestrict === 'false'?statusOptions:statusOptions2" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -59,6 +66,8 @@
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column fixed prop="asin" label="ASIN" width="130" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="apply_username" label="申请人" width="70" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
                 </el-table-column>
@@ -347,6 +356,8 @@
         <el-dialog title="详情" :visible.sync="detailVisible" width="95%">
             <el-table :data="review_details" border style="width: 100%">
                 <el-table-column fixed prop="asin" label="ASIN" width="130" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column v-if="isRestrict === 'false'" prop="apply_username" label="申请人" width="70" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="plan_date" label="计划日期" width="90">
                 </el-table-column>
@@ -752,11 +763,11 @@
               paytype_options: ['PayPal', '微信'],
               currency_options: ['美金', '英镑', '欧元', '日元'],
               keyword_options: [],
-              search_options: [{value: 'fanDis', label: '粉丝号'}, {value: 'shopDis', label: '店铺名'}, {value: 'userDis', label: '送测人'}, {value: 'dateDis', label: '日期'}],
+              search_options: [{value: 'fanDis', label: '粉丝号'}, {value: 'shopDis', label: '店铺名'}, {value: 'userDis', label: '送测人'}, {value: 'applyuserDis', label: '申请人'}, {value: 'dateDis', label: '日期'}],
               search_options2: [{value: 'shopDis', label: '店铺名'},{value: 'dateDis', label: '日期'}],
               search_selects: [],
-              search_show: [{'dateDis' : false}, {'fanDis' : false}, {'shopDis' : false}, {'userDis' : false}],
-              search_show2: ['dateDis', 'fanDis', 'shopDis', 'userDis'],
+              search_show: [{'dateDis' : false}, {'fanDis' : false}, {'shopDis' : false}, {'userDis' : false}, {'applyuserDis' : false}],
+              search_show2: ['dateDis', 'fanDis', 'shopDis', 'userDis', 'applyuserDis'],
               site_options: ['US', 'UK', 'DE', 'JP'],
               site_filter: '',
               filter_name: '',
@@ -775,6 +786,12 @@
               customer_commission: 0,
               picturestList4: [],
               picturestList5: [],
+              apply_user_id: '',
+              query2: undefined,
+              user_page2: 1,
+              user_total2: 0,
+              loading2: false,
+              user_options2: [],
             }
         },
         created() {
@@ -852,7 +869,7 @@
                 } else {
                     tempStatus = '&status=' + this.statusSelect
                 }
-                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name
+                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -898,7 +915,7 @@
                 } else {
                     tempStatus = '&status=' + this.statusSelect
                 }
-                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name
+                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -949,6 +966,7 @@
                 this.filter_shopname = ''
                 this.filter_refund = false
                 this.filter_commission = false
+                this.apply_user_id = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
@@ -1509,6 +1527,54 @@
                 }).finally((res) => {
                     this.submitDisabled = false
                 })
+            },
+            onInfinite_user2(obj) {
+                if((this.user_page2 * 20) < this.user_total2) {
+                    this.user_page2 += 1
+                    // this.getUsers(obj.loaded)
+                    this.remoteMethod2(this.query2,obj.loaded)
+                } else {
+                    obj.complete()
+                }
+            },
+            selectVisble2(visible) {
+                if(visible) {
+                    this.query2 = undefined
+                    this.remoteMethod2("")
+                }
+            },
+            remoteMethod2(query, callback = undefined) {
+                if(query != "" || this.query2 != "" || callback) {
+                    let reload = false
+                    if(this.query2 != query) {
+                        this.loading2 = true
+                        this.user_page2 = 1
+                        this.query2 = query
+                        reload = true
+                        if(this.$refs.infiniteLoading2.isComplete) {
+                            this.$refs.infiniteLoading2.stateChanger.reset()
+                        }
+                    }
+                    this.$axios.get("/users/?page=" + this.user_page2 + '&name=' + query.trim()
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.loading2 = false
+                            //                          this.options = res.data.data
+                            if(reload) {
+                                let tempOptions = []
+                                this.user_options2 = tempOptions.concat(res.data.data)
+                            } else {
+                                this.user_options2 = this.user_options2.concat(res.data.data)
+                            }
+                            this.user_total2 = res.data.count
+                            if(callback) {
+                                callback()
+                            }
+                        }
+                    }).catch((res) => {
+                        console.log('失败')
+                    })
+                }
             },
             getStatusName(status, done_direct) {
                 if(status == 1) {

@@ -53,6 +53,8 @@
                 </el-table-column>
                 <el-table-column prop="price" label="价格" width="70">
                 </el-table-column>
+                <el-table-column prop="customer_commission" label="佣金" width="70">
+                </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="url" label="url" show-overflow-tooltip>
@@ -221,7 +223,7 @@
                     <!-- <el-input v-model="addReviewerForm.asin"></el-input> -->
                     <span>{{addReviewerForm.asin}}</span>
                 </el-form-item>
-                <el-form-item label="关键词" prop="keyword">
+                <el-form-item label="关键词">
                     <el-select v-model="addReviewerForm.keyword">
                         <el-option v-for="item in keyword_options" :key="item" :label="item" :value="item"></el-option>
                     </el-select>
@@ -316,6 +318,8 @@
                 </el-table-column>
                 <el-table-column prop="price" label="价格" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column prop="customer_commission" label="佣金" width="70">
+                </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="url" label="url" show-overflow-tooltip>
@@ -346,7 +350,7 @@
                 </el-table-column>
             </el-table>
             <br>
-            <el-table :data="detailOptions3" border style="width: 100%">
+            <el-table v-if="detailOptions3.length != 0" :data="detailOptions3" border style="width: 100%">
                 <el-table-column prop="keywords" label="关键词" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="keyword_index" label="关键词位置" show-overflow-tooltip>
@@ -947,11 +951,15 @@
                 this.username = ''
                 this.username = row.username
                 this.detailOptions3 = []
-                let tempkeywords = row.keywords.split(',')
-                let tempkeywordindex = row.keyword_index.split(',')
-                tempkeywords.forEach((data, index) => {
-                    this.detailOptions3.push({keywords: data, keyword_index: tempkeywordindex[index]})
-                })
+                if (row.keywords != '' || row.keyword_index != '') {
+                    let tempkeywords = row.keywords.split(',')
+                    let tempkeywordindex = row.keyword_index.split(',')
+                    tempkeywords.forEach((data, index) => {
+                        this.detailOptions3.push({keywords: data, keyword_index: tempkeywordindex[index]})
+                    })
+                } else {
+                    this.detailOptions3 = []
+                }
                 this.keyword_options = row.keywords.split(',')
                 this.task_id = row.id
                 this.addReviewerForm.asin = row.asin
