@@ -9,6 +9,7 @@
         <div class="container">
             <div class="handle-box">
                 <template v-if="isRestrict === 'false'">
+                    <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
                     <el-button  type="primary" @click="exportReviewers">导出记录</el-button>
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template>
@@ -76,13 +77,13 @@
                     </el-table-column>
                     <el-table-column prop="keyword" label="关键词" show-overflow-tooltip>
                     </el-table-column>
-                    <el-table-column prop="pay_type" label="支付类型" show-overflow-tooltip>
+                    <el-table-column prop="pay_type" label="支付类型" width="70">
                     </el-table-column>
-                    <el-table-column prop="currency" label="币种" show-overflow-tooltip>
+                    <el-table-column prop="currency" label="币种" width="45">
+                    </el-table-column>
+                    <el-table-column key="3" prop="pay_price" label="本金" width="65">
                     </el-table-column>
                     <template v-if="filter_refund">
-                        <el-table-column key="3" prop="pay_price" label="支付价格"  show-overflow-tooltip>
-                        </el-table-column>
                         <el-table-column key="4" prop="charge" label="手续费" show-overflow-tooltip>
                         </el-table-column>
                         <el-table-column key="5" prop="sumPrice" label="总费用" show-overflow-tooltip>
@@ -103,7 +104,7 @@
                         </template>
                     </el-table-column>
                 </template>
-                <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="150">
+                <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="140">
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <el-table-column prop="refund_time" label="返款时间" :formatter="formatter_refund_time" width="140">
@@ -113,6 +114,18 @@
                     <template slot-scope="scope">
                         <el-tag v-if="isRestrict === 'false'" :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status, scope.row.done_direct)}}</el-tag>
                         <el-tag v-else :type="scope.row.status | statusFilterRestrict">{{getStatusNameReStrict(scope.row.status, scope.row.done_direct)}}</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="is_pay_commission" label="佣金" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.is_pay_commission === false" type="warning">未收</el-tag>
+                        <el-tag v-else-if="scope.row.is_pay_commission === true" type="success">已收</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="is_pay_capital" label="定金" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.is_pay_capital === false" type="warning">未收</el-tag>
+                        <el-tag v-else-if="scope.row.is_pay_capital === true" type="success">已收</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column prop="email" label="截图" width="120">
@@ -167,9 +180,9 @@
                                     <el-dropdown-item>
                                         <el-button @click="handleAddRefund(scope.$index, scope.row)" type="text">添加返款</el-button>
                                     </el-dropdown-item>
-                                    <el-dropdown-item>
+                                    <!-- <el-dropdown-item>
                                         <el-button @click="handleComRes(scope.$index, scope.row)" type="text">佣金/本金</el-button>
-                                    </el-dropdown-item>
+                                    </el-dropdown-item> -->
                                 </template>
                                 <el-dropdown-item>
                                     <el-button @click="handleFeedback(scope.$index, scope.row)" type="text">问题反馈</el-button>
@@ -248,7 +261,7 @@
                 <el-form-item label="ASIN" prop="asin">
                     <span>{{addReviewerForm.asin}}</span>
                 </el-form-item>
-                <el-form-item label="关键词" prop="keyword">
+                <el-form-item label="关键词">
                     <span>{{addReviewerForm.keyword}}</span>
                     <!-- <el-input v-model="addReviewerForm.keyword"></el-input> -->
                     <!-- <el-select v-model="addReviewerForm.keyword">
@@ -419,6 +432,18 @@
                         <el-tag :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status)}}</el-tag>
                     </template>
                 </el-table-column>
+                <el-table-column prop="is_pay_commission" label="佣金" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.is_pay_commission === false" type="warning">未收</el-tag>
+                        <el-tag v-else-if="scope.row.is_pay_commission === true" type="success">已收</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="is_pay_capital" label="定金" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.is_pay_capital === false" type="warning">未收</el-tag>
+                        <el-tag v-else-if="scope.row.is_pay_capital === true" type="success">已收</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="feedback" label="反馈" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
@@ -460,7 +485,7 @@
                 </el-carousel-item>
             </el-carousel>
             <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList5.length != 0">
-                <span class="demonstration">定金截图</span>
+                <span class="demonstration">定金/佣金截图</span>
                 <el-carousel-item v-for="(item, index) in picturestList5" :key="index">
                     <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
                 </el-carousel-item>
@@ -542,25 +567,44 @@
 
         <!-- 佣金/定金 -->
         <el-dialog title="佣金/本金" :visible.sync="comResVisible" width="60%">
-            <el-form ref="form" :model="form" label-width="130px">
-                <el-form-item label="请选择收取的款项" >
+            <el-table :data="pay_details" border style="width: 100%">
+                <el-table-column fixed prop="apply_username" label="申请人" width="130" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="plan_date" label="计划日期" width="90">
+                </el-table-column>
+                <el-table-column prop="keyword" label="关键词" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="order_number" label="佣金" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-checkbox v-model="scope.row.is_pay_commission" :disabled="scope.row.is_commission">是否收取</el-checkbox>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="order_number" label="定金" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-checkbox v-model="scope.row.is_pay_capital" :disabled="scope.row.is_capital">是否收取</el-checkbox>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <br>
+            <el-form ref="form" :model="form" label-width="50px">
+                <!-- <el-form-item label="请选择收取的款项" >
                     <el-radio v-model="comRes" label="1">佣金</el-radio>
                     <el-radio v-model="comRes" label="0">本金</el-radio>
-                </el-form-item>
+                </el-form-item> -->
                 <!-- <el-form-item v-if="comRes === '1'" label="佣金">
                     <el-input-number v-model="customer_commission" :min="0"></el-input-number>
                 </el-form-item> -->
-                <template v-if="comRes != ''">
-                    <el-form-item label="图片">
-                        <el-upload class="upload-demo" drag action="" :file-list="fileList" :on-remove="handleRemove" :auto-upload="false" :on-change="changeFile" :limit="5" multiple>
-                            <i class="el-icon-upload"></i>
-                            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                        </el-upload>
-                    </el-form-item>
-                    <el-form-item label="备注">
-                        <el-input v-model="remark"></el-input>
-                    </el-form-item>
-                </template>
+                <el-form-item label="图片">
+                    <el-upload class="upload-demo" drag action="" :file-list="fileList" :on-remove="handleRemove" :auto-upload="false" :on-change="changeFile" :limit="5" multiple>
+                        <i class="el-icon-upload"></i>
+                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                    </el-upload>
+                </el-form-item>
+                <el-form-item label="备注">
+                    <el-input v-model="remark"></el-input>
+                </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="comResVisible = false">取 消</el-button>
@@ -792,6 +836,7 @@
               user_total2: 0,
               loading2: false,
               user_options2: [],
+              pay_details: []
             }
         },
         created() {
@@ -884,6 +929,9 @@
                             } else if (this.statusSelect == 7) {
                                 data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission)).toPrecision(12))
                             }
+                            data.pay_records.forEach((data2) => {
+                                data.pictures.push(data2.pictures[0])
+                            })
                             data.img_count = data.pictures.length
                         })
                         this.tableData = res.data.data
@@ -930,6 +978,9 @@
                             } else if (this.statusSelect == 7) {
                                 data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission)).toPrecision(12))
                             }
+                            data.pay_records.forEach((data2) => {
+                                data.pictures.push(data2.pictures[0])
+                            })
                             data.img_count = data.pictures.length
                         })
                         if(this.statusSelect == 2) {
@@ -1490,33 +1541,65 @@
                     this.submitDisabled = false
                 })
             },
-            handleComRes(index, row) {
+            handleComRes() {
+                this.pay_details = []
                 this.comRes = '', this.fileList = [], this.remark = ''
-                this.form.id = row.id
+                if(this.multipleSelection.length == 0) {
+                    this.$message.error('请至少选择一条数据')
+                    return
+                }
+                this.pay_details = JSON.parse(JSON.stringify(this.multipleSelection)) // 深拷贝数组
+                this.pay_details.forEach((data) => {
+                    if (data.is_pay_commission === true) {
+                        data.is_commission = true
+                    }
+                    if (data.is_pay_capital=== true) {
+                        data.is_capital = true
+                    }
+                })
                 this.comResVisible = true
             },
             saveComRes() {
-                if (this.comRes === '') {
-                    this.$message.error('请选择收取的款项')
-                    return
-                }
+                console.log(this.pay_details)
                 this.submitDisabled = true
                 let formData = new FormData()
                 formData.append('remark', this.remark)
-                let tempUrl = ''
-                if (this.comRes === '1') {
-                    tempUrl = 'done_pay_commission'
-                    formData.append('customer_commission', this.customer_commission)
-                    this.fileList.forEach((item) => {
-                        formData.append('picture_commission[]', item.raw)
-                    })
-                } else if (this.comRes === '0') {
-                    tempUrl = 'done_pay'
-                    this.fileList.forEach((item) => {
-                        formData.append('picture_capital[]', item.raw)
-                    })
-                }
-                this.$axios.post('/task_records/' + this.form.id + '/' + tempUrl, formData).then((res) => {
+                this.multipleSelection.forEach((data) => {
+                    formData.append('ids[]', data.id)
+                })
+                this.pay_details.forEach((data) => {
+                    if (data.is_pay_commission === false && data.is_commission != true) {
+                        formData.append('commission[]', 0)
+                    } else if(data.is_pay_commission === true && data.is_commission != true) {
+                        formData.append('commission[]', 1)
+                    } else {
+                        formData.append('commission[]', 0)
+                    }
+                    if (data.is_pay_capital === false && data.is_capital != true) {
+                        formData.append('capital[]', 0)
+                    } else if(data.is_pay_capital === true && data.is_capital != true) {
+                        formData.append('capital[]', 1)
+                    } else {
+                        formData.append('capital[]', 0)
+                    }
+                })
+                this.fileList.forEach((item) => {
+                    formData.append('picture_capital[]', item.raw)
+                })
+                // let tempUrl = ''
+                // if (this.comRes === '1') {
+                //     tempUrl = 'done_pay_commission'
+                //     formData.append('customer_commission', this.customer_commission)
+                //     this.fileList.forEach((item) => {
+                //         formData.append('picture_commission[]', item.raw)
+                //     })
+                // } else if (this.comRes === '0') {
+                //     tempUrl = 'done_pay'
+                //     this.fileList.forEach((item) => {
+                //         formData.append('picture_capital[]', item.raw)
+                //     })
+                // }
+                this.$axios.post('/task_records/done_pay', formData).then((res) => {
                     if(res.data.code == 200) {
                         this.$message.success('完成！')
                         this.getData()

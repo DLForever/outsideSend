@@ -20,13 +20,13 @@
 								</el-select>
 							</el-form-item>
 							<el-form-item label="产品名称" prop="name">
-								<el-input v-model.trim="form.name"></el-input>
+								<el-input v-model="form.name"></el-input>
 							</el-form-item>
 							<el-form-item label="价格" prop="price">
 								<el-input v-model.trim="form.price"></el-input>
 							</el-form-item>
 							<el-form-item label="店铺" prop="shopname">
-								<el-input v-model.trim="form.shopname"></el-input>
+								<el-input v-model="form.shopname"></el-input>
 							</el-form-item>
 							<el-form-item label="产品链接" prop="website">
 								<el-input v-model.trim="form.website" placeholder="需加入https://或http://前缀"></el-input>
@@ -35,11 +35,11 @@
 								<table >
 									<tbody v-for="(p,index) in keywordsArr">
 										<td>
-											<el-input style="margin-bottom: 5px;" v-model.trim="p.keywords" placeholder="请输入关键词"></el-input>
+											<el-input style="margin-bottom: 5px;" v-model="p.keywords" placeholder="请输入关键词"></el-input>
 										</td>
 										&nbsp&nbsp
 										<td>
-											<el-input style="margin-bottom: 5px;" v-model.trim="p.keyword_index" placeholder="请输入关键词位置"></el-input>
+											<el-input style="margin-bottom: 5px;" v-model="p.keyword_index" placeholder="请输入关键词位置"></el-input>
 										</td>
 										<div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
 											<i style="margin-right: 5px;  font-size: 15px;cursor: pointer;" class="el-icon-circle-plus" @click="keywordsAdd(index)"></i>
@@ -65,7 +65,7 @@
 								</table>
 							</el-form-item>
 							<el-form-item label="备注">
-								<el-input v-model.trim="form.remark"></el-input>
+								<el-input v-model="form.remark"></el-input>
 							</el-form-item>
 							<el-form-item label="产品广告位图片">
 								<el-upload class="upload-demo" drag action="" :file-list="fileList" :on-remove="handleRemove" :auto-upload="false" :on-change="changeFile" :limit="5" multiple>

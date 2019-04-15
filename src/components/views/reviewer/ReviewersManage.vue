@@ -106,9 +106,14 @@
                                         <!-- <router-link to="./reviewersinfomanage"></router-link> -->
                                     </el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item v-if="isRestrict === 'false'">
-                                    <el-button @click="handleRefuse(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp拒绝</el-button>
-                                </el-dropdown-item>
+                                <template v-if="isRestrict === 'false'">
+                                    <el-dropdown-item>
+                                        <el-button @click="handleRefuse(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp拒绝</el-button>
+                                    </el-dropdown-item>
+                                    <el-dropdown-item>
+                                        <el-button @click="handlerecover(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp恢复</el-button>
+                                    </el-dropdown-item>
+                                </template>
                                 <!-- <el-dropdown-item>
                                     <el-button @click="showPictures(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp图片</el-button>
                                 </el-dropdown-item> -->
@@ -1064,6 +1069,7 @@
                             if(res.data.code == 200) {
                                 this.$message.success('提交成功！')
                                 this.$refs[formName].resetFields()
+                                this.addReviewerForm.keyword = ''
                                 this.getData()
                                 this.addreviewerVisible = false
                                 this.detailVisible = false
@@ -1485,6 +1491,24 @@
                     console.log(res)
                 }).finally((res) => {
                     this.submitDisabled = false
+                })
+            },
+            handlerecover(index, row) {
+                this.$confirm('恢复该任务, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'info'
+                }).then(() => {
+                    this.$axios.post('/tasks/' + row.id + '/recover_task'
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.getData()
+                            this.$message.success("恢复成功")
+                        }
+                    }).catch(() => {
+                        
+                    })
+                }).catch(() => {
                 })
             },
             getStatusName(status) {
