@@ -67,6 +67,11 @@ export default new Router({
                     meta: { title: '粉丝管理' }
                 },
                 {
+                    path: '/paymanage',
+                    component: resolve => require(['../components/views/payRecord/payRecord.vue'], resolve),
+                    meta: { title: '支付记录管理' }
+                },
+                {
                     path: '/notifications',
                     component: resolve => require(['../components/views/Tabs.vue'], resolve),
                     meta: { title: '未读消息' }

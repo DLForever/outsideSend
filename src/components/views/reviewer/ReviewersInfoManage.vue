@@ -14,6 +14,8 @@
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template>
                 <div style="float: right;">
+                    <el-checkbox v-model="is_pay_capital" label="已收本金" border></el-checkbox>
+                    <el-checkbox v-model="is_pay_commission" label="已收佣金" border></el-checkbox>
                     <template v-if="search_show[0].dateDis">
                         <!-- 日期: -->
                         <el-date-picker class="mr10" v-model="date_filter" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions2" unlink-panels value-format="yyyy-MM-dd"></el-date-picker>
@@ -71,6 +73,8 @@
                 <el-table-column prop="apply_username" label="申请人" width="70" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="charge" label="手续费" show-overflow-tooltip>
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <el-table-column  prop="plan_date" label="计划日期" width="90">
@@ -836,7 +840,9 @@
               user_total2: 0,
               loading2: false,
               user_options2: [],
-              pay_details: []
+              pay_details: [],
+              is_pay_commission: '',
+              is_pay_capital: '',
             }
         },
         created() {
@@ -914,7 +920,15 @@
                 } else {
                     tempStatus = '&status=' + this.statusSelect
                 }
-                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id
+                let temp_commission = ''
+                let temp_capital = ''
+                if (this.is_pay_commission === true) {
+                    temp_commission = 1
+                }
+                if (this.is_pay_capital === true) {
+                    temp_capital = 1
+                }
+                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id + '&is_pay_capital=' + temp_capital + '&is_pay_commission=' + temp_commission
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -963,7 +977,15 @@
                 } else {
                     tempStatus = '&status=' + this.statusSelect
                 }
-                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id
+                let temp_commission = ''
+                let temp_capital = ''
+                if (this.is_pay_commission === true) {
+                    temp_commission = 1
+                }
+                if (this.is_pay_capital === true) {
+                    temp_capital = 1
+                }
+                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id + '&is_pay_capital=' + temp_capital + '&is_pay_commission=' + temp_commission
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1018,6 +1040,8 @@
                 this.filter_refund = false
                 this.filter_commission = false
                 this.apply_user_id = ''
+                this.is_pay_commission = ''
+                this.is_pay_capital = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
@@ -1141,8 +1165,8 @@
                 this.delVisible = false;
             },
             handleDetails(index, row) {
-                this.detailVisible = true
                 this.review_details = [row]
+                this.detailVisible = true
                 // this.$axios.get('/suppliers/' + row.id, {
                 //     headers: {
                 //         'Authorization': localStorage.getItem('token')

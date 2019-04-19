@@ -87,6 +87,15 @@
                             title: '粉丝管理'
                         }]
                     },
+                    {
+                        icon: 'el-icon-lx-recharge',
+                        index: '3',
+                        title: '支付管理',
+                        subs: [{
+                            index: 'paymanage',
+                            title: '支付记录管理'
+                        }]
+                    },
                     // {
                     //     icon: 'el-icon-lx-copy',
                     //     index: 'tabs',
@@ -207,6 +216,15 @@
                         {
                             index: 'reviewerschangemanage',
                             title: '任务变更管理'
+                        }]
+                    },
+                    {
+                        icon: 'el-icon-lx-recharge',
+                        index: '3',
+                        title: '支付管理',
+                        subs: [{
+                            index: 'paymanage',
+                            title: '支付记录管理'
                         }]
                     },
                 ]
