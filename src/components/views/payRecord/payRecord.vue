@@ -54,12 +54,14 @@
                                 <!-- <el-dropdown-item>
                                     <el-button @click="handleAgree(scope.$index, scope.row)" type="text">处理</el-button>
                                 </el-dropdown-item> -->
-                                <el-dropdown-item>
-                                    <el-button @click="handleEdit(scope.$index, scope.row)" type="text">编辑</el-button>
-                                </el-dropdown-item>
-                                <el-dropdown-item>
-                                    <el-button @click="handleDelete(scope.$index, scope.row)" type="text">删除</el-button>
-                                </el-dropdown-item>
+                                <template v-if="isRestrict === 'false'">
+                                    <el-dropdown-item>
+                                        <el-button @click="handleEdit(scope.$index, scope.row)" type="text">编辑</el-button>
+                                    </el-dropdown-item>
+                                    <el-dropdown-item>
+                                        <el-button @click="handleDelete(scope.$index, scope.row)" type="text">删除</el-button>
+                                    </el-dropdown-item>
+                                </template>
                             </el-dropdown-menu>
                         </el-dropdown>
                     </template>
@@ -73,8 +75,23 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="50%">
+        <el-dialog title="编辑" :visible.sync="editVisible" width="70%">
             <el-table :data="edit_details" border style="width: 100%">
+                <el-table-column prop="task_record.order_number" label="订单号" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-select v-if="scope.row.is_add === true" v-model="scope.row.task_record_id" filterable remote :loading="loading3" @visible-change="selectVisble3" :remote-method="remoteMethod3" @change="evalOrder(scope.row.task_record_id, scope.$index)" placeholder="选择订单" clearable class="handle-select mr10">
+                            <el-option v-for="item in order_number_options" :key="item.id" :label="item.order_number" :value="item.id"></el-option>
+                            <infinite-loading :on-infinite="onInfinite_order_number" ref="infiniteLoading3"></infinite-loading>
+                        </el-select>
+                        <span v-else>{{scope.row.task_record.order_number}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="task_record.asin" label="ASIN" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="task_record.pay_price" label="支付价格" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="task_record.charge" label="手续费" show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="order_number" label="佣金" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <el-checkbox v-model="scope.row.commission">是否收取</el-checkbox>
@@ -85,16 +102,22 @@
                         <el-checkbox v-model="scope.row.capital">是否收取</el-checkbox>
                     </template>
                 </el-table-column>
-                <el-table-column prop="sum" label="收款截图" width="200">
+                <el-table-column label="操作">
                     <template slot-scope="scope">
-                        <el-upload id="upload-pur" action="" :file-list="scope.row.pictures" :on-remove="(res, file)=>{return handleRemovePurchase(res, file, scope.$index)}" :auto-upload="false" :on-change="(res, file)=>{return changeFilePurchase(res, file, scope.$index)}" multiple>
-                            <el-button slot="trigger" size="small" type="primary">选取好评卡图片</el-button>
-                        </el-upload>
+                        <el-button type="danger" icon="el-icon-delete" @click="deleteEdit_Details(scope.$index)" :disabled="edit_details.length === 1">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <br>
-            <el-form ref="form" :model="form" label-width="50px">
+            <div class="add_pay_record">
+                <el-button type="primary" icon="el-icon-plus" @click="addPayRecord">新增</el-button>
+            </div>
+            <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="收款图片">
+                    <el-upload class="upload-demo" drag action="" :file-list="fileList" :on-remove="handleRemove" :auto-upload="false" :on-change="changeFile" :limit="5" multiple>
+                        <i class="el-icon-upload"></i>
+                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                    </el-upload>
+                </el-form-item>
                 <el-form-item label="备注">
                     <el-input v-model="remark"></el-input>
                 </el-form-item>
@@ -126,19 +149,19 @@
                 </el-table-column>
                 <!-- <el-table-column v-if="isRestrict === 'false'" prop="apply_username" label="申请人" width="70" show-overflow-tooltip>
                 </el-table-column> -->
-                <el-table-column prop="plan_date" label="计划日期" width="90">
+                <el-table-column prop="plan_date" label="计划日期">
                 </el-table-column>
                 <el-table-column prop="keyword" label="关键词" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="commission2" label="佣金" width="65">
+                <el-table-column prop="commission2" label="佣金">
                     <template slot-scope="scope">
                         <el-tag v-if="scope.row.commission2 === false" type="warning">未收</el-tag>
                         <el-tag v-else-if="scope.row.commission2 === true" type="success">已收</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="capital2" label="定金" width="65">
+                <el-table-column prop="capital2" label="定金">
                     <template slot-scope="scope">
                         <el-tag v-if="scope.row.capital2 === false" type="warning">未收</el-tag>
                         <el-tag v-else-if="scope.row.capital2 === true" type="success">已收</el-tag>
@@ -149,11 +172,9 @@
                     </el-table-column>
                     <el-table-column prop="currency" label="币种" >
                     </el-table-column>
-                    <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="150">
-                    </el-table-column>
-                    <el-table-column prop="pay_price" label="支付价格" >
-                    </el-table-column>
                 </template>
+                <el-table-column prop="charge" label="手续费" show-overflow-tooltip>
+                </el-table-column>
                 <!-- <el-table-column prop="email" label="截图" width="120">
                     <template slot-scope="scope">
                         <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
@@ -175,8 +196,6 @@
                         <el-tag v-else :type="scope.row.status | statusFilterRestrict">{{getStatusNameReStrict(scope.row.status, scope.row.done_direct)}}</el-tag>
                     </template>
                 </el-table-column> -->
-                <el-table-column prop="feedback" label="反馈" show-overflow-tooltip>
-                </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="140">
@@ -269,7 +288,13 @@
                 isProcessOptions: [{label: '已处理', value: 1}, {label: '未处理', value: 0}],
                 isRestrict: '',
                 pay_details: [],
-                edit_details: []
+                edit_details: [],
+                loading3: false,
+                order_number_options: [],
+                order_number_id: '',
+                query3: undefined,
+                order_number_page: 1,
+                order_number_total: 0,
             }
         },
         created() {
@@ -277,7 +302,8 @@
             this.getData();
         },
         watch: {
-        	"$route": "getData"
+        	"$route": "getData",
+            // "order_number", ""
         },
         filters: {
             //类型转换
@@ -410,18 +436,12 @@
                 this.checkVisible = true
             },
             handleEdit(index, row) {
-                this.edit_details = [], this.remark = ''
+                this.edit_details = [], this.remark = '', this.fileList = []
                 this.form.id = row.id
                 this.edit_details = JSON.parse(JSON.stringify(row.join_record_pays)) // 深拷贝数组
                 this.edit_details.forEach((data) => {
-                    data.pictures = []
-                    // if (data.commission === true) {
-                    //     data.is_commission = true
-                    // }
-                    // if (data.capital=== true) {
-                    //     data.is_capital = true
-                    // }
                 })
+                console.log(this.edit_details)
                 this.editVisible = true;
             },
             delAll() {
@@ -448,7 +468,9 @@
                 let formData = new FormData()
                 formData.append('remark', this.remark)
                 this.edit_details.forEach((data) => {
-                    formData.append('pay_record[][join_id]', data.id)
+                    if (data.is_add != true) {
+                        formData.append('pay_record[][join_id]', data.id)
+                    }
                     formData.append('pay_record[][task_record_id]', data.task_record_id)
                     if (data.commission === true) {
                         formData.append('pay_record[][commission]', 1)
@@ -460,9 +482,9 @@
                     } else {
                         formData.append('pay_record[][capital]', 0)
                     }
-                    data.pictures.forEach((data2) => {
-                        formData.append('pictures[]', data2.raw)
-                    })
+                })
+                this.fileList.forEach((data2) => {
+                    formData.append('pictures[]', data2.raw)
                 })
                 this.$axios.patch('/pay_records/' + this.form.id, formData).then((res) => {
                     if(res.data.code == 200) {
@@ -672,6 +694,78 @@
             changeFilePurchase(res, file, index) {
                 this.edit_details[index].pictures.push(res)
             },
+            deleteEdit_Details(index) {
+                this.edit_details.splice(index, 1)
+            },
+            addPayRecord() {
+                let tempArr = JSON.parse(JSON.stringify(this.edit_details[this.edit_details.length-1]))
+                tempArr.task_record_id = '', tempArr.capital = '', tempArr.commission = '', tempArr.is_add = true
+                tempArr.task_record.asin = '', tempArr.task_record.order_number = '', tempArr.task_record.pay_price = '', tempArr.task_record.charge = ''
+                this.edit_details.push(tempArr)
+            },
+            onInfinite_order_number(obj, index) {
+                console.log(index)
+                if((this.order_number_page * 20) < this.order_number_total) {
+                    this.order_number_page += 1
+                    // this.getUsers(obj.loaded)
+                    this.remoteMethod3(this.query3,obj.loaded)
+                } else {
+                    obj.complete()
+                }
+            },
+            selectVisble3(visible) {
+                if(visible) {
+                    this.query3 = undefined
+                    this.remoteMethod3("")
+                }
+            },
+            remoteMethod3(query, callback = undefined) {
+                if(query != "" || this.query3 != "" || callback) {
+                    let reload = false
+                    if(this.query3 != query) {
+                        this.loading3 = true
+                        this.order_number_page = 1
+                        this.query3 = query
+                        reload = true
+                        if(this.$refs.infiniteLoading3.isComplete) {
+                            this.$refs.infiniteLoading3.stateChanger.reset()
+                        }
+                    }
+                    this.$axios.get("/task_records/?page=" + this.order_number_page + '&number=' + query.trim()
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.loading3 = false
+                            //                          this.options = res.data.data
+                            if(reload) {
+                                let tempOptions = []
+                                this.order_number_options = tempOptions.concat(res.data.data)
+                            } else {
+                                this.order_number_options = this.order_number_options.concat(res.data.data)
+                            }
+                            this.order_number_total = res.data.count
+                            if(callback) {
+                                callback()
+                            }
+                        }
+                    }).catch((res) => {
+                        console.log('失败')
+                    })
+                }
+            },
+            evalOrder(id,index) {
+                let temp_data = ''
+                this.order_number_options.some((data) => {
+                    if (data.id === id) {
+                        temp_data = data
+                        return true
+                    }
+                })
+                let temp_data2 =  this.edit_details[index].task_record
+                temp_data2.asin = temp_data.asin
+                temp_data2.pay_price = temp_data.pay_price
+                temp_data2.charge = temp_data.charge
+                // console.log(index)
+            },
             getStatusName(status) {
                 if(status == 1) {
                     return "正在进行中"
@@ -781,11 +875,16 @@
         border-radius: 6px;
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
-        width: 120px;
+        width: 85px;
         height: 32px;
         text-align: center;
         cursor: pointer;
         position: relative;
         overflow: hidden;
+    }
+    .add_pay_record {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        text-align: center;
     }
 </style>

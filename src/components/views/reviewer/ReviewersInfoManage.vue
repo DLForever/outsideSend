@@ -83,9 +83,9 @@
                     </el-table-column>
                     <el-table-column prop="currency" label="币种" width="45">
                     </el-table-column>
-                    <el-table-column key="3" prop="pay_price" label="本金" width="65">
-                    </el-table-column>
                 </template>
+                <el-table-column key="3" prop="pay_price" label="本金" width="65">
+                </el-table-column>
                 <el-table-column v-if="!filter_commission" key="6" prop="charge" label="手续费" show-overflow-tooltip>
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
