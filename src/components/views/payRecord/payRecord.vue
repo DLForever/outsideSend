@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 支付管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-recharge"></i> 支付管理</el-breadcrumb-item>
                 <el-breadcrumb-item>支付记录管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -54,9 +54,9 @@
                                 <!-- <el-dropdown-item>
                                     <el-button @click="handleAgree(scope.$index, scope.row)" type="text">处理</el-button>
                                 </el-dropdown-item> -->
-                                <!-- <el-dropdown-item>
+                                <el-dropdown-item>
                                     <el-button @click="handleEdit(scope.$index, scope.row)" type="text">编辑</el-button>
-                                </el-dropdown-item> -->
+                                </el-dropdown-item>
                                 <el-dropdown-item>
                                     <el-button @click="handleDelete(scope.$index, scope.row)" type="text">删除</el-button>
                                 </el-dropdown-item>
@@ -74,12 +74,29 @@
 
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" :visible.sync="editVisible" width="50%">
-            <el-form ref="form" :model="form" label-width="150px">
-                <el-form-item label="facebook url">
-                    <el-input v-model="form.facebook_url"></el-input>
-                </el-form-item>
-                <el-form-item label="亚马逊profile url">
-                    <el-input v-model="form.profile_url"></el-input>
+            <el-table :data="edit_details" border style="width: 100%">
+                <el-table-column prop="order_number" label="佣金" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-checkbox v-model="scope.row.commission">是否收取</el-checkbox>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="order_number" label="定金" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-checkbox v-model="scope.row.capital">是否收取</el-checkbox>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="sum" label="收款截图" width="200">
+                    <template slot-scope="scope">
+                        <el-upload id="upload-pur" action="" :file-list="scope.row.pictures" :on-remove="(res, file)=>{return handleRemovePurchase(res, file, scope.$index)}" :auto-upload="false" :on-change="(res, file)=>{return changeFilePurchase(res, file, scope.$index)}" multiple>
+                            <el-button slot="trigger" size="small" type="primary">选取好评卡图片</el-button>
+                        </el-upload>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <br>
+            <el-form ref="form" :model="form" label-width="50px">
+                <el-form-item label="备注">
+                    <el-input v-model="remark"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -107,13 +124,25 @@
             <el-table :data="pay_details" border style="width: 100%">
                 <el-table-column fixed prop="asin" label="ASIN" width="130" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column v-if="isRestrict === 'false'" prop="apply_username" label="申请人" width="70" show-overflow-tooltip>
-                </el-table-column>
+                <!-- <el-table-column v-if="isRestrict === 'false'" prop="apply_username" label="申请人" width="70" show-overflow-tooltip>
+                </el-table-column> -->
                 <el-table-column prop="plan_date" label="计划日期" width="90">
                 </el-table-column>
                 <el-table-column prop="keyword" label="关键词" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="commission2" label="佣金" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.commission2 === false" type="warning">未收</el-tag>
+                        <el-tag v-else-if="scope.row.commission2 === true" type="success">已收</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="capital2" label="定金" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.capital2 === false" type="warning">未收</el-tag>
+                        <el-tag v-else-if="scope.row.capital2 === true" type="success">已收</el-tag>
+                    </template>
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <el-table-column prop="pay_type" label="支付类型" show-overflow-tooltip>
@@ -123,37 +152,6 @@
                     <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="150">
                     </el-table-column>
                     <el-table-column prop="pay_price" label="支付价格" >
-                    </el-table-column>
-                </template>
-                <el-table-column v-if="isRestrict === 'false'" prop="commission_charge" label="佣金手续费" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="charge" label="手续费" show-overflow-tooltip>
-                </el-table-column>
-                <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="sumPrice2" label="总费用" show-overflow-tooltip>
-                        <template slot-scope="scope">
-                            <el-button type="warning">{{scope.row.sumPrice2}}</el-button>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="need_refund2" label="是否需要返款" width="95">
-                        <template slot-scope="scope">
-                            <el-tag type="warning" v-if="scope.row.need_refund2 == '是'">是</el-tag>
-                            <el-tag type="success" v-else-if="scope.row.need_refund2 == '否'">否</el-tag>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="refund_time" label="返款时间" :formatter="formatter_refund_time" width="140">
-                    </el-table-column>
-                    <el-table-column prop="paypal_account" label="paypal账号" width="85">
-                    </el-table-column>
-                    <el-table-column prop="profile_url" label="亚马逊profile url" width="113">
-                        <template slot-scope="scope">
-                            <a v-if="scope.row.profile_url != null && scope.row.profile_url != '' && scope.row.profile_url != 'null'" :href="scope.row.profile_url" target="_blank">查看链接</a>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="facebook_url" label="fackbook url" width="95">
-                        <template slot-scope="scope">
-                            <a v-if="scope.row.facebook_url != null && scope.row.facebook_url != '' && scope.row.facebook_url != 'null'" :href="scope.row.facebook_url" target="_blank">查看链接</a>
-                        </template>
                     </el-table-column>
                 </template>
                 <!-- <el-table-column prop="email" label="截图" width="120">
@@ -171,31 +169,17 @@
                         <el-tag :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status)}}</el-tag>
                     </template>
                 </el-table-column> -->
-                <el-table-column prop="status" label="状态" width="120">
+                <!-- <el-table-column prop="status" label="状态" width="120">
                     <template slot-scope="scope">
                         <el-tag v-if="isRestrict === 'false'" :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status, scope.row.done_direct)}}</el-tag>
                         <el-tag v-else :type="scope.row.status | statusFilterRestrict">{{getStatusNameReStrict(scope.row.status, scope.row.done_direct)}}</el-tag>
                     </template>
-                </el-table-column>
-                <el-table-column prop="is_pay_commission" label="佣金" width="65">
-                    <template slot-scope="scope">
-                        <el-tag v-if="scope.row.is_pay_commission === false" type="warning">未收</el-tag>
-                        <el-tag v-else-if="scope.row.is_pay_commission === true" type="success">已收</el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="is_pay_capital" label="定金" width="65">
-                    <template slot-scope="scope">
-                        <el-tag v-if="scope.row.is_pay_capital === false" type="warning">未收</el-tag>
-                        <el-tag v-else-if="scope.row.is_pay_capital === true" type="success">已收</el-tag>
-                    </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column prop="feedback" label="反馈" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="140">
-                </el-table-column>
-                <el-table-column prop="updated_at" label="更新时间" :formatter="formatter_updated_at" width="140">
                 </el-table-column>
             </el-table>
         </el-dialog>
@@ -284,7 +268,8 @@
                 isProcess: '',
                 isProcessOptions: [{label: '已处理', value: 1}, {label: '未处理', value: 0}],
                 isRestrict: '',
-                pay_details: []
+                pay_details: [],
+                edit_details: []
             }
         },
         created() {
@@ -354,6 +339,8 @@
                             data.img_count = data.pictures.length
                             data.join_record_pays.forEach((data2) => {
                                 let temp = data2.task_record
+                                // data2.is_commission2 = data.commission
+                                // data2.is_capital2 = data.capital
                                 temp.sumPrice2 = parseFloat((Number(temp.charge) + Number(temp.commission) + Number(temp.commission_charge) + Number(temp.pay_price)).toPrecision(12))
                             })
                         })
@@ -378,6 +365,8 @@
                             data.img_count = data.pictures.length
                             data.join_record_pays.forEach((data2) => {
                                 let temp = data2.task_record
+                                // data2.is_commission2 = ''
+                                // data2.is_capital2 = data.capital
                                 temp.sumPrice2 = parseFloat((Number(temp.charge) + Number(temp.commission) + Number(temp.commission_charge) + Number(temp.pay_price)).toPrecision(12))
                             })
                         })
@@ -421,13 +410,18 @@
                 this.checkVisible = true
             },
             handleEdit(index, row) {
-                this.idx = index;
-                const item = row
-                this.form = {
-                    id: item.id,
-                    facebook_url: item.facebook_url,
-                    profile_url: item.profile_url,
-                }
+                this.edit_details = [], this.remark = ''
+                this.form.id = row.id
+                this.edit_details = JSON.parse(JSON.stringify(row.join_record_pays)) // 深拷贝数组
+                this.edit_details.forEach((data) => {
+                    data.pictures = []
+                    // if (data.commission === true) {
+                    //     data.is_commission = true
+                    // }
+                    // if (data.capital=== true) {
+                    //     data.is_capital = true
+                    // }
+                })
                 this.editVisible = true;
             },
             delAll() {
@@ -446,17 +440,35 @@
             // 保存编辑
             saveEdit() {
                 this.submitDisabled = true
-                let params = {
-                    facebook_url: this.form.facebook_url,
-                    profile_url: this.form.profile_url,
-                    fan: 'true'
-                }
-                this.$axios.patch('/task_records/' + this.form.id, params).then((res) => {
+                // let params = {
+                //     facebook_url: this.form.facebook_url,
+                //     profile_url: this.form.profile_url,
+                //     remark: this.remark
+                // }
+                let formData = new FormData()
+                formData.append('remark', this.remark)
+                this.edit_details.forEach((data) => {
+                    formData.append('pay_record[][join_id]', data.id)
+                    formData.append('pay_record[][task_record_id]', data.task_record_id)
+                    if (data.commission === true) {
+                        formData.append('pay_record[][commission]', 1)
+                    } else {
+                        formData.append('pay_record[][commission]', 0)
+                    }
+                    if (data.capital === true) {
+                        formData.append('pay_record[][capital]', 1)
+                    } else {
+                        formData.append('pay_record[][capital]', 0)
+                    }
+                    data.pictures.forEach((data2) => {
+                        formData.append('pictures[]', data2.raw)
+                    })
+                })
+                this.$axios.patch('/pay_records/' + this.form.id, formData).then((res) => {
                     if(res.data.code == 200) {
                         this.$message.success('更新成功！')
                         this.getData()
                         this.editVisible = false
-                        this.detailVisible = false
                     }
                 }).catch((res) => {
                     console.log(res)
@@ -468,8 +480,8 @@
                 this.detailOptions3 = []
                 this.pay_details = []
                 row.join_record_pays.forEach((data) => {
-                    // data.task_record.commission = data.commission
-                    // data.task_record.capital = data.capital
+                    data.task_record.commission2 = data.commission
+                    data.task_record.capital2 = data.capital
                     this.pay_details.push(data.task_record)
                 })
                 // this.pay_details = row.join_record_pays
@@ -654,6 +666,12 @@
                     this.$message.info('已取消删除')
                 })
             },
+            handleRemovePurchase(res, file, index) {
+                this.edit_details[index].pictures = file
+            },
+            changeFilePurchase(res, file, index) {
+                this.edit_details[index].pictures.push(res)
+            },
             getStatusName(status) {
                 if(status == 1) {
                     return "正在进行中"
@@ -698,7 +716,7 @@
 
 </script>
 
-<style scoped>
+<style>
     .handle-box {
         margin-bottom: 20px;
     }
@@ -756,5 +774,18 @@
     .el-form--inline .el-form-item__label {
         width: 90px;
         color: #99a9bf;
+    }
+    #upload-pur .el-upload--text{
+        background-color: #fff;
+        border: 0px;
+        border-radius: 6px;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        width: 120px;
+        height: 32px;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
     }
 </style>

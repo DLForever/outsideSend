@@ -14,8 +14,8 @@
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template>
                 <div style="float: right;">
-                    <el-checkbox v-model="is_pay_capital" label="已收本金" border></el-checkbox>
-                    <el-checkbox v-model="is_pay_commission" label="已收佣金" border></el-checkbox>
+                    <el-checkbox v-model="is_pay_capital" label="未收本金" border></el-checkbox>
+                    <el-checkbox v-model="is_pay_commission" label="未收佣金" border></el-checkbox>
                     <template v-if="search_show[0].dateDis">
                         <!-- 日期: -->
                         <el-date-picker class="mr10" v-model="date_filter" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions2" unlink-panels value-format="yyyy-MM-dd"></el-date-picker>
@@ -74,8 +74,6 @@
                 </el-table-column>
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="charge" label="手续费" show-overflow-tooltip>
-                </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <el-table-column  prop="plan_date" label="计划日期" width="90">
                     </el-table-column>
@@ -87,9 +85,13 @@
                     </el-table-column>
                     <el-table-column key="3" prop="pay_price" label="本金" width="65">
                     </el-table-column>
+                </template>
+                <el-table-column v-if="!filter_commission" key="6" prop="charge" label="手续费" show-overflow-tooltip>
+                </el-table-column>
+                <template v-if="isRestrict === 'false'">
                     <template v-if="filter_refund">
-                        <el-table-column key="4" prop="charge" label="手续费" show-overflow-tooltip>
-                        </el-table-column>
+                        <!-- <el-table-column key="4" prop="charge" label="手续费" show-overflow-tooltip>
+                        </el-table-column> -->
                         <el-table-column key="5" prop="sumPrice" label="总费用" show-overflow-tooltip>
                         </el-table-column>
                     </template>
@@ -108,6 +110,25 @@
                         </template>
                     </el-table-column>
                 </template>
+                <el-table-column prop="skip_review" label="是否免评" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tag type="warning" v-if="scope.row.skip_review === true && scope.row.status !== 1">是</el-tag>
+                        <el-tag type="success" v-else-if="scope.row.skip_review === false && scope.row.status !== 1">否</el-tag>
+                        <span v-else></span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="is_pay_commission" label="佣金" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.is_pay_commission === false" type="warning">未收</el-tag>
+                        <el-tag v-else-if="scope.row.is_pay_commission === true" type="success">已收</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="is_pay_capital" label="本金" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.is_pay_capital === false" type="warning">未收</el-tag>
+                        <el-tag v-else-if="scope.row.is_pay_capital === true" type="success">已收</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="140">
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
@@ -118,18 +139,6 @@
                     <template slot-scope="scope">
                         <el-tag v-if="isRestrict === 'false'" :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status, scope.row.done_direct)}}</el-tag>
                         <el-tag v-else :type="scope.row.status | statusFilterRestrict">{{getStatusNameReStrict(scope.row.status, scope.row.done_direct)}}</el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="is_pay_commission" label="佣金" width="65">
-                    <template slot-scope="scope">
-                        <el-tag v-if="scope.row.is_pay_commission === false" type="warning">未收</el-tag>
-                        <el-tag v-else-if="scope.row.is_pay_commission === true" type="success">已收</el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="is_pay_capital" label="定金" width="65">
-                    <template slot-scope="scope">
-                        <el-tag v-if="scope.row.is_pay_capital === false" type="warning">未收</el-tag>
-                        <el-tag v-else-if="scope.row.is_pay_capital === true" type="success">已收</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column prop="email" label="截图" width="120">
@@ -227,6 +236,10 @@
                     </el-upload>
                 </el-form-item>
                 <template v-if="form.status == '1'">
+                    <el-form-item label="是否免评" prop="skip_review">
+                        <el-radio v-model="form.skip_review" label="1">是</el-radio>
+                        <el-radio v-model="form.skip_review" label="0">否</el-radio>
+                    </el-form-item>
                     <el-form-item label="是否需要返款" prop="isPay">
                         <el-radio v-model="form.need_refund" label="1">是</el-radio>
                         <el-radio v-model="form.need_refund" label="0">否</el-radio>
@@ -650,6 +663,7 @@
                     need_refund: '',
                     refund_time: '',
                     done_direct: '',
+                    skip_review: ''
                 },
                 idx: -1,
                 productVisible: false,
@@ -1114,6 +1128,10 @@
                         this.$message.error('请选择是否完全返款')
                         return
                     }
+                    if (this.form.skip_review == '' && this.form.done_direct == undefined) {
+                        this.$message.error('请选择是否免评')
+                        return
+                    }
                 }
                 if(this.form.status == '6') {
 
@@ -1127,6 +1145,7 @@
                 formData.append('remark', this.remark)
                 formData.append('need_refund', this.form.need_refund)
                 formData.append('refund_time', this.form.refund_time)
+                formData.append('skip_review', this.form.skip_review)
                 if(this.form.done_direct != undefined) {
                     formData.append('done_direct', this.form.done_direct)
                 }
