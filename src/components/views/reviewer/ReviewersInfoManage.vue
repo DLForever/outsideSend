@@ -109,14 +109,14 @@
                             <el-tag type="success" v-else-if="scope.row.need_refund2 == '否'">否</el-tag>
                         </template>
                     </el-table-column>
+                    <el-table-column prop="skip_review" label="是否免评" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                            <el-tag type="warning" v-if="scope.row.skip_review === true && scope.row.status !== 1">是</el-tag>
+                            <el-tag type="success" v-else-if="scope.row.skip_review === false && scope.row.status !== 1">否</el-tag>
+                            <span v-else></span>
+                        </template>
+                    </el-table-column>
                 </template>
-                <el-table-column prop="skip_review" label="是否免评" show-overflow-tooltip>
-                    <template slot-scope="scope">
-                        <el-tag type="warning" v-if="scope.row.skip_review === true && scope.row.status !== 1">是</el-tag>
-                        <el-tag type="success" v-else-if="scope.row.skip_review === false && scope.row.status !== 1">否</el-tag>
-                        <span v-else></span>
-                    </template>
-                </el-table-column>
                 <el-table-column prop="is_pay_commission" label="佣金" width="65">
                     <template slot-scope="scope">
                         <el-tag v-if="scope.row.is_pay_commission === false" type="warning">未收</el-tag>

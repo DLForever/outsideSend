@@ -291,7 +291,6 @@
                 edit_details: [],
                 loading3: false,
                 order_number_options: [],
-                order_number_id: '',
                 query3: undefined,
                 order_number_page: 1,
                 order_number_total: 0,
