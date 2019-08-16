@@ -88,12 +88,13 @@
                 </el-table-column>
                 <el-table-column v-if="!filter_commission" key="6" prop="charge" label="手续费" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column key="5" prop="sumPrice" label="总费用" show-overflow-tooltip>
+                </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <template v-if="filter_refund">
                         <!-- <el-table-column key="4" prop="charge" label="手续费" show-overflow-tooltip>
                         </el-table-column> -->
-                        <el-table-column key="5" prop="sumPrice" label="总费用" show-overflow-tooltip>
-                        </el-table-column>
+                
                     </template>
                     <template v-if="filter_commission">
                         <el-table-column key="3" prop="commission" label="佣金" show-overflow-tooltip>
@@ -221,7 +222,7 @@
             </el-table>
             </el-table>
             <div class="pagination" v-if="paginationShow && totals != 0">
-                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="pagesize" layout="prev, pager, next" :total="totals">
+                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="100" layout="prev, pager, next" :total="totals">
                 </el-pagination>
             </div>
         </div>
@@ -952,6 +953,7 @@
                                 data.need_refund2 = '否'
                             }
                             data.sumPrice2 = parseFloat((Number(data.charge) + Number(data.commission) + Number(data.commission_charge) + Number(data.pay_price)).toPrecision(12))
+                            data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
                             if(this.statusSelect == 2) {
                                 data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
                             } else if (this.statusSelect == 7) {
@@ -1009,6 +1011,7 @@
                                 data.need_refund2 = '否'
                             }
                             data.sumPrice2 = parseFloat((Number(data.charge) + Number(data.commission) + Number(data.commission_charge) + Number(data.pay_price)).toPrecision(12))
+                            data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
                             if(this.statusSelect == 2) {
                                 data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
                             } else if (this.statusSelect == 7) {
