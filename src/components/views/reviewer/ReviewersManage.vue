@@ -44,7 +44,7 @@
                 <el-table-column prop="country" label="站点" width="50">
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="username" label="送测人" width="70">
+                    <el-table-column prop="username" label="送测人" width="140">
                     </el-table-column>
                 </template>
                 <el-table-column prop="apply_username" label="申请人" width="70">
@@ -437,7 +437,7 @@
         <el-dialog title="确认分配" :visible.sync="distributeVisible" width="35%">
             <el-form label-width="110px">
                 <el-form-item label="选择开发人员">
-                    <el-select v-model="distributeUser" placeholder="选择用户" filterable remote :loading="loading3" @visible-change="selectVisble3" :remote-method="remoteMethod3" class="handle-select mr10">
+                    <el-select v-model="distributeUser" placeholder="选择用户" multiple filterable remote :loading="loading3" @visible-change="selectVisble3" :remote-method="remoteMethod3" class="handle-select mr10">
                         <el-option v-for="item in distributeUserOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         <infinite-loading :on-infinite="onInfinite_dis_user" ref="infiniteLoading3"></infinite-loading>
                     </el-select>
@@ -674,7 +674,7 @@
                 },
                 task_id: '',
                 distributeUserOptions: [],
-                distributeUser: '',
+                distributeUser: [],
                 dis_user_page: 1,
                 dis_user_total: 0,
                 query3: undefined,
@@ -779,13 +779,18 @@
                                 data2.editAccept = false
                                 data2.originalaccept = data2.accept_sum
                             })
+                            data.username = ''
+                            data.operate_users.forEach((data3) => {
+                                data.username += data3.username + ','
+                            })
+                            data.username = data.username.substr(0, data.username.length - 1)
                         })
                         this.tableData = res.data.data
                         this.totals = res.data.count
                         this.paginationShow = true
                     }
                 }).catch((res) => {
-                	console.log('error')
+                	console.log(res)
                 }).finally(() => {
                     this.table_loading = false
                 })
@@ -806,6 +811,11 @@
                                 data2.editAccept = false
                                 data2.originalaccept = data2.accept_sum
                             })
+                            data.username = ''
+                            data.operate_users.forEach((data3) => {
+                                data.username += data3.username + ','
+                            })
+                            data.username = data.username.substr(0, data.username.length - 1)
                         })
                         this.tableData = res.data.data
                         this.totals = res.data.count
@@ -1217,15 +1227,42 @@
                 })
             },
             confirmDistribute() {
+                this.distributeUser = []
+                this.distributeUserOptions = []
                 if(this.multipleSelection.length == 0) {
                     this.$message.error('请选择至少一个任务')
                     return
                 }
-                this.distributeUser = ''
+                let isSingle = ''
+                this.multipleSelection.forEach((data) => {
+                    if(data.status != 9 && this.multipleSelection.length >= 2) {
+                        isSingle = 1
+                    }
+                    if(data.status == 1 || data.status == 2) {
+                        isSingle = 2
+                    }
+                })
+                if(isSingle == 2) {
+                    this.$message.error('有任务还未审核，请审核后再分配！')
+                    return
+                } else if(isSingle == 1) {
+                    this.$message.error('已分配送测人的任务，只能单独选择！')
+                    return
+                }else {
+
+                }
+                if(this.multipleSelection.length == 1 && this.multipleSelection[0].operate_users != null) {
+                    this.multipleSelection[0].operate_users.forEach((data) => {
+                        this.distributeUserOptions.push({id: data.user_id, name: data.username})
+                        this.distributeUser.push(data.user_id)
+                    })
+                }else {
+                    this.distributeUser = []
+                }
                 this.distributeVisible = true
             },
             distributenProduct() {
-                if(this.distributeUser == '') {
+                if(this.distributeUser.length == 0) {
                     this.$message.error('请选择分配人员')
                     return
                 }
@@ -1235,14 +1272,14 @@
                 })
                 let params = {
                     task_ids: id,
-                    user_id: this.distributeUser,
+                    user_ids: this.distributeUser,
                 }
                 this.$axios.post('/tasks/allocate_task', params
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.$message.success('分配成功!')
                         this.distributeVisible = false
-                        this.distributeUser = ''
+                        this.distributeUser = []
                         this.getData()
                     }
                 }).catch((res) => {

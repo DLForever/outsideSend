@@ -92,9 +92,6 @@
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <template v-if="filter_refund">
-                        <!-- <el-table-column key="4" prop="charge" label="手续费" show-overflow-tooltip>
-                        </el-table-column> -->
-                
                     </template>
                     <template v-if="filter_commission">
                         <el-table-column key="3" prop="commission" label="佣金" show-overflow-tooltip>
@@ -221,8 +218,9 @@
                 </el-table-column>
             </el-table>
             </el-table>
+            </el-table>
             <div class="pagination" v-if="paginationShow && totals != 0">
-                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="100" layout="prev, pager, next" :total="totals">
+                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="50" layout="prev, pager, next" :total="totals">
                 </el-pagination>
             </div>
         </div>
@@ -632,6 +630,7 @@
     </div>
 </template>
 
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.min.js"></script> -->
 <script>
     import VueInfiniteLoading from "vue-infinite-loading"
     import { mavonEditor } from 'mavon-editor'
@@ -903,6 +902,13 @@
                 })
             }
         },
+        // mounted(){
+        //     var clusterize = new Clusterize({
+        //         rows: document.querySelectorAll('.el-table__row'),
+        //         scrollElem: document.getElementById('scrollContent'),
+        //         contentElem: document.querySelector('.el-table__body tbody')
+        //     })
+        // },
         methods: {
         	handleSizeChange(val) {
         		this.pagesize = val;
@@ -964,7 +970,10 @@
                             })
                             data.img_count = data.pictures.length
                         })
+                        // console.log(res.data.data.splice(81))
                         this.tableData = res.data.data
+                        // this.tableData = res.data.data.splice(0,50)
+                        // this.tableData = this.tableData.concat(res.data.data.splice(21))
                         this.totals = res.data.count
                         this.paginationShow = true
                     }
