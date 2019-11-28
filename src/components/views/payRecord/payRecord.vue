@@ -23,6 +23,8 @@
                 <!-- <el-table-column type="selection" width="55"></el-table-column> -->
                 <el-table-column type="index">
                 </el-table-column>
+                <el-table-column prop="id" label="ID" show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="apply_username" label="申请人" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="username" label="审核人" v-if="isRestrict === 'false'" show-overflow-tooltip>

@@ -10,6 +10,29 @@
             <div class="handle-box">
                 <el-button type="primary" @click="exportFans">导出粉丝</el-button>
                 <div class="fnsku_filter">
+                    站点:
+                    <el-select v-model="site_filter" class="handle-select">
+                        <el-option v-for="item in site_options" :key="item" :label="item" :value="item"></el-option>
+                    </el-select>
+                    ASIN:
+                    <el-input style="width:150px" placeholder="请输入ASIN" v-model.trim="search_asin"></el-input>
+                    订单号:
+                    <el-input style="width:150px" placeholder="请输入订单号" v-model.trim="search_number"></el-input>
+                    送测人员:
+                    <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择送测人" class="handle-select">
+                        <el-option v-for="item in user_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                        <infinite-loading :on-infinite="onInfinite_user" ref="infiniteLoading"></infinite-loading>
+                    </el-select>
+                    申请人员:
+                    <el-select v-model="apply_user_id" filterable remote :loading="loading2" @visible-change="selectVisble2" :remote-method="remoteMethod2" placeholder="选择用户" class="handle-select mr10">
+                        <el-option v-for="item in user_options2" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                        <infinite-loading :on-infinite="onInfinite_user2" ref="infiniteLoading2"></infinite-loading>
+                    </el-select>
+                    分类名:
+                    <el-select v-model="category_filter" filterable remote :loading="loading4" @visible-change="selectVisble4" :remote-method="remoteMethod4" placeholder="选择分类" class="handle-select mr10">
+                        <el-option v-for="item in category_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                        <infinite-loading :on-infinite="onInfinite_category" ref="infiniteLoading4"></infinite-loading>
+                    </el-select>
                     粉丝号:
                     <el-input class="handle-input mr10" placeholder="请输入粉丝号" v-model.trim="search_fan"></el-input>
                     <el-button @click="clear_filter" type="default">重置</el-button>
@@ -211,6 +234,7 @@
 </template>
 
 <script>
+    import VueInfiniteLoading from "vue-infinite-loading"
     export default {
 //      name: 'product_manage',
         data() {
@@ -262,7 +286,29 @@
                 picturestList: [],
                 picturestList2: [],
                 picturestList3: [],
-                table_loading: true
+                table_loading: true,
+                category_filter: '',
+                category_options: [],
+                category_page: 1,
+                category_total: 0,
+                query4: undefined,
+                loading4: false,
+                user_id_filter: '',
+                query: undefined,
+                user_page: 1,
+                user_total: 0,
+                loading: false,
+                user_options: [],
+                apply_user_id: '',
+                query2: undefined,
+                user_page2: 1,
+                user_total2: 0,
+                loading2: false,
+                user_options2: [],
+                site_options: ['US', 'UK', 'DE', 'JP'],
+                site_filter: '',
+                search_asin: '',
+                search_number: ''
             }
         },
         created() {
@@ -311,7 +357,7 @@
                 };
                 this.table_loading = true
                 this.export_token = localStorage.getItem('token')
-                this.$axios.get( '/fans?page='+this.cur_page + '&query=' + this.search_fan
+                this.$axios.get( '/fans?page='+this.cur_page + '&p_account=' + this.search_fan + '&category_id=' + this.category_filter + '&user_id=' + this.user_id_filter + '&asin=' + this.search_asin + '&order_number=' + this.search_number + '&country=' + this.site_filter + '&apply_user_id=' + this.apply_user_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.tableData = res.data.data
@@ -328,7 +374,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/fans?page='+this.cur_page + '&query=' + this.search_fan
+                this.$axios.get( '/fans?page='+this.cur_page + '&p_account=' + this.search_fan + '&category_id=' + this.category_filter + '&user_id=' + this.user_id_filter + '&asin=' + this.search_asin + '&order_number=' + this.search_number + '&country=' + this.site_filter + '&apply_user_id=' + this.apply_user_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.tableData = res.data.data
@@ -345,7 +391,8 @@
             clear_filter() {
                 this.paginationShow = false
                 this.cur_page = 1
-                this.search_fan = ''
+                this.search_fan = '', this.category_filter = '', this.user_id_filter = '', this.search_asin = ''
+                this.search_number = '', this.site_filter = '', this.apply_user_id = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
@@ -546,6 +593,150 @@
                 })
                 this.productVisible = true;
             },
+            onInfinite_category(obj) {
+                if((this.category_page * 20) < this.category_total) {
+                    this.category_page += 1
+                    // this.getUsers(obj.loaded)
+                    this.remoteMethod4(this.query4,obj.loaded)
+                } else {
+                    obj.complete()
+                }
+            },
+            selectVisble4(visible) {
+                if(visible) {
+                    this.query4 = undefined
+                    this.remoteMethod4("")
+                }
+            },
+            remoteMethod4(query, callback = undefined) {
+                if(query != "" || this.query4 != "" || callback) {
+                    let reload = false
+                    if(this.query4 != query) {
+                        this.loading4 = true
+                        this.category_page = 1
+                        this.query4 = query
+                        reload = true
+                        if(this.$refs.infiniteLoading4.isComplete) {
+                            this.$refs.infiniteLoading4.stateChanger.reset()
+                        }
+                    }
+                    this.$axios.get("/categories/?page=" + this.category_page + '&query=' + query.trim()
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.loading4 = false
+                            //                          this.options = res.data.data
+                            if(reload) {
+                                let tempOptions = []
+                                this.category_options = tempOptions.concat(res.data.data)
+                            } else {
+                                this.category_options = this.category_options.concat(res.data.data)
+                            }
+                            this.category_total = res.data.count
+                            if(callback) {
+                                callback()
+                            }
+                        }
+                    }).catch((res) => {
+                        console.log('失败')
+                    })
+                }
+            },
+            onInfinite_user(obj) {
+                if((this.user_page * 20) < this.user_total) {
+                    this.user_page += 1
+                    // this.getUsers(obj.loaded)
+                    this.remoteMethod(this.query,obj.loaded)
+                } else {
+                    obj.complete()
+                }
+            },
+            selectVisble(visible) {
+                if(visible) {
+                    this.query = undefined
+                    this.remoteMethod("")
+                }
+            },
+            remoteMethod(query, callback = undefined) {
+                if(query != "" || this.query != "" || callback) {
+                    let reload = false
+                    if(this.query != query) {
+                        this.loading = true
+                        this.user_page = 1
+                        this.query = query
+                        reload = true
+                        if(this.$refs.infiniteLoading.isComplete) {
+                            this.$refs.infiniteLoading.stateChanger.reset()
+                        }
+                    }
+                    this.$axios.get("/users/?page=" + this.user_page + '&name=' + query.trim()
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.loading = false
+                            //                          this.options = res.data.data
+                            if(reload) {
+                                let tempOptions = []
+                                this.user_options = tempOptions.concat(res.data.data)
+                            } else {
+                                this.user_options = this.user_options.concat(res.data.data)
+                            }
+                            this.user_total = res.data.count
+                            if(callback) {
+                                callback()
+                            }
+                        }
+                    }).catch((res) => {
+                        console.log('失败')
+                    })
+                }
+            },
+            onInfinite_user2(obj) {
+                if((this.user_page2 * 20) < this.user_total2) {
+                    this.user_page2 += 1
+                    // this.getUsers(obj.loaded)
+                    this.remoteMethod2(this.query2,obj.loaded)
+                } else {
+                    obj.complete()
+                }
+            },
+            selectVisble2(visible) {
+                if(visible) {
+                    this.query2 = undefined
+                    this.remoteMethod2("")
+                }
+            },
+            remoteMethod2(query, callback = undefined) {
+                if(query != "" || this.query2 != "" || callback) {
+                    let reload = false
+                    if(this.query2 != query) {
+                        this.loading2 = true
+                        this.user_page2 = 1
+                        this.query2 = query
+                        reload = true
+                        if(this.$refs.infiniteLoading2.isComplete) {
+                            this.$refs.infiniteLoading2.stateChanger.reset()
+                        }
+                    }
+                    this.$axios.get("/users/?page=" + this.user_page2 + '&name=' + query.trim()
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.loading2 = false
+                            //                          this.options = res.data.data
+                            if(reload) {
+                                let tempOptions = []
+                                this.user_options2 = tempOptions.concat(res.data.data)
+                            } else {
+                                this.user_options2 = this.user_options2.concat(res.data.data)
+                            }
+                            this.user_total2 = res.data.count
+                            if(callback) {
+                                callback()
+                            }
+                        }
+                    }).catch((res) => {
+                        console.log('失败')
+                    })
+                }
+            },
             getStatusName(status) {
                 if(status == 1) {
                     return "正在进行中"
@@ -561,6 +752,9 @@
                     return '其他'
                 }
             },
+        },
+        components: {
+            "infinite-loading": VueInfiniteLoading
         }
     }
 

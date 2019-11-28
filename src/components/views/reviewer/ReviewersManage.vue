@@ -9,29 +9,37 @@
         <div class="container">
             <div class="handle-box">
                 <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmDistribute">分配</el-button>
+                <el-button  type="warning">
+                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&product_name=' + filter_name + '&apply_user_id=' + apply_user_id + '&self=' + (is_self == true ? 1 : 0)">导出</a>
+                </el-button>
+                <el-button v-if="isRestrict === 'false'" type="success" @click="updateCategory">分类</el-button>
                 <div class="fnsku_filter">
                     <!-- 开发人员:
                     <el-input style="width:150px" placeholder="请输入开发人员" v-model.trim="search_shopname"></el-input> -->
-                    产品名称:
+                    产品名:
                     <el-input style="width:150px;" v-model.trim="filter_name" placeholder="请输入产品名称"></el-input>
                     ASIN:
                     <el-input style="width:150px" placeholder="请输入ASIN" v-model.trim="search_asin"></el-input>
                     <template v-if="isRestrict === 'false'">
-                        送测人员:
+                        送测人:
                         <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择用户" class="handle-select mr10">
                             <el-option v-for="item in user_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
                             <infinite-loading :on-infinite="onInfinite_user" ref="infiniteLoading"></infinite-loading>
                         </el-select>
-                        申请人员:
+                        申请人:
                         <el-select v-model="apply_user_id" filterable remote :loading="loading2" @visible-change="selectVisble2" :remote-method="remoteMethod2" placeholder="选择用户" class="handle-select mr10">
                             <el-option v-for="item in user_options2" :key="item.id" :label="item.name" :value="item.id"></el-option>
                             <infinite-loading :on-infinite="onInfinite_user2" ref="infiniteLoading2"></infinite-loading>
                         </el-select>
+                        &nbsp
+                        <el-checkbox v-model="is_self" label="被分配" border></el-checkbox>
+                        <el-checkbox v-model="weight_filter" label="优先级" border></el-checkbox>
                     </template>
                     状态:
                     <el-select v-model="statusSelect" placeholder="请选择" class="handle-select mr10">
                         <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
+                    
                     <el-button style="margin-left: 5px" @click="clear_filter" type="default">重置</el-button>
                     <el-button @click="filter_product" type="primary">查询</el-button>
                 </div>
@@ -50,6 +58,11 @@
                 <el-table-column prop="apply_username" label="申请人" width="70">
                 </el-table-column>
                 <el-table-column prop="name" label="产品名称" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="weight" label="优先级" width="70">
+                    <template slot-scope="scope">
+                        <el-tag :type="scope.row.weight | statusFilterWeight">{{getStatusWeight(scope.row.weight)}}</el-tag>
+                    </template>
                 </el-table-column>
                 <el-table-column prop="price" label="价格" width="70">
                 </el-table-column>
@@ -95,6 +108,10 @@
                                 </el-dropdown-item>
                                 <el-dropdown-item v-if="isRestrict === 'false'">
                                     <el-button @click="handleCheck(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp审核</el-button>
+                                </el-dropdown-item>
+                                <el-dropdown-item>
+                                    <el-button type="text" @click="handleSetWeight(scope.$index, scope.row)">&nbsp&nbsp&nbsp设置权重
+                                    </el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item>
                                     <el-button type="text" @click="toReviewers(scope.$index, scope.row)">查看送测记录
@@ -500,7 +517,7 @@
 
         <!-- 审核提示框 -->
         <el-dialog title="审核" :visible.sync="checkVisible" width="50%">
-            <el-form label-width="150px">
+            <el-form label-width="80px">
                 <!-- <el-form-item label="请选择收取的款项">
                     <el-radio v-model="isagree" label="1">审核通过</el-radio>
                     <el-radio v-model="isagree" label="0">不通过</el-radio>
@@ -513,6 +530,35 @@
                 <el-button @click="checkVisible = false">取 消</el-button>
                 <!-- <el-button type="warning" @click="saveCheck(0)">拒 绝</el-button> -->
                 <el-button type="primary" @click="saveCheck(1)">通 过</el-button>
+            </span>
+        </el-dialog>
+        <!-- 分类提示框 -->
+        <el-dialog title="分类" :visible.sync="categoryVisible" width="50%">
+            <el-form label-width="80px">
+                <el-form-item label="分类名">
+                    <el-select v-model="category_filter" filterable remote :loading="loading4" @visible-change="selectVisble4" :remote-method="remoteMethod4" placeholder="选择分类" class="handle-select mr10">
+                        <el-option v-for="item in category_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                        <infinite-loading :on-infinite="onInfinite_category" ref="infiniteLoading4"></infinite-loading>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="categoryVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveCaterory" :disabled="submitDisabled">提 交</el-button>
+            </span>
+        </el-dialog>
+        <!-- 设置权重提示框 -->
+        <el-dialog title="设置权重" :visible.sync="setWeightVisible" width="50%">
+            <el-form label-width="80px">
+                <el-form-item label="选择权重">
+                    <el-select v-model="weight" class="handle-select">
+                        <el-option v-for="item in weight_options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="setWeightVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveSetWeight" :disabled="submitDisabled">提 交</el-button>
             </span>
         </el-dialog>
     </div>
@@ -707,7 +753,20 @@
                 filter_name: '',
                 search_asin: '',
                 customer_commission: 0,
-                isagree: ''
+                isagree: '',
+                export_token: '',
+                is_self: '',
+                categoryVisible: false,
+                category_filter: '',
+                category_options: [],
+                category_page: 1,
+                category_total: 0,
+                query4: undefined,
+                loading4: false,
+                weight: '',
+                weight_options: [{value: 0, label: '低'},  {value: 1, label: '正常'}, {value: 2, label: '高'}, {value: 3, label: '紧急'}],
+                setWeightVisible: false,
+                weight_filter: ''
             }
         },
         created() {
@@ -747,6 +806,15 @@
                 }
                 return statusMap[status]
             },
+            statusFilterWeight(status) {
+                const statusMap = {
+                    1: 'primary',
+                    2: 'warning',
+                    3: 'danger',
+                    0: 'success',
+                }
+                return statusMap[status]
+            },
         },
         methods: {
         	handleSizeChange(val) {
@@ -764,10 +832,10 @@
                 if (process.env.NODE_ENV === 'development') {
 //                  this.url = '/ms/table/list';
                 };
-                console.log('skipPage::::::')
-                console.log(this.$store.getters.skipPage)
+                this.export_token = localStorage.getItem('token')
+                // console.log(this.$store.getters.skipPage)
                 this.table_loading = true
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -799,7 +867,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -822,7 +890,7 @@
                         this.paginationShow = true
                     }
                 }).catch((res) => {
-                    console.log('error')
+                    console.log(res)
                 }).finally(() => {
                     this.table_loading = false
                 })
@@ -833,7 +901,7 @@
                 this.user_id_filter = ''
                 this.apply_user_id = ''
                 this.statusSelect = ''
-                this.filter_name = '', this.search_asin = ''
+                this.filter_name = '', this.search_asin = '', this.is_self = '', this.weight_filter = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
@@ -1548,6 +1616,115 @@
                 }).catch(() => {
                 })
             },
+            // isSelfChange() {
+            //     this.is_self = this.is_self == true ? 1 : 0
+            // },
+            updateCategory() {
+                if(this.multipleSelection.length == 0) {
+                    this.$message.error('请选择至少一个任务')
+                    return
+                }
+                this.category_filter = ''
+                this.categoryVisible = true
+            },
+            saveCaterory() {
+                if(this.category_filter == '') {
+                    this.$message.error('请选择分类！')
+                    return
+                }
+                let id = []
+                this.multipleSelection.forEach((data) => {
+                    id.push(data.id)
+                })
+                this.submitDisabled = true
+                let params = {
+                    task_ids: id,
+                    category_id: this.category_filter,
+                }
+                this.$axios.post('/tasks/update_category', params
+                ).then((res) => {
+                    if(res.data.code == 200) {
+                        this.$message.success('分类成功!')
+                        this.categoryVisible = false
+                        this.getData()
+                    }
+                }).catch((res) => {
+
+                }).finally(() => {
+                    this.submitDisabled = false
+                })
+            },
+            onInfinite_category(obj) {
+                if((this.category_page * 20) < this.category_total) {
+                    this.category_page += 1
+                    // this.getUsers(obj.loaded)
+                    this.remoteMethod4(this.query4,obj.loaded)
+                } else {
+                    obj.complete()
+                }
+            },
+            selectVisble4(visible) {
+                if(visible) {
+                    this.query4 = undefined
+                    this.remoteMethod4("")
+                }
+            },
+            remoteMethod4(query, callback = undefined) {
+                if(query != "" || this.query4 != "" || callback) {
+                    let reload = false
+                    if(this.query4 != query) {
+                        this.loading4 = true
+                        this.category_page = 1
+                        this.query4 = query
+                        reload = true
+                        if(this.$refs.infiniteLoading4.isComplete) {
+                            this.$refs.infiniteLoading4.stateChanger.reset()
+                        }
+                    }
+                    this.$axios.get("/categories/?page=" + this.category_page + '&query=' + query.trim()
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.loading4 = false
+                            //                          this.options = res.data.data
+                            if(reload) {
+                                let tempOptions = []
+                                this.category_options = tempOptions.concat(res.data.data)
+                            } else {
+                                this.category_options = this.category_options.concat(res.data.data)
+                            }
+                            this.category_total = res.data.count
+                            if(callback) {
+                                callback()
+                            }
+                        }
+                    }).catch((res) => {
+                        console.log('失败')
+                    })
+                }
+            },
+            handleSetWeight(index, row) {
+                this.idx = row.id
+                this.weight = row.weight
+                this.setWeightVisible = true
+            },
+            saveSetWeight() {
+                this.submitDisabled = true
+                let params = {
+                    weight: this.weight,
+                }
+                this.$axios.post('/tasks/' + this.idx + '/set_weight', params
+                ).then((res) => {
+                    if(res.data.code == 200) {
+                        this.$message.success('设置成功!')
+                        this.setWeightVisible = false
+                        this.getData()
+                    }
+                }).catch((res) => {
+
+                }).finally(() => {
+                    this.submitDisabled = false
+                })
+            },
             getStatusName(status) {
                 if(status == 1) {
                     return "待自审"
@@ -1570,7 +1747,20 @@
                 }else {
                     return '其他'
                 }
-            }
+            },
+            getStatusWeight(status) {
+                if(status == 0) {
+                    return "低"
+                } else if(status == 1) {
+                    return "正常"
+                } else if(status == 2) {
+                    return "高"
+                }else if(status == 3) {
+                    return "紧急"
+                }else {
+                    return '其他'
+                }
+            },
         },
         components: {
             "infinite-loading": VueInfiniteLoading

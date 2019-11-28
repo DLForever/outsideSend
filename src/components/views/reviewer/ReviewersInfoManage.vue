@@ -10,7 +10,9 @@
             <div class="handle-box">
                 <template v-if="isRestrict === 'false'">
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
-                    <el-button  type="primary" @click="exportReviewers">导出记录</el-button>
+                    <el-button  type="primary">
+                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission">导出</a>
+                    </el-button>
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template>
                 <div style="float: right;">
@@ -18,7 +20,7 @@
                     <el-checkbox v-model="is_pay_commission" label="未收佣金" border></el-checkbox>
                     <template v-if="search_show[0].dateDis">
                         <!-- 日期: -->
-                        <el-date-picker class="mr10" v-model="date_filter" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions2" unlink-panels value-format="yyyy-MM-dd"></el-date-picker>
+                        <el-date-picker class="mr10" v-model="date_filter" @change="dateChange" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions2" unlink-panels value-format="yyyy-MM-dd"></el-date-picker>
                     </template>
                     <el-select class="mr10" v-model="search_selects" multiple placeholder="展示其他搜索栏目" @change="showSearch">
                         <el-option v-for="item in isRestrict === 'false'?search_options:search_options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -88,17 +90,19 @@
                 </el-table-column>
                 <el-table-column v-if="!filter_commission" key="6" prop="charge" label="手续费" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column key="5" prop="sumPrice" label="总费用" show-overflow-tooltip>
+                <el-table-column key="5" v-if="statusSelect != 7" prop="sumPrice" label="总费用" show-overflow-tooltip>
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <template v-if="filter_refund">
                     </template>
                     <template v-if="filter_commission">
-                        <el-table-column key="3" prop="commission" label="佣金" show-overflow-tooltip>
+                        <el-table-column key="7" prop="commission" label="佣金" show-overflow-tooltip>
                         </el-table-column>
-                        <el-table-column key="4" prop="commission_charge" label="佣金手续费" show-overflow-tooltip>
+                        <el-table-column key="8" prop="recommend_commission" label="建议佣金" show-overflow-tooltip>
                         </el-table-column>
-                        <el-table-column key="5" prop="sumPrice" label="总费用" show-overflow-tooltip>
+                        <el-table-column key="9" prop="commission_charge" label="佣金手续费" show-overflow-tooltip>
+                        </el-table-column>
+                        <el-table-column key="10" prop="sumPrice" label="总费用" show-overflow-tooltip>
                         </el-table-column>
                     </template>
                     <el-table-column prop="need_refund2" label="是否需要返款" show-overflow-tooltip>
@@ -191,6 +195,9 @@
                                     <el-dropdown-item>
                                         <el-button @click="handleAddRefund(scope.$index, scope.row)" type="text">添加返款</el-button>
                                     </el-dropdown-item>
+                                    <el-dropdown-item>
+                                        <el-button @click="handleCommission(scope.$index, scope.row)" type="text">追加佣金</el-button>
+                                    </el-dropdown-item>
                                     <!-- <el-dropdown-item>
                                         <el-button @click="handleComRes(scope.$index, scope.row)" type="text">佣金/本金</el-button>
                                     </el-dropdown-item> -->
@@ -255,9 +262,12 @@
                         <el-input-number v-model="form.commission" :min="0"></el-input-number>
                     </el-form-item>
                 </template> -->
-                <!-- <el-form-item label="佣金">
+                <el-form-item label="佣金" v-if="form.status == '6'">
                     <el-input-number v-model="form.commission" :min="0"></el-input-number>
-                </el-form-item> -->
+                </el-form-item>
+                <el-form-item label="建议佣金">
+                    <el-input-number v-model="form.recommend_commission" :min="0"></el-input-number>
+                </el-form-item>
                 <el-form-item label="返款时间" prop="pay_time">
                     <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="form.refund_time" type="datetime" placeholder="选择日期" ></el-date-picker>
                 </el-form-item>
@@ -627,6 +637,21 @@
                 <el-button type="primary" @click="saveComRes" :disabled="submitDisabled">确 定</el-button>
             </span>
         </el-dialog>
+        <!-- 追加佣金 -->
+        <el-dialog title="追加佣金" :visible.sync="commissionVisible" width="60%">
+            <el-form ref="form" :model="form" label-width="50px">
+                <el-form-item label="佣金">
+                    <el-input-number v-model="append_commission" :min="0"></el-input-number>
+                </el-form-item>
+                <!-- <el-form-item label="备注">
+                    <el-input v-model="remark"></el-input>
+                </el-form-item> -->
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="commissionVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveAppendComisson" :disabled="submitDisabled">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -663,7 +688,9 @@
                     need_refund: '',
                     refund_time: '',
                     done_direct: '',
-                    skip_review: ''
+                    skip_review: '',
+                    recommend_commission: '',
+                    commission: ''
                 },
                 idx: -1,
                 productVisible: false,
@@ -857,6 +884,10 @@
               pay_details: [],
               is_pay_commission: '',
               is_pay_capital: '',
+              date_begin_ex: '',
+              date_end_ex: '',
+              append_commission: 0,
+              commissionVisible: false
             }
         },
         created() {
@@ -963,7 +994,7 @@
                             if(this.statusSelect == 2) {
                                 data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
                             } else if (this.statusSelect == 7) {
-                                data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission)).toPrecision(12))
+                                data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission) + Number(data.pay_price)).toPrecision(12))
                             }
                             data.pay_records.forEach((data2) => {
                                 data.pictures.push(data2.pictures[0])
@@ -1024,7 +1055,7 @@
                             if(this.statusSelect == 2) {
                                 data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
                             } else if (this.statusSelect == 7) {
-                                data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission)).toPrecision(12))
+                                data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission) + Number(data.pay_price)).toPrecision(12))
                             }
                             data.pay_records.forEach((data2) => {
                                 data.pictures.push(data2.pictures[0])
@@ -1105,7 +1136,8 @@
                 this.form = {
                     id: item.id,
                     status: item.status,
-                    commission: 0
+                    commission: '',
+                    recommend_commission: ''
                 }
                 this.remark = ''
                 this.fileList = []
@@ -1158,6 +1190,8 @@
                 formData.append('need_refund', this.form.need_refund)
                 formData.append('refund_time', this.form.refund_time)
                 formData.append('skip_review', this.form.skip_review)
+                formData.append('commission', this.form.commission)
+                formData.append('recommend_commission', (this.form.recommend_commission == 0 ? '' : this.form.recommend_commission))
                 if(this.form.done_direct != undefined) {
                     formData.append('done_direct', this.form.done_direct)
                 }
@@ -1713,6 +1747,39 @@
                         console.log('失败')
                     })
                 }
+            },
+            dateChange() {
+                this.date_begin_ex = this.date_filter[0]
+                this.date_end_ex = this.date_filter[1]
+                if(this.date_filter.length == 0) {
+                    this.date_begin_ex = ''
+                    this.date_end_ex = ''
+                }
+            },
+            handleCommission(index, row) {
+                this.form.id = row.id
+                this.append_commission = ''
+                this.commissionVisible = true
+            },
+            saveAppendComisson() {
+                if(this.append_commission == 0) {
+                    this.$message.error('佣金不能为0，请重新输入。')
+                    return
+                }
+                let params = {
+                    commission: this.append_commission
+                }
+                this.$axios.post('/task_records/' + this.form.id + '/append_commission', params).then((res) => {
+                    if(res.data.code == 200) {
+                        this.$message.success('成功提交！')
+                        this.getData()
+                        this.commissionVisible = false
+                    }
+                }).catch((res) => {
+                    console.log('err')
+                }).finally((res) => {
+                    this.submitDisabled = false
+                })
             },
             getStatusName(status, done_direct) {
                 if(status == 1) {

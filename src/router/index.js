@@ -72,9 +72,24 @@ export default new Router({
                     meta: { title: '支付记录管理' }
                 },
                 {
+                    path: '/batchpay',
+                    component: resolve => require(['../components/views/payRecord/batchPay.vue'], resolve),
+                    meta: { title: '批量支付' }
+                },
+                {
                     path: '/notifications',
                     component: resolve => require(['../components/views/Tabs.vue'], resolve),
                     meta: { title: '未读消息' }
+                },
+                {
+                    path: '/addcategory',
+                    component: resolve => require(['../components/views/category/AddCategory.vue'], resolve),
+                    meta: { title: '创建分类' }
+                },
+                {
+                    path: '/categoriesmanage',
+                    component: resolve => require(['../components/views/category/CategoriesManage.vue'], resolve),
+                    meta: { title: '分类管理' }
                 },
                 {
                     path: '/icon',

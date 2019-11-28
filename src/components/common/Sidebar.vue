@@ -63,6 +63,18 @@
                         }]
                     },
                     {
+                        icon: 'el-icon-lx-sort',
+                        index: '4',
+                        title: '分类管理',
+                        subs: [{
+                            index: 'addcategory',
+                            title: '添加分类'
+                        },{
+                            index: 'categoriesmanage',
+                            title: '分类管理'
+                        }]
+                    },
+                    {
                         icon: 'el-icon-lx-goods',
                         index: '2',
                         title: '测评管理',
@@ -92,6 +104,9 @@
                         index: '3',
                         title: '支付管理',
                         subs: [{
+                            index: 'batchpay',
+                            title: '批量支付'
+                        },{
                             index: 'paymanage',
                             title: '支付记录管理'
                         }]
