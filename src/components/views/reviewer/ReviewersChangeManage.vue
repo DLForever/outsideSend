@@ -33,9 +33,9 @@
                 <el-table-column type="expand">
                     <template slot-scope="props">
                         <el-form label-position="left" inline class="demo-table-expand">
-                            <el-form-item label="计划日期">
+                            <!-- <el-form-item label="计划日期">
                                 <span>{{ props.row.task_period.plan_date }}</span>
-                            </el-form-item>
+                            </el-form-item> -->
                             <el-form-item label="计划数量">
                                 <span>{{ props.row.task_period.plan_sum }}</span>
                             </el-form-item>
@@ -47,6 +47,14 @@
                             </el-form-item>
                         </el-form>
                     </template>
+                </el-table-column>
+                <el-table-column prop="asin" label="Asin" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="apply_username" label="申请人" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column v-if="isRestrict === 'false'" prop="username" label="送测人" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="plan_date" label="计划日期" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="sum_from" label="原计划数量" show-overflow-tooltip>
                 </el-table-column>
@@ -304,6 +312,12 @@
                 this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess + '&task_id=' + this.$route.params.task_id + '&task_period_id=' + this.$route.params.task_period_id
                 ).then((res) => {
                     if(res.data.code == 200) {
+                        res.data.data.forEach((data) => {
+                            data.apply_username = data.task.apply_username
+                            data.username = data.task.username
+                            data.asin = data.task.asin
+                            data.plan_date = data.task_period.plan_date
+                        })
                         this.tableData = res.data.data
                         this.totals = res.data.count
                         this.paginationShow = true
@@ -327,6 +341,12 @@
                 this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess + '&task_id=' + this.$route.params.task_id + '&task_period_id=' + this.$route.params.task_period_id
                 ).then((res) => {
                     if(res.data.code == 200) {
+                        res.data.data.forEach((data) => {
+                            data.apply_username = data.task.apply_username
+                            data.username = data.task.username
+                            data.asin = data.task.asin
+                            data.plan_date = data.task_period.plan_date
+                        })
                         this.tableData = res.data.data
                         this.totals = res.data.count
                         this.table_loading = false

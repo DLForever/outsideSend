@@ -86,14 +86,14 @@
                     <el-table-column prop="currency" label="币种" width="45">
                     </el-table-column>
                 </template>
-                <el-table-column key="3" prop="pay_price" label="本金" width="65">
+                <!-- <el-table-column key="3" prop="pay_price" label="本金" width="65">
                 </el-table-column>
                 <el-table-column v-if="!filter_commission" key="6" prop="charge" label="手续费" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column key="5" v-if="statusSelect != 7" prop="sumPrice" label="总费用" show-overflow-tooltip>
-                </el-table-column>
+                </el-table-column> -->
                 <template v-if="isRestrict === 'false'">
-                    <template v-if="filter_refund">
+                    <!-- <template v-if="filter_refund">
                     </template>
                     <template v-if="filter_commission">
                         <el-table-column key="7" prop="commission" label="佣金" show-overflow-tooltip>
@@ -104,7 +104,7 @@
                         </el-table-column>
                         <el-table-column key="10" prop="sumPrice" label="总费用" show-overflow-tooltip>
                         </el-table-column>
-                    </template>
+                    </template> -->
                     <el-table-column prop="need_refund2" label="是否需要返款" show-overflow-tooltip>
                         <template slot-scope="scope">
                             <el-tag type="warning" v-if="scope.row.need_refund2 == '是'">是</el-tag>
@@ -338,6 +338,17 @@
                 <el-form-item label="亚马逊profile url">
                     <el-input v-model="addReviewerForm.profile_url"></el-input>
                 </el-form-item>
+                <el-form-item label="自费金额" prop="self_pay_price">
+                    <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.self_pay_price" :min="0" :step="10"></el-input-number>
+                </el-form-item>
+                <el-form-item label="是否含税" prop="pay_tax">
+                    <el-select v-model="addReviewerForm.pay_tax">
+                        <el-option v-for="item in pay_tax_options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="税前价格" prop="before_tax_price">
+                    <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.before_tax_price" :min="0" :step="10"></el-input-number>
+                </el-form-item>
                  <el-form-item label="备注">
                     <el-input v-model="addReviewerForm.remark"></el-input>
                 </el-form-item>
@@ -410,19 +421,6 @@
                 </el-table-column>
                 <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="150">
                 </el-table-column>
-                <el-table-column prop="pay_price" label="支付价格" >
-                </el-table-column>
-                <el-table-column prop="commission" label="佣金">
-                </el-table-column>
-                <el-table-column prop="commission_charge" label="佣金手续费" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="charge" label="手续费" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="sumPrice2" label="总费用" show-overflow-tooltip>
-                    <template slot-scope="scope">
-                        <el-button type="warning">{{scope.row.sumPrice2}}</el-button>
-                    </template>
-                </el-table-column>
                 <el-table-column prop="need_refund2" label="是否需要返款" width="95">
                     <template slot-scope="scope">
                         <el-tag type="warning" v-if="scope.row.need_refund2 == '是'">是</el-tag>
@@ -477,6 +475,44 @@
                 <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="140">
                 </el-table-column>
                 <el-table-column prop="updated_at" label="更新时间" :formatter="formatter_updated_at" width="140">
+                </el-table-column>
+            </el-table>
+            <br>
+            <el-table :data="review_details" border style="width: 100%">
+                <el-table-column prop="commission" label="佣金" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="commission_charge" label="佣金手续费" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="commission_total" label="佣金总费用" show-overflow-tooltip>
+                </el-table-column>
+            </el-table>
+            <br>
+            <el-table :data="review_details" border style="width: 100%">
+                <el-table-column prop="pay_price" label="支付费用" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="charge" label="手续费" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="customer_total" label="总费用" show-overflow-tooltip>
+                </el-table-column>
+            </el-table>
+            <br>
+            <el-table v-if="isRestrict === 'false'" :data="review_details" border style="width: 100%">
+                <el-table-column prop="pay_price" label="支付费用" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="before_tax_price" label="税前费用" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="pay_charge" label="手续费" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="self_pay_price" label="自费" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="fan_total" label="粉丝费用" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="pay_tax" label="是否含税" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tag type="warning" v-if="scope.row.pay_tax === true">是</el-tag>
+                        <el-tag type="success" v-else-if="scope.row.pay_tax === false">否</el-tag>
+                        <span v-else></span>
+                    </template>
                 </el-table-column>
             </el-table>
         </el-dialog>
@@ -743,7 +779,10 @@
                     facebook_url: '',
                     isPay: '',
                     remark: '',
-                    poundage: 0
+                    poundage: 0,
+                    self_pay_price: 0,
+                    before_tax_price: 0,
+                    pay_tax: ''
                 },
                 rules: {
                     keyword: [{
@@ -806,6 +845,21 @@
                         message: '请选择是否需要返款',
                         trigger: 'blur'
                     }],
+                    self_pay_price: [{
+                        required: true,
+                        message: '请输入自费金额',
+                        trigger: 'blur'
+                    }],
+                    before_tax_price: [{
+                        required: true,
+                        message: '请输入税前价格',
+                        trigger: 'blur'
+                    }],
+                    pay_tax: [{
+                        required: true,
+                        message: '请选择是否含税',
+                        trigger: 'blur'
+                    }],
                 },
                 doneVisible: false,
                 updatereviewerVisible: false,
@@ -857,7 +911,7 @@
               search_selects: [],
               search_show: [{'dateDis' : false}, {'fanDis' : false}, {'shopDis' : false}, {'userDis' : false}, {'applyuserDis' : false}],
               search_show2: ['dateDis', 'fanDis', 'shopDis', 'userDis', 'applyuserDis'],
-              site_options: ['US', 'UK', 'DE', 'JP'],
+              site_options: ['US', 'UK', 'DE', 'JP', 'CA'],
               site_filter: '',
               filter_name: '',
               filter_shopname: '',
@@ -887,7 +941,8 @@
               date_begin_ex: '',
               date_end_ex: '',
               append_commission: 0,
-              commissionVisible: false
+              commissionVisible: false,
+              pay_tax_options: [{value: '0', label: '否'},  {value: '1', label: '是'}]
             }
         },
         created() {
@@ -989,13 +1044,13 @@
                             } else if(String(data.need_refund) == 'false'){
                                 data.need_refund2 = '否'
                             }
-                            data.sumPrice2 = parseFloat((Number(data.charge) + Number(data.commission) + Number(data.commission_charge) + Number(data.pay_price)).toPrecision(12))
-                            data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
-                            if(this.statusSelect == 2) {
-                                data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
-                            } else if (this.statusSelect == 7) {
-                                data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission) + Number(data.pay_price)).toPrecision(12))
-                            }
+                            // data.sumPrice2 = parseFloat((Number(data.charge) + Number(data.commission) + Number(data.commission_charge) + Number(data.pay_price)).toPrecision(12))
+                            // data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
+                            // if(this.statusSelect == 2) {
+                            //     data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
+                            // } else if (this.statusSelect == 7) {
+                            //     data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission) + Number(data.pay_price)).toPrecision(12))
+                            // }
                             data.pay_records.forEach((data2) => {
                                 data.pictures.push(data2.pictures[0])
                             })
@@ -1050,13 +1105,13 @@
                             } else if(String(data.need_refund) == 'false'){
                                 data.need_refund2 = '否'
                             }
-                            data.sumPrice2 = parseFloat((Number(data.charge) + Number(data.commission) + Number(data.commission_charge) + Number(data.pay_price)).toPrecision(12))
-                            data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
-                            if(this.statusSelect == 2) {
-                                data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
-                            } else if (this.statusSelect == 7) {
-                                data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission) + Number(data.pay_price)).toPrecision(12))
-                            }
+                            // data.sumPrice2 = parseFloat((Number(data.charge) + Number(data.commission) + Number(data.commission_charge) + Number(data.pay_price)).toPrecision(12))
+                            // data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
+                            // if(this.statusSelect == 2) {
+                            //     data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
+                            // } else if (this.statusSelect == 7) {
+                            //     data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission) + Number(data.pay_price)).toPrecision(12))
+                            // }
                             data.pay_records.forEach((data2) => {
                                 data.pictures.push(data2.pictures[0])
                             })
@@ -1427,6 +1482,9 @@
                     remark: item.remark,
                     poundage: item.charge,
                     done_direct: String(item.done_direct),
+                    self_pay_price: item.self_pay_price,
+                    before_tax_price: item.before_tax_price,
+                    pay_tax: item.pay_tax
                 }
                 if(this.addReviewerForm.isPay == 'true') {
                     this.addReviewerForm.isPay = '1'
@@ -1438,6 +1496,8 @@
                 } else if(this.addReviewerForm.done_direct == 'false') {
                     this.addReviewerForm.done_direct = '0'
                 }
+                this.addReviewerForm.pay_tax = this.addReviewerForm.pay_tax == true ? '1' : '0'
+                console.log(this.addReviewerForm.pay_tax)
                 // this.sumPrice = parseFloat((Number(this.addReviewerForm.pay_price) + Number(this.addReviewerForm.commission) + Number(this.addReviewerForm.poundage)).toPrecision(12))
                 this.fileList = []
                 this.fileList2 = []
@@ -1469,6 +1529,9 @@
                         formData.append('task_record[task_id]', this.addReviewerForm.task_id)
                         formData.append('task_record[task_period_id]', this.addReviewerForm.task_period_id)
                         formData.append('task_record[done_direct]', this.addReviewerForm.done_direct)
+                        formData.append('task_record[self_pay_price]', this.addReviewerForm.self_pay_price)
+                        formData.append('task_record[before_tax_price]', this.addReviewerForm.before_tax_price)
+                        formData.append('task_record[pay_tax]', this.addReviewerForm.pay_tax)
                         this.fileList.forEach((item) => {
                             formData.append('picture_review[]', item.raw)
                         })

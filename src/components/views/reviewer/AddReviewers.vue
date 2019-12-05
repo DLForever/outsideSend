@@ -201,7 +201,7 @@
 					keywords: '',
 					keyword_index: ''
 				},
-				site_options: ['US', 'UK', 'DE', 'JP']
+				site_options: ['US', 'UK', 'DE', 'JP', 'CA']
 			}
 		},
 		beforeRouteEnter: (to, from, next) => {

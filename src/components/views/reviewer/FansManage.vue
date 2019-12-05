@@ -305,7 +305,7 @@
                 user_total2: 0,
                 loading2: false,
                 user_options2: [],
-                site_options: ['US', 'UK', 'DE', 'JP'],
+                site_options: ['US', 'UK', 'DE', 'JP', 'CA'],
                 site_filter: '',
                 search_asin: '',
                 search_number: ''

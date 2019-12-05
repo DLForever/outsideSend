@@ -57,7 +57,11 @@
                 </template>
                 <el-table-column prop="apply_username" label="申请人" width="70">
                 </el-table-column>
-                <el-table-column prop="name" label="产品名称" show-overflow-tooltip>
+                <template v-if="isRestrict === 'false'">
+                    <el-table-column prop="category_name" label="分类" width="100" show-overflow-tooltip>
+                    </el-table-column>
+                </template>
+                <el-table-column prop="name" label="产品名称" width="100" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="weight" label="优先级" width="70">
                     <template slot-scope="scope">
@@ -288,6 +292,17 @@
                 <el-form-item label="亚马逊profile url">
                     <el-input v-model="addReviewerForm.profile_url"></el-input>
                 </el-form-item>
+                <el-form-item label="自费金额" prop="self_pay_price">
+                    <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.self_pay_price" :min="0" :step="10"></el-input-number>
+                </el-form-item>
+                <el-form-item label="是否含税" prop="pay_tax">
+                    <el-select v-model="addReviewerForm.pay_tax">
+                        <el-option v-for="item in pay_tax_options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="税前价格" prop="before_tax_price">
+                    <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.before_tax_price" :min="0" :step="10"></el-input-number>
+                </el-form-item>
                 <el-form-item label="备注">
                     <el-input v-model="addReviewerForm.remark"></el-input>
                 </el-form-item>
@@ -380,6 +395,16 @@
             </el-table>
             <br>
             <el-table :data="detailOptions2" border style="width: 100%">
+                <el-table-column v-if="isRestrict === 'false'" type="expand">
+                    <template slot-scope="scope" >
+                        <el-table :data="scope.row.task_period_infos" border style="width: 100%">
+                            <el-table-column prop="username" label="送测人" show-overflow-tooltip>
+                            </el-table-column>
+                            <el-table-column prop="sum" label="数量" show-overflow-tooltip>
+                            </el-table-column>
+                        </el-table>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="plan_date" label="计划日期" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <el-tooltip class="item" effect="dark" content="查看该日期的变更记录" placement="top">
@@ -654,7 +679,10 @@
                     facebook_url: '',
                     isPay: undefined,
                     remark: '',
-                    poundage: 0
+                    poundage: 0,
+                    self_pay_price: 0,
+                    before_tax_price: 0,
+                    pay_tax: ''
                 },
                 rules: {
                     keyword: [{
@@ -717,6 +745,21 @@
                         message: '请选择是否需要返款',
                         trigger: 'blur'
                     }],
+                    self_pay_price: [{
+                        required: true,
+                        message: '请输入自费金额',
+                        trigger: 'blur'
+                    }],
+                    before_tax_price: [{
+                        required: true,
+                        message: '请输入税前价格',
+                        trigger: 'blur'
+                    }],
+                    pay_tax: [{
+                        required: true,
+                        message: '请选择是否含税',
+                        trigger: 'blur'
+                    }],
                 },
                 task_id: '',
                 distributeUserOptions: [],
@@ -743,7 +786,7 @@
                 plan_sum: 0,
                 plan_date: '',
                 isaddPlan: false,
-                site_options: ['US', 'UK', 'DE', 'JP'],
+                site_options: ['US', 'UK', 'DE', 'JP', 'CA'],
                 paytype_options: ['PayPal', '微信'],
                 currency_options: ['美金', '英镑', '欧元', '日元'],
                 keyword_options: [],
@@ -766,7 +809,8 @@
                 weight: '',
                 weight_options: [{value: 0, label: '低'},  {value: 1, label: '正常'}, {value: 2, label: '高'}, {value: 3, label: '紧急'}],
                 setWeightVisible: false,
-                weight_filter: ''
+                weight_filter: '',
+                pay_tax_options: [{value: 0, label: '否'},  {value: 1, label: '是'}]
             }
         },
         created() {
@@ -1143,6 +1187,9 @@
                         formData.append('task_record[remark]', this.addReviewerForm.remark)
                         formData.append('task_record[task_id]', this.addReviewerForm.task_id)
                         formData.append('task_record[task_period_id]', this.addReviewerForm.task_period_id)
+                        formData.append('task_record[self_pay_price]', this.addReviewerForm.self_pay_price)
+                        formData.append('task_record[before_tax_price]', this.addReviewerForm.before_tax_price)
+                        formData.append('task_record[pay_tax]', this.addReviewerForm.pay_tax)
                         this.$axios.post('/task_records', formData).then((res) => {
                             if(res.data.code == 200) {
                                 this.$message.success('提交成功！')
