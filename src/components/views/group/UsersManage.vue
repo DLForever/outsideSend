@@ -30,6 +30,12 @@
                 </el-table-column>
                 <el-table-column prop="sex2" label="性别">
                 </el-table-column>
+                <el-table-column prop="is_company" label="是否员工" width="120">
+                    <template slot-scope="scope">
+                        <el-tag type="success" v-if="scope.row.is_company == true">是</el-tag>
+                        <el-tag type="warning" v-else-if="scope.row.is_company == false">否</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="created_at_format" label="创建时间" sortable width="140">
                 </el-table-column>
                 <!-- <el-table-column prop="updated_at" label="更新时间" sortable width="140">
@@ -82,6 +88,10 @@
                 <el-form-item label="是否限制" prop="restrict">
                     <el-radio v-model="form.restrict" label="1">是</el-radio>
                     <el-radio v-model="form.restrict" label="0">否</el-radio>
+                </el-form-item>
+                <el-form-item label="是否公司员工" prop="restrict">
+                    <el-radio v-model="form.is_company" label="1">是</el-radio>
+                    <el-radio v-model="form.is_company" label="0">否</el-radio>
                 </el-form-item>
                 <el-form-item label="邮箱">
                     <el-input v-model="form.email"></el-input>
@@ -176,6 +186,14 @@
                     name: '',
                     date: '',
                     address: '',
+                    username: '',
+                    name: '',
+                    email: '',
+                    phone: '',
+                    remark: '',
+                    sex: '',
+                    restrict: '',
+                    is_company: ''
                 },
                 idx: -1,
                 picture_id: undefined,
@@ -328,14 +346,15 @@
                 const item = this.tableData[index];
                 this.form = {
                     id: item.id,
-                    username: item.username,
-                    name: item.name,
-                    email: item.email,
-                    phone: item.phone,
-                    remark: item.remark,
+                    username: item.username == null ? '' : item.username,
+                    name: item.name == null ? '' : item.name,
+                    email: item.email == null ? '' : item.email,
+                    phone: item.phone == null ? '' : item.phone,
+                    remark: item.remark == null ? '' : item.remark,
                     sex: String(item.sex),
                     password: '',
-                    restrict: String(item.restrict)
+                    restrict: String(item.restrict),
+                    is_company: (item.is_company) == true ? '1' : '0'
                 }
                 if (this.form.restrict === 'false') {
                     this.form.restrict = '0'
@@ -375,6 +394,7 @@
                 formData.append('user[remark]', this.form.remark)
                 formData.append('user[sex]', this.form.sex)
                 formData.append('user[restrict]', this.form.restrict)
+                formData.append('user[is_company]', (this.form.is_company == true ? '1' : '0'))
                 this.$axios.patch('/users/' + this.form.id, formData).then((res) => {
                     if(res.data.code == 200) {
                         this.$message.success('更新成功！')

@@ -2,7 +2,7 @@
 	<div>
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
-				<el-breadcrumb-item><i class="el-icon-lx-goods"></i> 外单测评管理</el-breadcrumb-item>
+				<el-breadcrumb-item><i class="el-icon-lx-goods"></i> 公司测评管理</el-breadcrumb-item>
 				<el-breadcrumb-item>新建测评任务</el-breadcrumb-item>
 			</el-breadcrumb>
 		</div>

@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 外单测评管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 公司测评管理</el-breadcrumb-item>
                 <el-breadcrumb-item>测评任务管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -10,7 +10,7 @@
             <div class="handle-box">
                 <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmDistribute">分配</el-button>
                 <el-button  type="warning">
-                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&product_name=' + filter_name + '&apply_user_id=' + apply_user_id + '&self=' + (is_self == true ? 1 : 0) + '&is_company=' + is_company">导出</a>
+                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&product_name=' + filter_name + '&apply_user_id=' + apply_user_id + '&self=' + (is_self == true ? 1 : 0) + '&is_company=1'">导出</a>
                 </el-button>
                 <el-button v-if="isRestrict === 'false'" type="success" @click="updateCategory">分类</el-button>
                 <div class="fnsku_filter">
@@ -810,8 +810,7 @@
                 weight_options: [{value: 0, label: '低'},  {value: 1, label: '正常'}, {value: 2, label: '高'}, {value: 3, label: '紧急'}],
                 setWeightVisible: false,
                 weight_filter: '',
-                pay_tax_options: [{value: 0, label: '否'},  {value: 1, label: '是'}],
-                is_company: ''
+                pay_tax_options: [{value: 0, label: '否'},  {value: 1, label: '是'}]
             }
         },
         created() {
@@ -878,10 +877,9 @@
 //                  this.url = '/ms/table/list';
                 };
                 this.export_token = localStorage.getItem('token')
-                this.is_company = localStorage.getItem('is_company')
                 // console.log(this.$store.getters.skipPage)
                 this.table_loading = true
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=' + this.is_company
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=1'
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -913,7 +911,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=' + this.is_company
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=1'
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1310,15 +1308,15 @@
                 }
             },
             toReviewers(index, row) {
-                this.$router.push({name: 'Reviewersinfomanage', params: {task_id: row.id}})
+                this.$router.push({name: 'Reviewersinfomanagecompany', params: {task_id: row.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
             toReviewersChange(index, row) {
-                this.$router.push({name: 'Reviewerschangemanage', params: {task_id: row.id}})
+                this.$router.push({name: 'Reviewerschangemanagecompany', params: {task_id: row.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
             toReviewersChange2(index, row) {
-                this.$router.push({name: 'Reviewerschangemanage', params: {task_period_id: row.id}})
+                this.$router.push({name: 'Reviewerschangemanagecompany', params: {task_period_id: row.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
             orderAdd() {
@@ -1539,10 +1537,6 @@
                     this.submitDisabled = false
                 })
             },
-            closePlan() {
-                // this.editVisible = false
-                this.getData()
-            },
             handleDeletePlan(index, row) {
                 this.$prompt('请输入删除备注', '提示', {
                     confirmButtonText: '确定',
@@ -1705,8 +1699,7 @@
             },
             onInfinite_category(obj) {
                 if((this.category_page * 20) < this.category_total) {
-                    this.category_page += 1
-                    // this.getUsers(obj.loaded)
+                    this.category_page += 1s
                     this.remoteMethod4(this.query4,obj.loaded)
                 } else {
                     obj.complete()
@@ -1734,7 +1727,6 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.loading4 = false
-                            //                          this.options = res.data.data
                             if(reload) {
                                 let tempOptions = []
                                 this.category_options = tempOptions.concat(res.data.data)

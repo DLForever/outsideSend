@@ -24,6 +24,10 @@
 								<el-radio v-model="form.restrict" label="1">是</el-radio>
 								<el-radio v-model="form.restrict" label="0">否</el-radio>
 							</el-form-item>
+							<el-form-item label="是否公司员工" prop="staff">
+								<el-radio v-model="form.staff" label="1">是</el-radio>
+								<el-radio v-model="form.staff" label="0">否</el-radio>
+							</el-form-item>
 							<el-form-item label="邮箱">
 								<el-input v-model.trim="form.email"></el-input>
 							</el-form-item>
@@ -114,7 +118,8 @@
 					policy_ids: [],
 					sex: '',
 					remark: '',
-					restrict: ''
+					restrict: '',
+					staff: ''
 				},
 				rules: {
 					username: [{
@@ -135,6 +140,11 @@
 					restrict: [{
 						required: true,
 						message: '请选择是否限制',
+						trigger: 'blur'
+					}],
+					staff: [{
+						required: true,
+						message: '请选择用户类型',
 						trigger: 'blur'
 					}],
 				},
@@ -235,6 +245,7 @@
 						formData.append('user[remark]', this.form.remark)
 						formData.append('user[sex]', this.form.sex)
 						formData.append('user[restrict]', this.form.restrict)
+						formData.append('user[is_company]', this.form.staff)
 						this.form.role_ids.forEach((data) => {
 							formData.append('role_ids[]', data)
 						})

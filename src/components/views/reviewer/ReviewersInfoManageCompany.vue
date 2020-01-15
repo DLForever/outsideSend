@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 外单测评管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 公司测评管理</el-breadcrumb-item>
                 <el-breadcrumb-item>测评任务管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -11,7 +11,7 @@
                 <template v-if="isRestrict === 'false'">
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
                     <el-button  type="primary">
-                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&is_company=' + is_company">导出</a>
+                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&is_company=1'">导出</a>
                     </el-button>
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template>
@@ -952,8 +952,7 @@
               date_end_ex: '',
               append_commission: 0,
               commissionVisible: false,
-              pay_tax_options: [{value: '0', label: '否'},  {value: '1', label: '是'}],
-              is_company: ''
+              pay_tax_options: [{value: '0', label: '否'},  {value: '1', label: '是'}]
             }
         },
         created() {
@@ -1023,7 +1022,6 @@
                 };
                 this.table_loading = true
                 this.export_token = localStorage.getItem('token')
-                this.is_company = localStorage.getItem('is_company')
                 if (!this.$route.params.task_id) {
                     this.$route.params.task_id = ''
                 }
@@ -1047,7 +1045,7 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id + '&is_pay_capital=' + temp_capital + '&is_pay_commission=' + temp_commission + '&is_company=' + this.is_company
+                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id + '&is_pay_capital=' + temp_capital + '&is_pay_commission=' + temp_commission + '&is_company=1'
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1109,7 +1107,7 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id + '&is_pay_capital=' + temp_capital + '&is_pay_commission=' + temp_commission + '&is_company=' + this.is_company
+                this.$axios.get( '/task_records?page='+this.cur_page + tempStatus + '&fan_id=' + this.fan_id + '&user_id=' + this.user_id_filter + '&task_id=' + this.$route.params.task_id + '&asin=' + this.search_asin + '&number=' + this.search_number + '&p_account=' + this.search_fan + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp + '&country=' + this.site_filter + '&shopname=' + this.filter_shopname + '&product_name=' + this.filter_name + '&apply_user_id=' + this.apply_user_id + '&is_pay_capital=' + temp_capital + '&is_pay_commission=' + temp_commission + '&is_company=1'
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {

@@ -86,6 +86,10 @@
                 if(command == 'loginout'){
                     this.clearInte()
                     localStorage.removeItem('ms_username')
+                    localStorage.removeItem('token')
+                    localStorage.removeItem('restrict')
+                    localStorage.removeItem('notifyid')
+                    localStorage.removeItem('is_company')
                     this.$router.push('/login');
                 }
             },

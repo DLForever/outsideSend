@@ -75,6 +75,7 @@
                                 localStorage.setItem('token', res.data.data.token)
                                 localStorage.setItem('notifyid', JSON.stringify([])) //保存消息id到本地
                                 localStorage.setItem('restrict', res.data.data.restrict)
+                                localStorage.setItem('is_company', res.data.data.is_company == true ? '1' : '0')
                                 this.$router.push('/');
                             }
                         }).catch((res) => {

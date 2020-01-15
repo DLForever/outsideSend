@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 外单测评管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 公司测评管理</el-breadcrumb-item>
                 <el-breadcrumb-item>任务变更管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -253,8 +253,7 @@
                 detailOptions3: [],
                 isProcess: '',
                 isProcessOptions: [{label: '已处理', value: 1}, {label: '未处理', value: 0}],
-                isRestrict: '',
-                is_company: ''
+                isRestrict: ''
             }
         },
         created() {
@@ -304,14 +303,13 @@
                 };
                 this.table_loading = true
                 this.export_token = localStorage.getItem('token')
-                this.is_company = localStorage.getItem('is_company')
                 if (!this.$route.params.task_id) {
                     this.$route.params.task_id = ''
                 }
                 if (!this.$route.params.task_period_id) {
                     this.$route.params.task_period_id = ''
                 }
-                this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess + '&task_id=' + this.$route.params.task_id + '&task_period_id=' + this.$route.params.task_period_id + '&is_company=' + this.is_company
+                this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess + '&task_id=' + this.$route.params.task_id + '&task_period_id=' + this.$route.params.task_period_id + '&is_company=1'
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -340,7 +338,7 @@
                 if (!this.$route.params.task_period_id) {
                     this.$route.params.task_period_id = ''
                 }
-                this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess + '&task_id=' + this.$route.params.task_id + '&task_period_id=' + this.$route.params.task_period_id + '&is_company=' + this.is_company
+                this.$axios.get( '/period_change_records?page='+this.cur_page + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&process=' + this.isProcess + '&task_id=' + this.$route.params.task_id + '&task_period_id=' + this.$route.params.task_period_id + '&is_company=1'
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {

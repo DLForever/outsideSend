@@ -77,7 +77,28 @@
                     {
                         icon: 'el-icon-lx-goods',
                         index: '2',
-                        title: '测评管理',
+                        title: '公司测评管理',
+                        subs: [{
+                            index: 'addreviewerscompany',
+                            title: '新建测评任务'
+                        },
+                        {
+                            index: 'reviewersmanagecompany',
+                            title: '测评任务管理'
+                        },
+                        {
+                            index: 'reviewersinfomanagecompany',
+                            title: '测评记录管理'
+                        },
+                        {
+                            index: 'reviewerschangemanagecompany',
+                            title: '任务变更管理'
+                        },]
+                    },
+                    {
+                        icon: 'el-icon-lx-goods',
+                        index: '5',
+                        title: '外单测评管理',
                         subs: [{
                             index: 'addreviewers',
                             title: '新建测评任务'
@@ -93,8 +114,13 @@
                         {
                             index: 'reviewerschangemanage',
                             title: '任务变更管理'
-                        },
-                        {
+                        },]
+                    },
+                    {
+                        icon: 'el-icon-lx-people',
+                        index: '6',
+                        title: '粉丝管理',
+                        subs: [{
                             index: 'fansmanage',
                             title: '粉丝管理'
                         }]
