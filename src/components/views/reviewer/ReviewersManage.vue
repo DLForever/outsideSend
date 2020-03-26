@@ -8,11 +8,15 @@
         </div>
         <div class="container">
             <div class="handle-box">
+                <div>
                 <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmDistribute">分配</el-button>
+                <el-button type="primary" @click="exportReviewers">部分导出</el-button>
                 <el-button  type="warning">
-                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&product_name=' + filter_name + '&apply_user_id=' + apply_user_id + '&self=' + (is_self == true ? 1 : 0) + '&is_company=' + is_company">导出</a>
+                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&product_name=' + filter_name + '&apply_user_id=' + apply_user_id + '&self=' + (is_self == true ? 1 : 0) + '&is_company=' + is_company">导出全部</a>
                 </el-button>
                 <el-button v-if="isRestrict === 'false'" type="success" @click="updateCategory">分类</el-button>
+                </div>
+                <br>
                 <div class="fnsku_filter">
                     <!-- 开发人员:
                     <el-input style="width:150px" placeholder="请输入开发人员" v-model.trim="search_shopname"></el-input> -->
@@ -49,6 +53,8 @@
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="asin" label="ASIN" width="150" fixed show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column prop="sku" label="SKU" width="150" fixed show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="country" label="站点" width="50">
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
@@ -70,16 +76,16 @@
                 </el-table-column>
                 <el-table-column prop="price" label="价格" width="70">
                 </el-table-column>
-                <el-table-column prop="customer_commission" label="佣金" width="70">
+                <el-table-column prop="customer_commission" label="佣金" width="65">
                 </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="url" label="url" show-overflow-tooltip>
+                <el-table-column prop="url" label="url" width="50">
                     <template slot-scope="scope">
-                        <a v-if="scope.row.url != null && scope.row.url != '' && scope.row.url != 'null'" :href="scope.row.url" target="_blank">查看链接</a>
+                        <a v-if="scope.row.url != null && scope.row.url != '' && scope.row.url != 'null'" :href="scope.row.url" target="_blank">链接</a>
                     </template>
                 </el-table-column>
-                <el-table-column prop="email" label="Review截图" width="120">
+                <el-table-column prop="email" label="Review截图" width="115">
                     <template slot-scope="scope">
                         <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
                             <span v-if="scope.row.pictures.length === 0">无</span>
@@ -89,7 +95,7 @@
                         <span v-else>无</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="status" label="状态" width="120">
+                <el-table-column prop="status" label="状态" width="115">
                     <template slot-scope="scope">
                         <el-tag :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status)}}</el-tag>
                     </template>
@@ -162,6 +168,9 @@
                 <el-form-item label="ASIN">
                     <span>{{form.asin}}</span>
                 </el-form-item>
+                <el-form-item label="SKU">
+                    <el-input v-model="form.sku"></el-input>
+                </el-form-item>
                 <el-form-item label="站点">
                     <el-select v-model="form.country">
                         <el-option v-for="item in site_options" :key="item" :label="item" :value="item"></el-option>
@@ -184,11 +193,11 @@
                     <table >
                         <tbody v-for="(p,index) in keywordsArr">
                             <td>
-                                <el-input style="margin-bottom: 5px;" v-model.trim="p.keywords" placeholder="请输入关键词"></el-input>
+                                <el-input style="margin-bottom: 5px;" v-model="p.keywords" placeholder="请输入关键词"></el-input>
                             </td>
                             &nbsp&nbsp
                             <td>
-                                <el-input style="margin-bottom: 5px;" v-model.trim="p.keyword_index" placeholder="请输入关键词位置"></el-input>
+                                <el-input style="margin-bottom: 5px;" v-model="p.keyword_index" placeholder="请输入关键词位置"></el-input>
                             </td>
                             <div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
                                 <i style="margin-right: 5px;  font-size: 15px" class="el-icon-circle-plus" @click="keywordsAdd(index)"></i>
@@ -586,6 +595,11 @@
                 <el-button type="primary" @click="saveSetWeight" :disabled="submitDisabled">提 交</el-button>
             </span>
         </el-dialog>
+        <!-- 下载提示 -->
+        <el-dialog title="下载" :visible.sync="exportVisible" width="35%" @close="closeExport">
+            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?ids=' + exportIds + '&token=' + export_token">下载excel文件</a></el-button>
+        </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -788,7 +802,7 @@
                 isaddPlan: false,
                 site_options: ['US', 'UK', 'DE', 'JP', 'CA'],
                 paytype_options: ['PayPal', '微信'],
-                currency_options: ['美金', '英镑', '欧元', '日元'],
+                currency_options: ['美金', '英镑', '欧元', '日元', '加币'],
                 keyword_options: [],
                 table_loading: true,
                 username: '',
@@ -811,7 +825,9 @@
                 setWeightVisible: false,
                 weight_filter: '',
                 pay_tax_options: [{value: 0, label: '否'},  {value: 1, label: '是'}],
-                is_company: ''
+                is_company: '',
+                exportVisible: false,
+                exportIds: []
             }
         },
         created() {
@@ -879,6 +895,11 @@
                 };
                 this.export_token = localStorage.getItem('token')
                 this.is_company = localStorage.getItem('is_company')
+                if (localStorage.getItem('restrict') === 'true') {
+                    this.is_company = ''
+                } else if (localStorage.getItem('restrict') === 'false' && localStorage.getItem('is_company') === '1') {
+                    this.is_company = '0'
+                }
                 // console.log(this.$store.getters.skipPage)
                 this.table_loading = true
                 this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=' + this.is_company
@@ -979,7 +1000,8 @@
                     price: item.price,
                     keywords: item.keywords,
                     keyword_index: item.keyword_index,
-                    remark: item.remark
+                    remark: item.remark,
+                    sku: item.sku,
                 }
                 let tempkeywords = item.keywords.split(',')
                 let tempkeywordindex = item.keyword_index.split(',')
@@ -1035,6 +1057,7 @@
                 formData.append('task[keywords]', String(tempkeywords))
                 formData.append('task[keyword_index]', String(tempkeyword_index))
                 formData.append('task[remark]', this.form.remark)
+                formData.append('task[sku]', this.form.sku)
                 this.date_time.forEach((data) => {
                     formData.append('task[plan_date][]', data.plan_date)
                     formData.append('task[plan_sum][]', data.plan_sum)
@@ -1773,6 +1796,22 @@
                 }).finally(() => {
                     this.submitDisabled = false
                 })
+            },
+            exportReviewers() {
+                if(this.multipleSelection.length == 0) {
+                    this.$message.error('请至少选择一条数据')
+                    return
+                }
+                this.multipleSelection.forEach((data) => {
+                    this.exportIds.push(data.id)
+                })
+                this.export_token = localStorage.getItem('token')
+                this.exportVisible = true
+            },
+            closeExport() {
+                this.exportVisible = false
+                this.exportIds = []
+                this.$refs.multipleTable.clearSelection()
             },
             getStatusName(status) {
                 if(status == 1) {

@@ -14,6 +14,9 @@
 							<el-form-item label="Asin" prop="asin">
 								<el-input v-model.trim="form.asin"></el-input>
 							</el-form-item>
+							<el-form-item label="SKU">
+								<el-input v-model.trim="form.sku"></el-input>
+							</el-form-item>
 							<el-form-item label="站点" prop="site">
 								<el-select v-model="form.site">
 									<el-option v-for="item in site_options" :key="item" :label="item" :value="item"></el-option>
@@ -137,7 +140,8 @@
 					website: '',
 					shopname: '',
 					price: '',
-					remark: ''
+					remark: '',
+					sku: ''
 				},
 				rules: {
 					name: [{
@@ -263,6 +267,7 @@
 						formData.append('task[keywords]', String(tempkeywords))
 						formData.append('task[keyword_index]', String(tempkeyword_index))
 						formData.append('task[remark]', this.form.remark)
+						formData.append('task[sku]', this.form.sku)
 						this.date_time.forEach((data) => {
 							formData.append('task[plan_date][]', data.date)
 							formData.append('task[plan_sum][]', data.time)

@@ -212,6 +212,87 @@
                     //     ]
                     // }
                 ],
+                items3: [
+                    {
+                        icon: 'el-icon-lx-home',
+                        index: 'dashboard',
+                        title: '系统首页'
+                    },
+                    {
+                        icon: 'el-icon-lx-group',
+                        index: '1',
+                        title: '用户管理',
+                        subs: [{
+                            index: 'addusers',
+                            title: '创建用户'
+                        },
+                        {
+                            index: 'addroles',
+                            title: '创建角色',
+                        },
+                        {
+                            index: 'usersmanage',
+                            title: '用户管理'
+                        },{
+                            index: 'rolesmanage',
+                            title: '角色管理'
+                        }]
+                    },
+                    {
+                        icon: 'el-icon-lx-sort',
+                        index: '4',
+                        title: '分类管理',
+                        subs: [{
+                            index: 'addcategory',
+                            title: '添加分类'
+                        },{
+                            index: 'categoriesmanage',
+                            title: '分类管理'
+                        }]
+                    },
+                    {
+                        icon: 'el-icon-lx-goods',
+                        index: '5',
+                        title: '测评管理',
+                        subs: [{
+                            index: 'addreviewers',
+                            title: '新建测评任务'
+                        },
+                        {
+                            index: 'reviewersmanage',
+                            title: '测评任务管理'
+                        },
+                        {
+                            index: 'reviewersinfomanage',
+                            title: '测评记录管理'
+                        },
+                        {
+                            index: 'reviewerschangemanage',
+                            title: '任务变更管理'
+                        },]
+                    },
+                    {
+                        icon: 'el-icon-lx-people',
+                        index: '6',
+                        title: '粉丝管理',
+                        subs: [{
+                            index: 'fansmanage',
+                            title: '粉丝管理'
+                        }]
+                    },
+                    {
+                        icon: 'el-icon-lx-recharge',
+                        index: '3',
+                        title: '支付管理',
+                        subs: [{
+                            index: 'batchpay',
+                            title: '批量支付'
+                        },{
+                            index: 'paymanage',
+                            title: '支付记录管理'
+                        }]
+                    },
+                ],
                 items2: [
                     {
                         icon: 'el-icon-lx-home',
@@ -275,6 +356,8 @@
             onRoutes(){
                 if (localStorage.getItem('restrict') === 'true') {
                     this.items = this.items2
+                } else if (localStorage.getItem('is_company') === '0' && localStorage.getItem('restrict') === 'false') {
+                    this.items = this.items3
                 }
                 return this.$route.path.replace('/','');
             }

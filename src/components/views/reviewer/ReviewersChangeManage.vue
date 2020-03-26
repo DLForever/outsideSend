@@ -305,6 +305,11 @@
                 this.table_loading = true
                 this.export_token = localStorage.getItem('token')
                 this.is_company = localStorage.getItem('is_company')
+                if (localStorage.getItem('restrict') === 'true') {
+                    this.is_company = ''
+                } else if (localStorage.getItem('restrict') === 'false' && localStorage.getItem('is_company') === '1') {
+                    this.is_company = '0'
+                }
                 if (!this.$route.params.task_id) {
                     this.$route.params.task_id = ''
                 }

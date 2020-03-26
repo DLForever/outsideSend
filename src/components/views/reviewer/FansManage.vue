@@ -357,7 +357,7 @@
                 };
                 this.table_loading = true
                 this.export_token = localStorage.getItem('token')
-                this.$axios.get( '/fans?page='+this.cur_page + '&p_account=' + this.search_fan + '&category_id=' + this.category_filter + '&user_id=' + this.user_id_filter + '&asin=' + this.search_asin + '&order_number=' + this.search_number + '&country=' + this.site_filter + '&apply_user_id=' + this.apply_user_id
+                this.$axios.get( '/fans?page='+this.cur_page + '&p_account=' + encodeURIComponent(this.search_fan) + '&category_id=' + this.category_filter + '&user_id=' + this.user_id_filter + '&asin=' + this.search_asin + '&order_number=' + this.search_number + '&country=' + this.site_filter + '&apply_user_id=' + this.apply_user_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.tableData = res.data.data
@@ -374,7 +374,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/fans?page='+this.cur_page + '&p_account=' + this.search_fan + '&category_id=' + this.category_filter + '&user_id=' + this.user_id_filter + '&asin=' + this.search_asin + '&order_number=' + this.search_number + '&country=' + this.site_filter + '&apply_user_id=' + this.apply_user_id
+                this.$axios.get( '/fans?page='+this.cur_page + '&p_account=' + encodeURIComponent(this.search_fan) + '&category_id=' + this.category_filter + '&user_id=' + this.user_id_filter + '&asin=' + this.search_asin + '&order_number=' + this.search_number + '&country=' + this.site_filter + '&apply_user_id=' + this.apply_user_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.tableData = res.data.data
