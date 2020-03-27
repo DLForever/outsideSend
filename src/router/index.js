@@ -41,48 +41,48 @@ export default new Router({
                 },
                 {
                     path: '/addreviewers',
-                    component: resolve => require(['../components/views/reviewer/AddReviewers.vue'], resolve),
+                    component: resolve => require(['../components/views/reviewer_merge/AddReviewers.vue'], resolve),
                     meta: { title: '新建测评任务' }
                 },
                 {
                     path: '/reviewersmanage',
-                    component: resolve => require(['../components/views/reviewer/ReviewersManage.vue'], resolve),
+                    component: resolve => require(['../components/views/reviewer_merge/ReviewersManage.vue'], resolve),
                     meta: { title: '测评任务管理' }
                 },
                 {
                     path: '/reviewersinfomanage',
-                    component: resolve => require(['../components/views/reviewer/ReviewersInfoManage.vue'], resolve),
+                    component: resolve => require(['../components/views/reviewer_merge/ReviewersInfoManage.vue'], resolve),
                     name: 'Reviewersinfomanage',
                     meta: { title: '测评记录管理' }
                 },
                 {
                     path: '/reviewerschangemanage',
-                    component: resolve => require(['../components/views/reviewer/ReviewersChangeManage.vue'], resolve),
+                    component: resolve => require(['../components/views/reviewer_merge/ReviewersChangeManage.vue'], resolve),
                     name: 'Reviewerschangemanage',
                     meta: { title: '任务变更管理' }
                 },
-                {
-                    path: '/addreviewerscompany',
-                    component: resolve => require(['../components/views/reviewer/AddReviewersCompany.vue'], resolve),
-                    meta: { title: '(公司)新建测评任务' }
-                },
-                {
-                    path: '/reviewersmanagecompany',
-                    component: resolve => require(['../components/views/reviewer/ReviewersManageCompany.vue'], resolve),
-                    meta: { title: '(公司)测评任务管理' }
-                },
-                {
-                    path: '/reviewersinfomanagecompany',
-                    component: resolve => require(['../components/views/reviewer/ReviewersInfoManageCompany.vue'], resolve),
-                    name: 'Reviewersinfomanagecompany',
-                    meta: { title: '(公司)测评记录管理' }
-                },
-                {
-                    path: '/reviewerschangemanagecompany',
-                    component: resolve => require(['../components/views/reviewer/ReviewersChangeManageCompany.vue'], resolve),
-                    name: 'Reviewerschangemanagecompany',
-                    meta: { title: '(公司)任务变更管理' }
-                },
+                // {
+                //     path: '/addreviewerscompany',
+                //     component: resolve => require(['../components/views/reviewer/AddReviewersCompany.vue'], resolve),
+                //     meta: { title: '(公司)新建测评任务' }
+                // },
+                // {
+                //     path: '/reviewersmanagecompany',
+                //     component: resolve => require(['../components/views/reviewer/ReviewersManageCompany.vue'], resolve),
+                //     meta: { title: '(公司)测评任务管理' }
+                // },
+                // {
+                //     path: '/reviewersinfomanagecompany',
+                //     component: resolve => require(['../components/views/reviewer/ReviewersInfoManageCompany.vue'], resolve),
+                //     name: 'Reviewersinfomanagecompany',
+                //     meta: { title: '(公司)测评记录管理' }
+                // },
+                // {
+                //     path: '/reviewerschangemanagecompany',
+                //     component: resolve => require(['../components/views/reviewer/ReviewersChangeManageCompany.vue'], resolve),
+                //     name: 'Reviewerschangemanagecompany',
+                //     meta: { title: '(公司)任务变更管理' }
+                // },
                 {
                     path: '/fansmanage',
                     component: resolve => require(['../components/views/reviewer/FansManage.vue'], resolve),
