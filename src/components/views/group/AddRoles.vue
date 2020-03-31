@@ -12,7 +12,14 @@
 					<div class="form-box">
 						<el-form ref="form" :rules="rules" :model="form" label-width="110px">
 							<el-form-item label="角色名称" prop="name">
-								<el-input v-model.trim="form.name"></el-input>
+								<el-input v-model="form.name"></el-input>
+							</el-form-item>
+							<el-form-item label="角色level" prop="level">
+								<el-input v-model.trim="form.level"></el-input>
+							</el-form-item>
+							<el-form-item label="是否可以分配" prop="can_allocate">
+								<el-radio v-model="form.can_allocate" label="1">是</el-radio>
+								<el-radio v-model="form.can_allocate" label="0">否</el-radio>
 							</el-form-item>
 							<!-- <el-form-item label="备注">
 								<el-input v-model.trim="form.remark"></el-input>
@@ -57,11 +64,23 @@
 				batchImg: [],
 				form: {
 					name: '',
+					level: '',
+					can_allocate: ''
 				},
 				rules: {
 					name: [{
 						required: true,
 						message: '请输入角色名称',
+						trigger: 'blur'
+					}],
+					level: [{
+						required: true,
+						message: '请输入角色level',
+						trigger: 'blur'
+					}],
+					can_allocate: [{
+						required: true,
+						message: '请选择是否可以分配',
 						trigger: 'blur'
 					}],
 				},
@@ -83,6 +102,8 @@
 						this.submitDisabled = true
 						let formData = new FormData()
 						formData.append('name', this.form.name)
+						formData.append('level', this.form.level)
+						formData.append('can_allocate', this.form.can_allocate)
 						this.$axios.post('/roles', formData).then((res) => {
 							if(res.data.code == 200) {
 								this.$message.success('提交成功！')

@@ -77,7 +77,7 @@
                     {
                         icon: 'el-icon-lx-goods',
                         index: '2',
-                        title: '公司测评管理',
+                        title: '测评管理',
                         subs: [{
                             index: 'addreviewerscompany',
                             title: '新建测评任务'
@@ -95,27 +95,27 @@
                             title: '任务变更管理'
                         },]
                     },
-                    {
-                        icon: 'el-icon-lx-goods',
-                        index: '5',
-                        title: '外单测评管理',
-                        subs: [{
-                            index: 'addreviewers',
-                            title: '新建测评任务'
-                        },
-                        {
-                            index: 'reviewersmanage',
-                            title: '测评任务管理'
-                        },
-                        {
-                            index: 'reviewersinfomanage',
-                            title: '测评记录管理'
-                        },
-                        {
-                            index: 'reviewerschangemanage',
-                            title: '任务变更管理'
-                        },]
-                    },
+                    // {
+                    //     icon: 'el-icon-lx-goods',
+                    //     index: '5',
+                    //     title: '外单测评管理',
+                    //     subs: [{
+                    //         index: 'addreviewers',
+                    //         title: '新建测评任务'
+                    //     },
+                    //     {
+                    //         index: 'reviewersmanage',
+                    //         title: '测评任务管理'
+                    //     },
+                    //     {
+                    //         index: 'reviewersinfomanage',
+                    //         title: '测评记录管理'
+                    //     },
+                    //     {
+                    //         index: 'reviewerschangemanage',
+                    //         title: '任务变更管理'
+                    //     },]
+                    // },
                     {
                         icon: 'el-icon-lx-people',
                         index: '6',
@@ -356,9 +356,12 @@
             onRoutes(){
                 if (localStorage.getItem('restrict') === 'true') {
                     this.items = this.items2
-                } else if (localStorage.getItem('is_company') === '0' && localStorage.getItem('restrict') === 'false') {
-                    this.items = this.items3
                 }
+                // if (localStorage.getItem('restrict') === 'true') {
+                //     this.items = this.items2
+                // } else if (localStorage.getItem('is_company') === '0' && localStorage.getItem('restrict') === 'false') {
+                //     this.items = this.items3
+                // }
                 return this.$route.path.replace('/','');
             }
         },

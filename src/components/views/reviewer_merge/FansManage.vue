@@ -44,14 +44,6 @@
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="paypal_account" label="粉丝名称" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="success_sum" label="成功数量" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="review_sum" label="评论数量" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="block_sum" label="失败数量" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="username" label="对接客服" show-overflow-tooltip>
-                </el-table-column>
                 </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
                 </el-table-column>

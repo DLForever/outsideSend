@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 外单测评管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 公司测评管理</el-breadcrumb-item>
                 <el-breadcrumb-item>测评任务管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -10,9 +10,10 @@
             <div class="handle-box">
                 <div>
                 <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmDistribute">分配</el-button>
+                <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmReDistribute">自动分配</el-button>
                 <el-button type="primary" @click="exportReviewers">部分导出</el-button>
                 <el-button  type="warning">
-                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&product_name=' + filter_name + '&apply_user_id=' + apply_user_id + '&self=' + (is_self == true ? 1 : 0) + '&is_company=' + is_company">导出全部</a>
+                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&product_name=' + filter_name + '&apply_user_id=' + apply_user_id + '&self=' + (is_self == true ? 1 : 0) + '&is_company=1'">导出全部</a>
                 </el-button>
                 <el-button v-if="isRestrict === 'false'" type="success" @click="updateCategory">分类</el-button>
                 </div>
@@ -51,6 +52,16 @@
             <br><br>
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="email" label="Review截图" width="115" fixed>
+                    <template slot-scope="scope">
+                        <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
+                            <span v-if="scope.row.pictures.length === 0">无</span>
+                            <img style="cursor: pointer;" v-else-if="scope.row.pictures[0] != undefined && scope.row.pictures[0].url.thumb.url != null && !(scope.row.pictures[0].url.url.match(/.pdf/))" :src="$axios.defaults.baseURL+scope.row.pictures[0].url.thumb.url" @click="showPictures(scope.$index, scope.row)"/>
+                            <span v-else>无</span>
+                        </el-badge>
+                        <span v-else>无</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="asin" label="ASIN" width="150" fixed show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="sku" label="SKU" width="150" fixed show-overflow-tooltip>
@@ -58,7 +69,7 @@
                 <el-table-column prop="country" label="站点" width="50">
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="username" label="送测人" width="140">
+                    <el-table-column prop="role_name" label="已分配的组" width="70">
                     </el-table-column>
                 </template>
                 <el-table-column prop="apply_username" label="申请人" width="70">
@@ -78,21 +89,19 @@
                 </el-table-column>
                 <el-table-column prop="customer_commission" label="佣金" width="65">
                 </el-table-column>
+                <el-table-column prop="total" label="测评总数" width="65">
+                </el-table-column>
+                <el-table-column prop="current" label="当前进行数量" width="65">
+                </el-table-column>
+                <el-table-column prop="block" label="失败数量" width="65">
+                </el-table-column>
+                <el-table-column prop="skip_review" label="免评数量" width="65">
+                </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="url" label="url" width="50">
                     <template slot-scope="scope">
                         <a v-if="scope.row.url != null && scope.row.url != '' && scope.row.url != 'null'" :href="scope.row.url" target="_blank">链接</a>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="email" label="Review截图" width="115">
-                    <template slot-scope="scope">
-                        <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
-                            <span v-if="scope.row.pictures.length === 0">无</span>
-                            <img style="cursor: pointer;" v-else-if="scope.row.pictures[0] != undefined && scope.row.pictures[0].url.thumb.url != null && !(scope.row.pictures[0].url.url.match(/.pdf/))" :src="$axios.defaults.baseURL+scope.row.pictures[0].url.thumb.url" @click="showPictures(scope.$index, scope.row)"/>
-                            <span v-else>无</span>
-                        </el-badge>
-                        <span v-else>无</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="status" label="状态" width="115">
@@ -144,6 +153,9 @@
                                 <!-- <el-dropdown-item>
                                     <el-button @click="showPictures(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp图片</el-button>
                                 </el-dropdown-item> -->
+                                <el-dropdown-item>
+                                    <el-button @click="handleUpdate(scope.row)" type="text">&nbsp&nbsp&nbsp更新线性</el-button>
+                                </el-dropdown-item>
                                 <el-dropdown-item>
                                     <el-button @click="handleEdit(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp编辑</el-button>
                                 </el-dropdown-item>
@@ -263,6 +275,9 @@
                         <el-option v-for="item in keyword_options" :key="item" :label="item" :value="item"></el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="主页" prop="homepage">
+                    <el-input v-model="addReviewerForm.homepage"></el-input>
+                </el-form-item>
                 <el-form-item label="订单号" prop="order_number">
                     <el-input v-model="addReviewerForm.order_number"></el-input>
                 </el-form-item>
@@ -281,6 +296,9 @@
                 </el-form-item>
                 <el-form-item label="支付价格" prop="pay_price">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.pay_price" :min="0" :step="10" @change="totalPrice"></el-input-number>
+                </el-form-item>
+                <el-form-item label="税费" prop="tax">
+                    <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.tax" :min="0"></el-input-number>
                 </el-form-item>
                 <!-- <el-form-item label="佣金" prop="commission">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.commission" :min="0" @change="totalPrice"></el-input-number>
@@ -356,7 +374,7 @@
                 </el-table-column>
                 <el-table-column prop="country" label="站点" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column v-if="isRestrict === 'false'" prop="username" label="送测人" show-overflow-tooltip>
+                <el-table-column v-if="isRestrict === 'false'" prop="role_name" label="已分配的组" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="apply_username" label="申请人" show-overflow-tooltip>
                 </el-table-column>
@@ -396,6 +414,29 @@
                 </el-table-column>
             </el-table>
             <br>
+            <el-table :data="detailOptions" border style="width: 100%">
+                <el-table-column prop="is_line" label="是否线性送测" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.is_line === false" type="warning">否</el-tag>
+                        <el-tag v-else-if="scope.row.is_line === true" type="success">是</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="line_sum" label="每日送测数量" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="by_sum" label="是否按照总数自动延期" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.by_sum === false" type="warning">否</el-tag>
+                        <el-tag v-else-if="scope.row.by_sum === true" type="success">是</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="need_charge" label="是否支付paypal手续费" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.need_charge === false" type="warning">否</el-tag>
+                        <el-tag v-else-if="scope.row.need_charge === true" type="success">是</el-tag>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <br>
             <el-table v-if="detailOptions3.length != 0" :data="detailOptions3" border style="width: 100%">
                 <el-table-column prop="keywords" label="关键词" show-overflow-tooltip>
                 </el-table-column>
@@ -432,7 +473,9 @@
                 </el-table-column>
                 <el-table-column prop="start_sum" label="已进行的数量" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="accept_sum" label="接受数量" show-overflow-tooltip>
+                <el-table-column prop="block_sum" label="失败数量" show-overflow-tooltip>
+                </el-table-column>
+                <!-- <el-table-column prop="accept_sum" label="接受数量" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <template v-if="scope.row.editAccept">
                             <el-input-number style="margin-bottom: 5px;" v-model="scope.row.accept_sum" :min="0"></el-input-number>
@@ -440,7 +483,7 @@
                         </template>
                         <span v-else>{{scope.row.accept_sum}}</span>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column label="操作" :width="isRestrict === 'false' ? 450 : 200" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <template v-if="!scope.row.editAccept">
@@ -450,8 +493,9 @@
                             <el-button v-if="!scope.row.edit" icon="el-icon-delete" @click="handleDeletePlan(scope.$index, scope.row)" :disabled="scope.row.noshow" type="danger">删除</el-button>
                         </template>
                         <template v-if="!scope.row.edit && isRestrict === 'false'">
-                            <el-button v-if="scope.row.editAccept" @click="saveAccept(scope.row)" :disabled="scope.row.noshow" icon="el-icon-circle-check-outline" type="success">确认</el-button>
-                            <el-button v-else type="success" size="small" icon="el-icon-edit" :disabled="scope.row.noshow" @click="scope.row.editAccept=!scope.row.editAccept">处理计划周期</el-button>
+                            <el-button @click="handleReConfirm(scope.row)" icon="el-icon-circle-check-outline" type="success">重新分配数量</el-button>
+                            <!-- <el-button v-if="scope.row.editAccept" @click="saveAccept(scope.row)" :disabled="scope.row.noshow" icon="el-icon-circle-check-outline" type="success">确认</el-button>
+                            <el-button v-else type="success" size="small" icon="el-icon-edit" :disabled="scope.row.noshow" @click="scope.row.editAccept=!scope.row.editAccept">处理计划周期</el-button> -->
                         </template>
                     </template>
                 </el-table-column>
@@ -487,8 +531,8 @@
         <!-- 分配提示 -->
         <el-dialog title="确认分配" :visible.sync="distributeVisible" width="35%">
             <el-form label-width="110px">
-                <el-form-item label="选择开发人员">
-                    <el-select v-model="distributeUser" placeholder="选择用户" multiple filterable remote :loading="loading3" @visible-change="selectVisble3" :remote-method="remoteMethod3" class="handle-select mr10">
+                <el-form-item label="请选择组">
+                    <el-select v-model="distributeUser" placeholder="选择组" multiple filterable remote :loading="loading3" @visible-change="selectVisble3" :remote-method="remoteMethod3" class="handle-select mr10">
                         <el-option v-for="item in distributeUserOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         <infinite-loading :on-infinite="onInfinite_dis_user" ref="infiniteLoading3"></infinite-loading>
                     </el-select>
@@ -597,8 +641,74 @@
         </el-dialog>
         <!-- 下载提示 -->
         <el-dialog title="下载" :visible.sync="exportVisible" width="35%" @close="closeExport">
-            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?ids=' + exportIds + '&token=' + export_token">下载excel文件</a></el-button>
+            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?ids=' + exportIds + '&token=' + export_token + '&is_company=1'">下载excel文件</a></el-button>
         </span>
+        </el-dialog>
+        <!-- 重新分配 -->
+        <el-dialog title="重新分配" :visible.sync="distributeDetailVisible" width="60%">
+            <el-table :data="distributeData" border style="width: 100%">
+                <el-table-column prop="role_name" label="分配的组" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="plan_sum" label="计划数量" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="done_sum" label="完成数量" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="block_sum" label="失败数量" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column label="更新计划数量" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <!-- <el-input style="margin-bottom: 15px;" v-model="scope.row.change_sum"></el-input> -->
+                        <el-input-number style="margin-bottom: 5px;" v-model="scope.row.change_sum" :min="0"></el-input-number>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <br>
+            <el-form label-width="80px">
+                <el-form-item label="组/数量">
+                    <table >
+                        <tbody v-for="(p,index) in role_sum">
+                            <td>
+                                <el-select v-model="p.role_ids" placeholder="选择组" clearable filterable remote :loading="loading3" @visible-change="selectVisble3" :remote-method="remoteMethod3" class="handle-select mr10">
+                                    <el-option v-for="item in distributeUserOptions" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    <infinite-loading :on-infinite="onInfinite_dis_user" ref="infiniteLoading3"></infinite-loading>
+                                </el-select>
+                            </td>
+                            <td>
+                                <el-input-number  v-model="p.new_sum" :min="0" label="描述文字"></el-input-number>
+                            </td>
+                            <div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
+                                <i style="margin-right: 5px;  font-size: 15px;cursor: pointer;" class="el-icon-circle-plus" @click="orderAdd(index)"></i>
+                                <i style="font-size: 15px;cursor: pointer;" class="el-icon-remove" @click="orderDel(index)" v-if="role_sum.length >1"></i>
+                            </div>
+                        </tbody>
+                    </table>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="distributeDetailVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveDistribute" :disabled="submitDisabled">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog title="编辑" :visible.sync="updateVisble" width="50%">
+            <el-form ref="updateform" :model="updateform" label-width="130px">
+                <el-form-item label="是否按照总数进行">
+                    <el-radio v-model="updateform.by_sum" label="1">是</el-radio>
+                    <el-radio v-model="updateform.by_sum" label="0">否</el-radio>
+                </el-form-item>
+                <el-form-item label="是否线性送测">
+                    <el-radio v-model="updateform.is_line" label="1">是</el-radio>
+                    <el-radio v-model="updateform.is_line" label="0">否</el-radio>
+                </el-form-item>
+                <el-form-item label="线性计划数">
+                    <el-input-number style="margin-bottom: 5px;" v-model="updateform.line_sum" :min="0"></el-input-number>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="updateVisble = false">取 消</el-button>
+                <el-button type="primary" @click="saveUpdate" :disabled="submitDisabled">确 定</el-button>
+            </span>
         </el-dialog>
     </div>
 </template>
@@ -696,7 +806,9 @@
                     poundage: 0,
                     self_pay_price: 0,
                     before_tax_price: 0,
-                    pay_tax: ''
+                    pay_tax: '',
+                    homepage: '',
+                    tax: 0
                 },
                 rules: {
                     keyword: [{
@@ -774,6 +886,16 @@
                         message: '请选择是否含税',
                         trigger: 'blur'
                     }],
+                    tax: [{
+                        required: true,
+                        message: '请输入税费',
+                        trigger: 'blur'
+                    }],
+                    homepage: [{
+                        required: true,
+                        message: '请输入主页',
+                        trigger: 'blur'
+                    }],
                 },
                 task_id: '',
                 distributeUserOptions: [],
@@ -825,9 +947,25 @@
                 setWeightVisible: false,
                 weight_filter: '',
                 pay_tax_options: [{value: 0, label: '否'},  {value: 1, label: '是'}],
-                is_company: '',
+                exportIds: [],
                 exportVisible: false,
-                exportIds: []
+                distributeDetailVisible: false,
+                distributeData: [],
+                updateVisble: false,
+                updateform: {
+                    is_line: '',
+                    by_sum: '',
+                    line_sum: ''
+                },
+                task_period_id: '',
+                role_sum: [{
+                    role_ids: '',
+                    new_sum: 0
+                }],
+                add_role_sum: {
+                    role_ids: '',
+                    new_sum: 0
+                },
             }
         },
         created() {
@@ -894,15 +1032,9 @@
 //                  this.url = '/ms/table/list';
                 };
                 this.export_token = localStorage.getItem('token')
-                this.is_company = localStorage.getItem('is_company')
-                if (localStorage.getItem('restrict') === 'true') {
-                    this.is_company = ''
-                } else if (localStorage.getItem('restrict') === 'false' && localStorage.getItem('is_company') === '1') {
-                    this.is_company = '0'
-                }
                 // console.log(this.$store.getters.skipPage)
                 this.table_loading = true
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=' + this.is_company
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=1'
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -934,7 +1066,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=' + this.is_company
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=1'
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1001,7 +1133,7 @@
                     keywords: item.keywords,
                     keyword_index: item.keyword_index,
                     remark: item.remark,
-                    sku: item.sku,
+                    sku: item.sku
                 }
                 let tempkeywords = item.keywords.split(',')
                 let tempkeywordindex = item.keyword_index.split(',')
@@ -1215,6 +1347,8 @@
                         formData.append('task_record[self_pay_price]', this.addReviewerForm.self_pay_price)
                         formData.append('task_record[before_tax_price]', this.addReviewerForm.before_tax_price)
                         formData.append('task_record[pay_tax]', this.addReviewerForm.pay_tax)
+                        formData.append('task_record[tax]', this.addReviewerForm.tax)
+                        formData.append('task_record[homepage]', this.addReviewerForm.homepage)
                         this.$axios.post('/task_records', formData).then((res) => {
                             if(res.data.code == 200) {
                                 this.$message.success('提交成功！')
@@ -1333,15 +1467,15 @@
                 }
             },
             toReviewers(index, row) {
-                this.$router.push({name: 'Reviewersinfomanage', params: {task_id: row.id}})
+                this.$router.push({name: 'Reviewersinfomanagecompany', params: {task_id: row.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
             toReviewersChange(index, row) {
-                this.$router.push({name: 'Reviewerschangemanage', params: {task_id: row.id}})
+                this.$router.push({name: 'Reviewerschangemanagecompany', params: {task_id: row.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
             toReviewersChange2(index, row) {
-                this.$router.push({name: 'Reviewerschangemanage', params: {task_period_id: row.id}})
+                this.$router.push({name: 'Reviewerschangemanagecompany', params: {task_period_id: row.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
             orderAdd() {
@@ -1386,14 +1520,14 @@
                     this.$message.error('有任务还未审核，请审核后再分配！')
                     return
                 } else if(isSingle == 1) {
-                    this.$message.error('已分配送测人的任务，只能单独选择！')
+                    this.$message.error('已分配组的任务，只能单独选择！')
                     return
                 }else {
 
                 }
                 if(this.multipleSelection.length == 1 && this.multipleSelection[0].operate_users != null) {
                     this.multipleSelection[0].operate_users.forEach((data) => {
-                        this.distributeUserOptions.push({id: data.user_id, name: data.username})
+                        this.distributeUserOptions.push({id: data.user_id, name: data.name})
                         this.distributeUser.push(data.user_id)
                     })
                 }else {
@@ -1403,7 +1537,7 @@
             },
             distributenProduct() {
                 if(this.distributeUser.length == 0) {
-                    this.$message.error('请选择分配人员')
+                    this.$message.error('请选择分配的组')
                     return
                 }
                 let id = []
@@ -1412,9 +1546,9 @@
                 })
                 let params = {
                     task_ids: id,
-                    user_ids: this.distributeUser,
+                    role_ids: this.distributeUser,
                 }
-                this.$axios.post('/tasks/allocate_task', params
+                this.$axios.post('/tasks/allocate_task_by_role', params
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.$message.success('分配成功!')
@@ -1423,7 +1557,55 @@
                         this.getData()
                     }
                 }).catch((res) => {
+                    console.log(res)
+                })
+            },
+            confirmReDistribute() {
+                if(this.multipleSelection.length == 0) {
+                    this.$message.error('请选择至少一个任务')
+                    return
+                }
+                let isSingle = ''
+                this.multipleSelection.forEach((data) => {
+                    if(data.status != 9 && this.multipleSelection.length >= 2) {
+                        isSingle = 1
+                    }
+                    if(data.status == 1 || data.status == 2) {
+                        isSingle = 2
+                    }
+                })
+                if(isSingle == 2) {
+                    this.$message.error('有任务还未审核，请审核后再分配！')
+                    return
+                } else if(isSingle == 1) {
+                    this.$message.error('已分配送测人的任务，只能单独选择！')
+                    return
+                }else {
 
+                }
+                let ids = []
+                this.multipleSelection.forEach((data) => {
+                    ids.push(data.id)
+                })
+                this.$confirm('确定重新分配？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(({value}) => {
+                    let params = {
+                        task_ids: ids,
+                    }
+                    this.$axios.post('/tasks/reallocate_role_sum', params
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.$message.success("任务已重新分配！")
+                            this.getData()
+                        }
+                    }).catch(() => {
+                        
+                    })
+                }).catch(() => {
+                    this.$message.info('已取消自动分配')
                 })
             },
             remoteMethod3(query, callback = undefined) {
@@ -1438,7 +1620,7 @@
                             this.$refs.infiniteLoading3.stateChanger.reset()
                         }
                     }
-                    this.$axios.get("/users/?page=" + this.dis_user_page + '&name=' + query.trim()
+                    this.$axios.get("/roles/?page=" + this.dis_user_page + '&query=' + query.trim()
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.loading3 = false
@@ -1812,6 +1994,97 @@
                 this.exportVisible = false
                 this.exportIds = []
                 this.$refs.multipleTable.clearSelection()
+            },
+            handleReConfirm(row) {
+                this.task_period_id = row.id
+                this.$axios.get('/tasks/' + this.task_id + '/get_operate_infos?task_period_id=' + row.id 
+                ).then((res) => {
+                    if(res.data.code == 200) {
+                        res.data.data.forEach((data) => {
+                            data.change_sum = data.plan_sum
+                            console.log(data.change_sum)
+                        })
+                        this.distributeData = res.data.data
+                        this.distributeDetailVisible = true
+                    }
+                }).catch((res) => {
+
+                })
+            },
+            saveDistribute() {
+                this.submitDisabled = true
+                console.log(this.distributeData)
+                let operate_role_info_ids = []
+                let sum = []
+                let role_ids = []
+                let new_sum = []
+                this.distributeData.forEach((data) => {
+                    operate_role_info_ids.push(data.id)
+                    sum.push(data.change_sum)
+                })
+                if (this.role_sum[0].role_ids != '') {
+                    this.role_sum.forEach((data) => {
+                        role_ids.push(data.role_ids)
+                        new_sum.push(data.new_sum)
+                    })
+                }
+                let params = {
+                    task_period_id: this.task_period_id,
+                    operate_role_info_ids: operate_role_info_ids,
+                    sum: sum,
+                    role_ids: role_ids,
+                    new_sum: new_sum
+                }
+                this.$axios.post('/tasks/' + this.task_id + '/allocate_role_sum', params
+                ).then((res) => {
+                    if(res.data.code == 200) {
+                        this.getData()
+                        this.distributeDetailVisible = false
+                    }
+                }).catch((res) => {
+
+                }).finally(() => {
+                    this.submitDisabled = false
+                })
+            },
+            handleUpdate(row) {
+                const item = row
+                this.updateform = {
+                    id: item.id,
+                    is_line : (item.is_line === true) ? '1' : '0',
+                    by_sum : (item.by_sum === true) ? '1' : '0',
+                    line_sum : item.line_sum
+                }
+                console.log(this.updateform.by_sum)
+                this.updateVisble = true
+            },
+            saveUpdate() {
+                this.submitDisabled = true
+                let formData = new FormData()
+                formData.append('is_line', this.updateform.is_line)
+                formData.append('by_sum', this.updateform.by_sum)
+                formData.append('line_sum', this.updateform.line_sum)
+                this.$axios.post('/tasks/' + this.updateform.id + '/update_task_period', formData).then((res) => {
+                    if(res.data.code == 200) {
+                        this.$message.success('更新成功！')
+                        this.getData()
+                        this.updateVisble = false
+                    }
+                }).catch((res) => {
+                    console.log('err')
+                }).finally((res) => {
+                    this.submitDisabled = false
+                })
+            },
+            orderAdd() {
+                this.role_sum.push(this.add_role_sum)
+                this.add_role_sum = {
+                    role_ids: '',
+                    new_sum: 0
+                }
+            },
+            orderDel(index) {
+                this.role_sum.pop()
             },
             getStatusName(status) {
                 if(status == 1) {

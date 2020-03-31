@@ -22,6 +22,14 @@
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="name" label="角色名" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column prop="level" label="优先级" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="can_allocate" label="是否可以分配" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.can_allocate === false" type="warning">否</el-tag>
+                        <el-tag v-else-if="scope.row.can_allocate === true" type="success">是</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="created_at" :formatter="formatter_created_at" label="创建时间">
                 </el-table-column>
                 <el-table-column prop="updated_at" :formatter="formatter_updated_at" label="更新时间">

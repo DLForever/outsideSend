@@ -914,11 +914,11 @@
                                 data2.editAccept = false
                                 data2.originalaccept = data2.accept_sum
                             })
-                            // data.username = ''
-                            // data.operate_users.forEach((data3) => {
-                            //     data.username += data3.username + ','
-                            // })
-                            // data.username = data.username.substr(0, data.username.length - 1)
+                            data.username = ''
+                            data.operate_users.forEach((data3) => {
+                                data.username += data3.username + ','
+                            })
+                            data.username = data.username.substr(0, data.username.length - 1)
                         })
                         this.tableData = res.data.data
                         this.totals = res.data.count
@@ -946,11 +946,11 @@
                                 data2.editAccept = false
                                 data2.originalaccept = data2.accept_sum
                             })
-                            // data.username = ''
-                            // data.operate_users.forEach((data3) => {
-                            //     data.username += data3.username + ','
-                            // })
-                            // data.username = data.username.substr(0, data.username.length - 1)
+                            data.username = ''
+                            data.operate_users.forEach((data3) => {
+                                data.username += data3.username + ','
+                            })
+                            data.username = data.username.substr(0, data.username.length - 1)
                         })
                         this.tableData = res.data.data
                         this.totals = res.data.count
