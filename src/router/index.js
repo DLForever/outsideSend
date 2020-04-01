@@ -84,6 +84,16 @@ export default new Router({
                     meta: { title: '任务变更管理' }
                 },
                 {
+                    path: '/todayTasks',
+                    component: resolve => require(['../components/views/reviewer_merge/Today_Tasks.vue'], resolve),
+                    meta: { title: '排单管理' }
+                },
+                {
+                    path: '/performances',
+                    component: resolve => require(['../components/views/group/Performances.vue'], resolve),
+                    meta: { title: '绩效管理' }
+                },
+                {
                     path: '/fansmanage',
                     component: resolve => require(['../components/views/reviewer/FansManage.vue'], resolve),
                     meta: { title: '粉丝管理' }

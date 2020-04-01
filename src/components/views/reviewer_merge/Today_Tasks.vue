@@ -1,26 +1,58 @@
 <template>
     <div class="table">
+                
+
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 公司测评管理</el-breadcrumb-item>
-                <el-breadcrumb-item>测评任务管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 公司排单管理</el-breadcrumb-item>
+                <el-breadcrumb-item>排单管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
             <div class="handle-box">
+                <el-row :gutter="20">
+                    <el-col :span="16">
+                        <el-row :gutter="20" class="mgb20">
+                            <el-col :span="8">
+                                <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                    <div class="grid-content grid-con-1">
+                                        <i class="el-icon-lx-cart grid-con-icon"></i>
+                                        <div class="grid-cont-right">
+                                            <div class="grid-num">{{total}}</div>
+                                            <div>总计</div>
+                                        </div>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                    <div class="grid-content grid-con-2">
+                                        <i class="el-icon-lx-roundcheck grid-con-icon"></i>
+                                        <div class="grid-cont-right">
+                                            <div class="grid-num">{{done}}</div>
+                                            <div>完成</div>
+                                        </div>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-card shadow="hover" :body-style="{padding: '0px'}">
+                                    <div class="grid-content grid-con-3">
+                                        <i class="el-icon-lx-warn grid-con-icon"></i>
+                                        <div class="grid-cont-right">
+                                            <div class="grid-num">{{block}}</div>
+                                            <div>失败</div>
+                                        </div>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                </el-row>
                 <div>
-                <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmDistribute">分配</el-button>
-                <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmReDistribute">自动分配</el-button>
-                <el-button type="primary" @click="exportReviewers">部分导出</el-button>
-                <el-button  type="warning">
-                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&product_name=' + filter_name + '&apply_user_id=' + apply_user_id + '&self=' + (is_self == true ? 1 : 0) + '&is_company=1'">导出全部</a>
-                </el-button>
-                <el-button v-if="isRestrict === 'false'" type="success" @click="updateCategory">分类</el-button>
                 </div>
                 <br>
                 <div class="fnsku_filter">
-                    <!-- 开发人员:
-                    <el-input style="width:150px" placeholder="请输入开发人员" v-model.trim="search_shopname"></el-input> -->
                     产品名:
                     <el-input style="width:150px;" v-model.trim="filter_name" placeholder="请输入产品名称"></el-input>
                     ASIN:
@@ -37,7 +69,7 @@
                             <infinite-loading :on-infinite="onInfinite_user2" ref="infiniteLoading2"></infinite-loading>
                         </el-select>
                         &nbsp
-                        <el-checkbox v-model="is_self" label="被分配" border></el-checkbox>
+                        <!-- <el-checkbox v-model="is_self" label="被分配" border></el-checkbox> -->
                         <el-checkbox v-model="weight_filter" label="优先级" border></el-checkbox>
                     </template>
                     状态:
@@ -52,7 +84,7 @@
             <br><br>
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="email" label="截图" width="115" fixed>
+                <!-- <el-table-column prop="email" label="截图" width="115" fixed>
                     <template slot-scope="scope">
                         <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
                             <span v-if="scope.row.pictures.length === 0">无</span>
@@ -61,10 +93,8 @@
                         </el-badge>
                         <span v-else>无</span>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column prop="asin" label="ASIN" width="150" fixed show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="sku" label="SKU" width="150" fixed show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="country" label="站点" width="50">
                 </el-table-column>
@@ -91,11 +121,9 @@
                 </el-table-column>
                 <el-table-column prop="total" label="测评总数" width="65">
                 </el-table-column>
-                <el-table-column prop="current" label="当前进行数量" width="65">
-                </el-table-column>
                 <el-table-column prop="block" label="失败数量" width="65">
                 </el-table-column>
-                <el-table-column prop="skip_review" label="免评数量" width="65">
+                <el-table-column prop="line_sum" label="线程数量" width="65">
                 </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
                 </el-table-column>
@@ -113,9 +141,7 @@
                 </el-table-column>
                 <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
                 </el-table-column>
-                <!-- <el-table-column prop="updated_at" label="更新时间" :formatter="formatter_updated_at" width="150">
-                </el-table-column> -->
-                <el-table-column label="操作" width="100" fixed="right">
+<!--                 <el-table-column label="操作" width="100" fixed="right">
                     <template slot-scope="scope">
                         <el-dropdown>
                             <el-button type="primary">
@@ -134,12 +160,10 @@
                                 </el-dropdown-item>
                                 <el-dropdown-item>
                                     <el-button type="text" @click="toReviewers(scope.$index, scope.row)">查看送测记录
-                                        <!-- <router-link to="./reviewersinfomanage"></router-link> -->
                                     </el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item>
                                     <el-button type="text" @click="toReviewersChange(scope.$index, scope.row)">查看变更记录
-                                        <!-- <router-link to="./reviewersinfomanage"></router-link> -->
                                     </el-button>
                                 </el-dropdown-item>
                                 <template v-if="isRestrict === 'false'">
@@ -150,9 +174,6 @@
                                         <el-button @click="handlerecover(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp恢复</el-button>
                                     </el-dropdown-item>
                                 </template>
-                                <!-- <el-dropdown-item>
-                                    <el-button @click="showPictures(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp图片</el-button>
-                                </el-dropdown-item> -->
                                 <el-dropdown-item>
                                     <el-button @click="handleUpdate(scope.row)" type="text">&nbsp&nbsp&nbsp更新线性</el-button>
                                 </el-dropdown-item>
@@ -165,7 +186,7 @@
                             </el-dropdown-menu>
                         </el-dropdown>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
             </el-table>
             </el-table>
             <div class="pagination" v-if="paginationShow && totals != 0">
@@ -966,6 +987,9 @@
                     role_ids: '',
                     new_sum: 0
                 },
+                total: '',
+                done: '',
+                block: '',
             }
         },
         created() {
@@ -1034,18 +1058,29 @@
                 this.export_token = localStorage.getItem('token')
                 // console.log(this.$store.getters.skipPage)
                 this.table_loading = true
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
+                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
-                            data.img_count = data.pictures.length
-                            data.task_periods.forEach((data2) => {
-                                data2.originalSum = data2.plan_sum
-                                data2.edit = false
-                                data2.noshow = false
-                                data2.editAccept = false
-                                data2.originalaccept = data2.accept_sum
-                            })
+                            // data.task.forEach((data2) => {
+                            data.asin = data.task.asin
+                            data.name = data.task.name
+                            data.category_name = data.task.category_name
+                            data.role_name = data.task.role_name
+                            data.weight = data.task.weight
+                            data.total = data.task.total
+                            data.line_sum = data.task.line_sum
+                            data.block = data.task.block
+                            data.by_sum = data.task.by_sum
+                            data.img_count = data.task.pictures.length
+                            data.country = data.task.country
+                            data.price = data.task.price
+                            data.apply_username = data.task.apply_username
+                            data.customer_commission = data.task.customer_commission
+                            data.shopname = data.task.shopname
+                            data.url = data.task.url
+                            data.remark = data.task.remark
+                            // })
                             // data.username = ''
                             // data.operate_users.forEach((data3) => {
                             //     data.username += data3.username + ','
@@ -1053,6 +1088,9 @@
                             // data.username = data.username.substr(0, data.username.length - 1)
                         })
                         this.tableData = res.data.data
+                        this.total = res.data.today_info.total
+                        this.done = res.data.today_info.done
+                        this.block = res.data.today_info.block
                         this.totals = res.data.count
                         this.paginationShow = true
                     }
@@ -1066,18 +1104,35 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
+                this.$axios.get('/performances/today_info').then((res) => {})
+                this.$axios.get('/performances?date_begain=2020-3-20').then((res) => {})
+                return
+                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
-                            data.img_count = data.pictures.length
-                            data.task_periods.forEach((data2) => {
-                                data2.originalSum = data2.plan_sum
-                                data2.edit = false
-                                data2.noshow = false
-                                data2.editAccept = false
-                                data2.originalaccept = data2.accept_sum
-                            })
+                            data.asin = data.task.asin
+                            data.name = data.task.name
+                            data.category_name = data.task.category_name
+                            data.role_name = data.task.role_name
+                            data.weight = data.task.weight
+                            data.total = data.task.total
+                            data.line_sum = data.task.line_sum
+                            data.block = data.task.block
+                            data.by_sum = data.task.by_sum
+                            data.img_count = data.task.pictures.length
+                            data.country = data.task.country
+                            data.price = data.task.price
+                            data.apply_username = data.task.apply_username
+                            data.customer_commission = data.task.customer_commission
+                            data.shopname = data.task.shopname
+                            data.url = data.task.url
+                            data.remark = data.task.remark
+                            // data.task.role_name = data.role_name
+                            // data.task.plan_sum = data.plan_sum
+                            // data.task.done_sum = data.done_sum
+                            // data.task.block_sum = data.block_sum
+                            // data.task.img_count = data.task.pictures.length
                             // data.username = ''
                             // data.operate_users.forEach((data3) => {
                             //     data.username += data3.username + ','
@@ -1085,6 +1140,9 @@
                             // data.username = data.username.substr(0, data.username.length - 1)
                         })
                         this.tableData = res.data.data
+                        this.total = res.data.today_info.total
+                        this.done = res.data.today_info.done
+                        this.block = res.data.today_info.block
                         this.totals = res.data.count
                         this.paginationShow = true
                     }
@@ -2181,5 +2239,114 @@
     }
     .link-type:hover {
         color: rgb(32, 160, 255);
+    }
+
+    .el-row {
+        margin-bottom: 20px;
+    }
+
+    .grid-content {
+        display: flex;
+        align-items: center;
+        height: 100px;
+    }
+
+    .grid-cont-right {
+        flex: 1;
+        text-align: center;
+        font-size: 14px;
+        color: #999;
+    }
+
+    .grid-num {
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .grid-con-icon {
+        font-size: 50px;
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        line-height: 100px;
+        color: #fff;
+    }
+
+    .grid-con-1 .grid-con-icon {
+        background: rgb(45, 140, 240);
+    }
+
+    .grid-con-1 .grid-num {
+        color: rgb(45, 140, 240);
+    }
+
+    .grid-con-2 .grid-con-icon {
+        background: rgb(100, 213, 114);
+    }
+
+    .grid-con-2 .grid-num {
+        color: rgb(45, 140, 240);
+    }
+
+    .grid-con-3 .grid-con-icon {
+        background: rgb(242, 94, 67);
+    }
+
+    .grid-con-3 .grid-num {
+        color: rgb(242, 94, 67);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #ccc;
+        margin-bottom: 20px;
+    }
+
+    .user-avator {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+    }
+
+    .user-info-cont {
+        padding-left: 50px;
+        flex: 1;
+        font-size: 14px;
+        color: #999;
+    }
+
+    .user-info-cont div:first-child {
+        font-size: 30px;
+        color: #222;
+    }
+
+    .user-info-list {
+        font-size: 14px;
+        color: #999;
+        line-height: 25px;
+    }
+
+    .user-info-list span {
+        margin-left: 70px;
+    }
+
+    .mgb20 {
+        margin-bottom: 20px;
+    }
+
+    .todo-item {
+        font-size: 14px;
+    }
+
+    .todo-item-del {
+        text-decoration: line-through;
+        color: #999;
+    }
+
+    .schart {
+        width: 100%;
+        height: 300px;
     }
 </style>

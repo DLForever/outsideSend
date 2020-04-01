@@ -137,6 +137,28 @@
                             title: '支付记录管理'
                         }]
                     },
+                    {
+                        icon: 'el-icon-lx-addressbook',
+                        index: '7',
+                        title: '排单管理',
+                        subs: [
+                        {
+                            index: 'todayTasks',
+                            title: '排单管理'
+                        },
+                        ]
+                    },
+                    {
+                        icon: 'el-icon-lx-profile',
+                        index: '8',
+                        title: '绩效管理',
+                        subs: [
+                        {
+                            index: 'performances',
+                            title: '绩效管理'
+                        },
+                        ]
+                    },
                     // {
                     //     icon: 'el-icon-lx-copy',
                     //     index: 'tabs',
