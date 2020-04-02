@@ -28,6 +28,9 @@
 									<infinite-loading :on-infinite="onInfinite_category" ref="infiniteLoading4"></infinite-loading>
 								</el-select>
 							</el-form-item>
+							<el-form-item label="英文标题">
+								<el-input v-model="form.title"></el-input>
+							</el-form-item>
 							<el-form-item label="产品名称" prop="name">
 								<el-input v-model="form.name"></el-input>
 							</el-form-item>
@@ -40,11 +43,11 @@
 							<el-form-item label="产品链接" prop="website">
 								<el-input v-model.trim="form.website" placeholder="需加入https://或http://前缀"></el-input>
 							</el-form-item>
-							<el-form-item label="是否支付paypal手续费" prop="need_charger">
+							<!-- <el-form-item label="是否支付paypal手续费" prop="need_charger">
 								<el-radio v-model="form.need_charger" label="1">是</el-radio>
 								<el-radio v-model="form.need_charger" label="0">否</el-radio>
-							</el-form-item>
-							<el-form-item label="是否按照总数进行" prop="need_charger">
+							</el-form-item> -->
+							<el-form-item label="是否按照总数进行" prop="by_sum">
 								<el-radio v-model="form.by_sum" label="1">是</el-radio>
 								<el-radio v-model="form.by_sum" label="0">否</el-radio>
 							</el-form-item>
@@ -178,7 +181,8 @@
 					start_date: '',
 					category_id: '',
 					category_filter: '',
-					by_sum: ''
+					by_sum: '',
+					title: ''
 				},
 				rules: {
 					name: [{
@@ -321,6 +325,7 @@
 						formData.append('task[remark]', this.form.remark)
 						formData.append('task[sku]', this.form.sku)
 						formData.append('task[is_line]', this.form.is_line)
+						formData.append('task[title]', this.form.title)
 						formData.append('task[category_id]', this.form.category_filter.split('@')[0])
 						formData.append('task[category_name]', this.form.category_filter.split('@')[1])
 						if(this.form.is_line === '0') {
@@ -345,7 +350,7 @@
 						})
 						this.$axios.post('/tasks', formData).then((res) => {
 							if(res.data.code == 200) {
-								this.$message.success('提交成功！')
+								this.$message.success(res.data.message)
 								this.$refs['form'].resetFields()
 								this.$router.push('/reviewersmanagecompany')
 								this.getMessageCount()

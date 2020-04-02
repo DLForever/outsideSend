@@ -11,9 +11,12 @@
         <div class="container">
             <div class="handle-box">
                 <el-row :gutter="20">
+                    <el-col :span="8">
+                        <el-button type="primary" @click="confirmDistribute">生成大图</el-button>
+                    </el-col>
                     <el-col :span="16">
                         <el-row :gutter="20" class="mgb20">
-                            <el-col :span="8">
+                            <el-col :span="7">
                                 <el-card shadow="hover" :body-style="{padding: '0px'}">
                                     <div class="grid-content grid-con-1">
                                         <i class="el-icon-lx-cart grid-con-icon"></i>
@@ -24,7 +27,7 @@
                                     </div>
                                 </el-card>
                             </el-col>
-                            <el-col :span="8">
+                            <el-col :span="7">
                                 <el-card shadow="hover" :body-style="{padding: '0px'}">
                                     <div class="grid-content grid-con-2">
                                         <i class="el-icon-lx-roundcheck grid-con-icon"></i>
@@ -35,7 +38,7 @@
                                     </div>
                                 </el-card>
                             </el-col>
-                            <el-col :span="8">
+                            <el-col :span="7">
                                 <el-card shadow="hover" :body-style="{padding: '0px'}">
                                     <div class="grid-content grid-con-3">
                                         <i class="el-icon-lx-warn grid-con-icon"></i>
@@ -57,6 +60,10 @@
                     <el-input style="width:150px;" v-model.trim="filter_name" placeholder="请输入产品名称"></el-input>
                     ASIN:
                     <el-input style="width:150px" placeholder="请输入ASIN" v-model.trim="search_asin"></el-input>
+                    站点:
+                    <el-select v-model="site_filter" class="handle-select">
+                        <el-option v-for="item in site_options" :key="item" :label="item" :value="item"></el-option>
+                    </el-select>
                     <template v-if="isRestrict === 'false'">
                         送测组:
                         <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择组" class="handle-select mr10">
@@ -70,7 +77,8 @@
                         </el-select>
                         &nbsp
                         <!-- <el-checkbox v-model="is_self" label="被分配" border></el-checkbox> -->
-                        <el-checkbox v-model="weight_filter" label="优先级" border></el-checkbox>
+                        <el-checkbox style="margin-right: 0px" v-model="weight_filter" label="优先级" border></el-checkbox>
+                        <el-checkbox style="margin-left: 10px" v-model="done_filter" label="已完成" border></el-checkbox>
                     </template>
                     状态:
                     <el-select v-model="statusSelect" placeholder="请选择" class="handle-select mr10">
@@ -99,7 +107,7 @@
                 <el-table-column prop="country" label="站点" width="50">
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="role_name" label="已分配的组" width="70">
+                    <el-table-column prop="role_name" label="已分配的组" width="90">
                     </el-table-column>
                 </template>
                 <el-table-column prop="apply_username" label="申请人" width="70">
@@ -141,7 +149,7 @@
                 </el-table-column>
                 <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
                 </el-table-column>
-<!--                 <el-table-column label="操作" width="100" fixed="right">
+                <el-table-column label="操作" width="100" fixed="right">
                     <template slot-scope="scope">
                         <el-dropdown>
                             <el-button type="primary">
@@ -149,6 +157,9 @@
                             </el-button>
                             <el-dropdown-menu slot="dropdown">
                                 <el-dropdown-item>
+                                    <el-button @click="generatePicture(scope.row)" type="text">&nbsp&nbsp&nbsp生产大图</el-button>
+                                </el-dropdown-item>
+                                <!-- <el-dropdown-item>
                                     <el-button @click="handleDetails(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp详情</el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item v-if="isRestrict === 'false'">
@@ -175,18 +186,15 @@
                                     </el-dropdown-item>
                                 </template>
                                 <el-dropdown-item>
-                                    <el-button @click="handleUpdate(scope.row)" type="text">&nbsp&nbsp&nbsp更新线性</el-button>
-                                </el-dropdown-item>
-                                <el-dropdown-item>
                                     <el-button @click="handleEdit(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp编辑</el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item>
                                     <el-button @click="handleDelete(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp删除</el-button>
-                                </el-dropdown-item>
+                                </el-dropdown-item> -->
                             </el-dropdown-menu>
                         </el-dropdown>
                     </template>
-                </el-table-column> -->
+                </el-table-column>
             </el-table>
             </el-table>
             <div class="pagination" v-if="paginationShow && totals != 0">
@@ -525,19 +533,20 @@
 
         <!-- 查看产品图片 -->
         <el-dialog title="图片" :visible.sync="productVisible" width="70%">
-            <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList.length != 0">
-                <span>产品广告位图片</span>
+            <!-- <el-image style="width: 100px; height: 100px" :preview-src-list="picturestList"></el-image> -->
+            <el-carousel height="600px" arrow="always" :autoplay="false">
+                <span>生成的图片</span>
                 <el-carousel-item v-for="(item, index) in picturestList" :key="index">
-                    <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
+                    <img class="img_carousel" :src="$axios.defaults.baseURL+item.url" />
                 </el-carousel-item>
             </el-carousel>
-            <br>
+            <!-- <br>
             <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList2.length != 0">
                 <span class="demonstration">无logo非产品主图</span>
                 <el-carousel-item v-for="(item, index) in picturestList2" :key="index">
                     <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
                 </el-carousel-item>
-            </el-carousel>
+            </el-carousel> -->
         </el-dialog>
 
         <!-- 删除产品图片提示 -->
@@ -944,6 +953,7 @@
                 plan_date: '',
                 isaddPlan: false,
                 site_options: ['US', 'UK', 'DE', 'JP', 'CA'],
+                site_filter: '',
                 paytype_options: ['PayPal', '微信'],
                 currency_options: ['美金', '英镑', '欧元', '日元', '加币'],
                 keyword_options: [],
@@ -990,6 +1000,7 @@
                 total: '',
                 done: '',
                 block: '',
+                done_filter: ''
             }
         },
         created() {
@@ -1058,7 +1069,7 @@
                 this.export_token = localStorage.getItem('token')
                 // console.log(this.$store.getters.skipPage)
                 this.table_loading = true
-                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
+                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&done=' + (this.done_filter == true ? 1 : 0) + '&country=' + this.site_filter
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1080,6 +1091,7 @@
                             data.shopname = data.task.shopname
                             data.url = data.task.url
                             data.remark = data.task.remark
+                            data.status = data.task.status
                             // })
                             // data.username = ''
                             // data.operate_users.forEach((data3) => {
@@ -1104,10 +1116,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get('/performances/today_info').then((res) => {})
-                this.$axios.get('/performances?date_begain=2020-3-20').then((res) => {})
-                return
-                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
+                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&done=' + (this.done_filter == true ? 1 : 0) + '&country=' + this.site_filter
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1128,6 +1137,7 @@
                             data.shopname = data.task.shopname
                             data.url = data.task.url
                             data.remark = data.task.remark
+                            data.status = data.task.status
                             // data.task.role_name = data.role_name
                             // data.task.plan_sum = data.plan_sum
                             // data.task.done_sum = data.done_sum
@@ -1158,7 +1168,7 @@
                 this.user_id_filter = ''
                 this.apply_user_id = ''
                 this.statusSelect = ''
-                this.filter_name = '', this.search_asin = '', this.is_self = '', this.weight_filter = ''
+                this.filter_name = '', this.search_asin = '', this.is_self = '', this.weight_filter = '', this.site_filter = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
@@ -1282,7 +1292,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success("删除成功")           		
+            		this.$message.success("删除成功")
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1559,39 +1569,37 @@
                 })
             },
             confirmDistribute() {
-                this.distributeUser = []
-                this.distributeUserOptions = []
+                this.picturestList = []
                 if(this.multipleSelection.length == 0) {
                     this.$message.error('请选择至少一个任务')
                     return
                 }
-                let isSingle = ''
+                let task_ids = []
                 this.multipleSelection.forEach((data) => {
-                    if(data.status != 9 && this.multipleSelection.length >= 2) {
-                        isSingle = 1
-                    }
-                    if(data.status == 1 || data.status == 2) {
-                        isSingle = 2
-                    }
+                    task_ids.push(data.task_id)
                 })
-                if(isSingle == 2) {
-                    this.$message.error('有任务还未审核，请审核后再分配！')
-                    return
-                } else if(isSingle == 1) {
-                    this.$message.error('已分配组的任务，只能单独选择！')
-                    return
-                }else {
-
+                let params = {
+                    task_ids: task_ids
                 }
-                if(this.multipleSelection.length == 1 && this.multipleSelection[0].operate_users != null) {
-                    this.multipleSelection[0].operate_users.forEach((data) => {
-                        this.distributeUserOptions.push({id: data.user_id, name: data.name})
-                        this.distributeUser.push(data.user_id)
+                this.$confirm('生成大图, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'info'
+                }).then(() => {
+                    this.$axios.get('/tasks/generate_picture', {params : params}
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.getData()
+                            this.$message.success(res.data.message)
+                            this.picturestList.push({url: res.data.data})
+                            this.productVisible = true
+                        }
+                    }).catch((res) => {
+                        console.log(res)
                     })
-                }else {
-                    this.distributeUser = []
-                }
-                this.distributeVisible = true
+                }).catch(() => {
+                })
+                
             },
             distributenProduct() {
                 if(this.distributeUser.length == 0) {
@@ -2105,16 +2113,27 @@
                     this.submitDisabled = false
                 })
             },
-            handleUpdate(row) {
-                const item = row
-                this.updateform = {
-                    id: item.id,
-                    is_line : (item.is_line === true) ? '1' : '0',
-                    by_sum : (item.by_sum === true) ? '1' : '0',
-                    line_sum : item.line_sum
+            generatePicture(row) {
+                let task_ids = [row.task_id]
+                let params = {
+                    task_ids: task_ids
                 }
-                console.log(this.updateform.by_sum)
-                this.updateVisble = true
+                this.$confirm('生成大图, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'info'
+                }).then(() => {
+                    this.$axios.get('/tasks/generate_picture', {params : params}
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.getData()
+                            this.$message.success(res.data.message)
+                        }
+                    }).catch(() => {
+                        
+                    })
+                }).catch(() => {
+                })
             },
             saveUpdate() {
                 this.submitDisabled = true
@@ -2230,7 +2249,7 @@
         align-items: center;
     }
     .img_carousel {
-        max-width: 40rem;
+        max-width: 15rem;
     }
     .link-type,
     .link-type:focus {
@@ -2243,12 +2262,14 @@
 
     .el-row {
         margin-bottom: 20px;
+        /*float: right;
+        clear: all;*/
     }
 
     .grid-content {
         display: flex;
         align-items: center;
-        height: 100px;
+        height: 70px;
     }
 
     .grid-cont-right {
@@ -2264,8 +2285,8 @@
     }
 
     .grid-con-icon {
-        font-size: 50px;
-        width: 100px;
+        font-size: 35px;
+        width: 70px;
         height: 100px;
         text-align: center;
         line-height: 100px;

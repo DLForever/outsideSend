@@ -10,7 +10,7 @@
             <div class="handle-box">
                 <div>
                 <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmDistribute">分配</el-button>
-                <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmReDistribute">自动分配</el-button>
+                <el-button v-if="isRestrict === 'false'" type="primary" @click="confirmReDistribute">自动分配数量</el-button>
                 <el-button type="primary" @click="exportReviewers">部分导出</el-button>
                 <el-button  type="warning">
                     <a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&product_name=' + filter_name + '&apply_user_id=' + apply_user_id + '&self=' + (is_self == true ? 1 : 0) + '&is_company=1'">导出全部</a>
@@ -52,7 +52,7 @@
             <br><br>
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="email" label="截图" width="115" fixed>
+                <el-table-column prop="email" label="产品图片" width="115" fixed>
                     <template slot-scope="scope">
                         <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
                             <span v-if="scope.row.pictures.length === 0">无</span>
@@ -595,13 +595,17 @@
 
         <!-- 审核提示框 -->
         <el-dialog title="审核" :visible.sync="checkVisible" width="50%">
-            <el-form label-width="80px">
+            <el-form label-width="100px">
                 <!-- <el-form-item label="请选择收取的款项">
                     <el-radio v-model="isagree" label="1">审核通过</el-radio>
                     <el-radio v-model="isagree" label="0">不通过</el-radio>
                 </el-form-item> -->
                 <el-form-item label="佣金">
                     <el-input-number v-model="customer_commission" :min="0"></el-input-number>
+                </el-form-item>
+                <el-form-item label="支付pp手续费">
+                    <el-radio v-model="need_charge" label="1">是</el-radio>
+                    <el-radio v-model="need_charge" label="0">否</el-radio>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -966,6 +970,7 @@
                     role_ids: '',
                     new_sum: 0
                 },
+                need_charge: ''
             }
         },
         created() {
@@ -1133,7 +1138,8 @@
                     keywords: item.keywords,
                     keyword_index: item.keyword_index,
                     remark: item.remark,
-                    sku: item.sku
+                    sku: item.sku,
+                    title: item.title
                 }
                 let tempkeywords = item.keywords.split(',')
                 let tempkeywordindex = item.keyword_index.split(',')
@@ -1202,7 +1208,7 @@
                 })
                 this.$axios.patch('/tasks/' + this.form.id, formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.editVisible = false
                     }
@@ -1351,7 +1357,7 @@
                         formData.append('task_record[homepage]', this.addReviewerForm.homepage)
                         this.$axios.post('/task_records', formData).then((res) => {
                             if(res.data.code == 200) {
-                                this.$message.success('提交成功！')
+                                this.$message.success(res.data.message)
                                 this.$refs[formName].resetFields()
                                 this.addReviewerForm.keyword = ''
                                 this.getData()
@@ -1493,7 +1499,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("通过自审")
+                        this.$message.success(res.data.message)
                         this.detailVisible = false
                     }
                 }).catch((res) => {
@@ -1525,10 +1531,10 @@
                 }else {
 
                 }
-                if(this.multipleSelection.length == 1 && this.multipleSelection[0].operate_users != null) {
-                    this.multipleSelection[0].operate_users.forEach((data) => {
-                        this.distributeUserOptions.push({id: data.user_id, name: data.name})
-                        this.distributeUser.push(data.user_id)
+                if(this.multipleSelection.length == 1 && this.multipleSelection[0].role_name != null) {
+                    this.multipleSelection[0].operate_roles.forEach((data) => {
+                        this.distributeUserOptions.push({id: data.role_id, name: data.role_name})
+                        this.distributeUser.push(data.role_id)
                     })
                 }else {
                     this.distributeUser = []
@@ -1551,7 +1557,7 @@
                 this.$axios.post('/tasks/allocate_task_by_role', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('分配成功!')
+                        this.$message.success(res.data.message)
                         this.distributeVisible = false
                         this.distributeUser = []
                         this.getData()
@@ -1598,7 +1604,7 @@
                     this.$axios.post('/tasks/reallocate_role_sum', params
                     ).then((res) => {
                         if(res.data.code == 200) {
-                            this.$message.success("任务已重新分配！")
+                            this.$message.success(res.data.message)
                             this.getData()
                         }
                     }).catch(() => {
@@ -1677,10 +1683,10 @@
                         this.getData()
                         if (this.username != null) {
                             row.plan_sum = row.originalSum
-                            this.$message.success("请求已提交，等待送测人同意！")
+                            this.$message.success(res.data.message)
                         } else {
                             row.originalSum = row.plan_sum
-                            this.$message.success("更新成功")
+                            this.$message.success(res.data.message)
                         }
                         row.edit = false
                         // this.updateplanVisible = false
@@ -1829,6 +1835,7 @@
                 this.form.id = row.id
                 this.isagree = ''
                 this.customer_commission = 0
+                this.need_charge = ''
                 this.checkVisible = true
             },
             saveCheck() {
@@ -1839,10 +1846,11 @@
                 this.submitDisabled = true
                 let params = {
                     customer_commission: this.customer_commission,
+                    need_charge: this.need_charge
                 }
                 this.$axios.post('/tasks/' + this.form.id + '/manager_check', params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('处理成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.checkVisible = false
                     }

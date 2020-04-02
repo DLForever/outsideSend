@@ -24,142 +24,66 @@
                     <el-button @click="filter_product" type="primary">查询</el-button>
                 </div>
                 <div class="fnsku_filter">
-                    <!-- <template v-if="search_show[1].fanDis">
-                        粉丝号:
-                        <el-input style="width:150px" placeholder="请输入粉丝号" v-model.trim="search_fan"></el-input>
-                    </template>
-                    产品名称:
-                    <el-input style="width:150px;" v-model.trim="filter_name" placeholder="请输入产品名称"></el-input>
-                    <template v-if="search_show[2].shopDis">
-                        店铺:
-                        <el-input style="width:130px;" v-model.trim="filter_shopname" placeholder="请输入店铺名称"></el-input>
-                    </template>
-                    站点:
+                    <!-- 站点:
                     <el-select v-model="site_filter" class="handle-select">
                         <el-option v-for="item in site_options" :key="item" :label="item" :value="item"></el-option>
-                    </el-select>
+                    </el-select> -->
                     ASIN:
                     <el-input style="width:150px" placeholder="请输入ASIN" v-model.trim="search_asin"></el-input>
-                    订单号:
-                    <el-input style="width:150px" placeholder="请输入订单号" v-model.trim="search_number"></el-input>
-                    <template v-if="search_show[3].userDis">
-                        送测人员:
-                        <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择送测人" class="handle-select">
-                            <el-option v-for="item in user_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                            <infinite-loading :on-infinite="onInfinite_user" ref="infiniteLoading"></infinite-loading>
-                        </el-select>
-                    </template>
-                    <template v-if="search_show[4].applyuserDis">
+                    送测人员:
+                    <el-select v-model="user_id_filter" filterable clearable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择送测人" class="handle-select">
+                        <el-option v-for="item in user_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                        <infinite-loading :on-infinite="onInfinite_user" ref="infiniteLoading"></infinite-loading>
+                    </el-select>
+                    <!-- <template v-if="search_show[4].applyuserDis">
                         申请人员:
                         <el-select v-model="apply_user_id" filterable remote :loading="loading2" @visible-change="selectVisble2" :remote-method="remoteMethod2" placeholder="选择用户" class="handle-select mr10">
                             <el-option v-for="item in user_options2" :key="item.id" :label="item.name" :value="item.id"></el-option>
                             <infinite-loading :on-infinite="onInfinite_user2" ref="infiniteLoading2"></infinite-loading>
                         </el-select>
-                    </template>
-                    <template v-if="search_show[5].roleDis">
-                        送测组:
-                        <el-select v-model="role_id_filter" filterable remote :loading="loading3" @visible-change="selectVisble3" :remote-method="remoteMethod3" placeholder="选择组" class="handle-select mr10">
-                            <el-option v-for="item in role_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                            <infinite-loading :on-infinite="onInfinite_role" ref="infiniteLoading3"></infinite-loading>
-                        </el-select>
-                    </template>
-                    状态:
+                    </template> -->
+                    送测组:
+                    <el-select v-model="role_id_filter" filterable clearable remote :loading="loading3" @visible-change="selectVisble3" :remote-method="remoteMethod3" placeholder="选择组" class="handle-select mr10">
+                        <el-option v-for="item in role_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                        <infinite-loading :on-infinite="onInfinite_role" ref="infiniteLoading3"></infinite-loading>
+                    </el-select>
+                    <!-- 状态:
                     <el-select v-model="statusSelect" placeholder="请选择" class="handle-select mr10">
                         <el-option v-for="item in isRestrict === 'false'?statusOptions:statusOptions2" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select> -->
                 </div>
             </div>
             <br><br>
-            <el-table element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column fixed prop="username" label="姓名" width="130" show-overflow-tooltip>
+            <el-table show-summary :summary-method="getSummaries" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
+                <el-table-column fixed type="index" width="55"></el-table-column>
+                <el-table-column fixed prop="name" label="姓名" width="130" show-overflow-tooltip>
                 </el-table-column>
-<!--                 <el-table-column fixed prop="homepage" label="HomePage" width="100" show-overflow-tooltip>
+                <el-table-column fixed prop="site" label="站点" width="130" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="apply_username" label="申请人" width="70" show-overflow-tooltip>
+                <el-table-column prop="plan" label="计划数量" show-overflow-tooltip>
                 </el-table-column>
-                <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="username" label="送测人" width="70" show-overflow-tooltip>
-                    </el-table-column>
-                </template>
-                <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
+                <el-table-column prop="done" label="完成数量" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="country" label="站点" width="45">
+                <el-table-column prop="block" label="失败" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="product_name" label="产品名" show-overflow-tooltip>
+                <el-table-column prop="fan_total" label="粉丝总费用">
                 </el-table-column>
-                <el-table-column prop="keyword" label="关键词" show-overflow-tooltip>
+                <el-table-column prop="customer_total" label="客户费用" show-overflow-tooltip>
                 </el-table-column>
-                <template v-if="isRestrict === 'false'">
-                    <el-table-column  prop="plan_date" label="计划日期" width="90">
-                    </el-table-column>
-                    <el-table-column prop="pay_type" label="支付类型" width="70">
-                    </el-table-column>
-                    <el-table-column prop="currency" label="币种" width="45">
-                    </el-table-column>
-                    <el-table-column prop="recommend_commission" label="建议佣金" width="45">
-                    </el-table-column>
-                </template>
-                <template v-if="isRestrict === 'false'">
-                    <template v-if="filter_refund">
-                        <el-table-column key="5" prop="total_price" label="总费用" show-overflow-tooltip>
-                        </el-table-column>
-                    </template>
-                    <template v-if="filter_commission">
-                        <el-table-column key="10" prop="commission_total" label="总费用" show-overflow-tooltip>
-                        </el-table-column>
-                    </template>
-                    <el-table-column prop="need_refund2" label="是否需要返款" show-overflow-tooltip>
-                        <template slot-scope="scope">
-                            <el-tag type="warning" v-if="scope.row.need_refund2 == '是'">是</el-tag>
-                            <el-tag type="success" v-else-if="scope.row.need_refund2 == '否'">否</el-tag>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="skip_review" label="是否免评" show-overflow-tooltip>
-                        <template slot-scope="scope">
-                            <el-tag type="warning" v-if="scope.row.skip_review === true && scope.row.status !== 1">是</el-tag>
-                            <el-tag type="success" v-else-if="scope.row.skip_review === false && scope.row.status !== 1">否</el-tag>
-                            <span v-else></span>
-                        </template>
-                    </el-table-column>
-                </template>
-                <el-table-column prop="is_pay_commission" label="佣金" width="65">
-                    <template slot-scope="scope">
-                        <el-tag v-if="scope.row.is_pay_commission === false" type="warning">未收</el-tag>
-                        <el-tag v-else-if="scope.row.is_pay_commission === true" type="success">已收</el-tag>
-                    </template>
+                <el-table-column prop="self_pay_sum" label="自费" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="is_pay_capital" label="本金" width="65">
-                    <template slot-scope="scope">
-                        <el-tag v-if="scope.row.is_pay_capital === false" type="warning">未收</el-tag>
-                        <el-tag v-else-if="scope.row.is_pay_capital === true" type="success">已收</el-tag>
-                    </template>
+                <el-table-column prop="paypal_charge" label="paypal手续费" width="100" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="140">
+                <el-table-column prop="tax" label="税费" show-overflow-tooltip>
                 </el-table-column>
-                <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="refund_time" label="返款时间" :formatter="formatter_refund_time" width="140">
-                    </el-table-column>
-                </template>
-                <el-table-column prop="status" label="状态" width="120">
-                    <template slot-scope="scope">
-                        <el-tag v-if="isRestrict === 'false'" :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status, scope.row.done_direct)}}</el-tag>
-                        <el-tag v-else :type="scope.row.status | statusFilterRestrict">{{getStatusNameReStrict(scope.row.status, scope.row.done_direct)}}</el-tag>
-                    </template>
+                <el-table-column prop="commission" label="佣金" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="email" label="截图" width="120">
-                    <template slot-scope="scope">
-                        <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
-                            <span v-if="scope.row.pictures.length === 0">无</span>
-                            <img style="cursor: pointer;" v-else-if="scope.row.pictures[0] != undefined && scope.row.pictures[0].url.thumb.url != null && !(scope.row.pictures[0].url.url.match(/.pdf/))" :src="$axios.defaults.baseURL+scope.row.pictures[0].url.thumb.url" @click="showPictures(scope.$index, scope.row)"/>
-                            <span v-else>无</span>
-                        </el-badge>
-                        <span v-else>无</span>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="feedback" label="反馈" show-overflow-tooltip>
-                </el-table-column> -->
-                <el-table-column prop="remark" label="备注" show-overflow-tooltip>
+                <el-table-column prop="skip_review" label="免评数量" show-overflow-tooltip>
+                    <!-- <template slot-scope="scope">
+                        <el-tag type="warning" v-if="scope.row.skip_review === 1">是</el-tag>
+                        <el-tag type="success" v-else-if="scope.row.skip_review === 0">否</el-tag>
+                        <span v-else></span>
+                    </template> -->
                 </el-table-column>
                 <!-- <el-table-column label="操作" width="100" fixed="right">
                     <template slot-scope="scope">
@@ -209,10 +133,10 @@
             </el-table>
             </el-table>
             </el-table>
-            <div class="pagination" v-if="paginationShow && totals != 0">
+            <!-- <div class="pagination" v-if="paginationShow && totals != 0">
                 <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="50" layout="prev, pager, next" :total="totals">
                 </el-pagination>
-            </div>
+            </div> -->
         </div>
 
         <!-- 完成弹出框 -->
@@ -845,6 +769,11 @@
               role_total: 0,
               loading3: false,
               role_options: [],
+              us_length: 0,
+              uk_length: 0,
+              de_length: 0,
+              jp_length: 0,
+              ca_length: 0
             }
         },
         created() {
@@ -884,6 +813,7 @@
         },
         computed: {
             data() {
+                // return this.tableData
                 return this.tableData.filter((d) => {
                     let is_del = false;
                     return d
@@ -937,32 +867,14 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/performances?page='+this.cur_page + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp
+                this.$axios.get( '/performances?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&user_id=' + this.user_id_filter + '&role_id=' + this.role_id_filter + '&asin=' + this.search_asin
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
-                            if (String(data.need_refund) == 'true') {
-                                data.need_refund2 = '是'
-                            } else if(String(data.need_refund) == 'false'){
-                                data.need_refund2 = '否'
-                            }
                             data.total_price = parseFloat((Number(data.commission_total) + Number(data.fan_total)).toPrecision(12))
-                            // data.sumPrice2 = parseFloat((Number(data.charge) + Number(data.commission) + Number(data.commission_charge) + Number(data.pay_price)).toPrecision(12))
-                            // data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
-                            // if(this.statusSelect == 2) {
-                            //     data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
-                            // } else if (this.statusSelect == 7) {
-                            //     data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission) + Number(data.pay_price)).toPrecision(12))
-                            // }
-                            // data.pay_records.forEach((data2) => {
-                            //     data.pictures.push(data2.pictures[0])
-                            // })
                             data.img_count = data.pictures.length
                         })
-                        // console.log(res.data.data.splice(81))
                         this.tableData = res.data.data
-                        // this.tableData = res.data.data.splice(0,50)
-                        // this.tableData = this.tableData.concat(res.data.data.splice(21))
                         this.totals = res.data.count
                         this.paginationShow = true
                     }
@@ -973,6 +885,7 @@
                 })
             },
             filter_product() {
+                this.us_length = 0, this.uk_length = 0, this.de_length = 0, this. ca_length = 0, this.jp_length = 0
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
@@ -991,47 +904,55 @@
                 } else {
                     tempStatus = '&status=' + this.statusSelect
                 }
-                let temp_commission = ''
-                let temp_capital = ''
-                if (this.is_pay_commission === true) {
-                    temp_commission = 1
-                }
-                if (this.is_pay_capital === true) {
-                    temp_capital = 1
-                }
-                this.$axios.get( '/performances?page='+this.cur_page + '&date_begin=' + date_begin_temp +'&date_end=' + date_end_temp
+                this.$axios.get( '/performances?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&user_id=' + this.user_id_filter + '&role_id=' + this.role_id_filter + '&asin=' + this.search_asin
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        res.data.data.forEach((data) => {
-                            if (String(data.need_refund) == 'true') {
-                                data.need_refund2 = '是'
-                            } else if(String(data.need_refund) == 'false'){
-                                data.need_refund2 = '否'
+                        let tableDataFilter1 = []
+                        let tableDataFilter = []
+                        // console.log([res.data.data])
+                        // console.log(Object.values(res.data.data))
+                        Object.values(res.data.data).forEach((data) => {
+                            for (let i in data) {
+                                data[i].site = i
                             }
-                            data.total_price = parseFloat((Number(data.commission_total) + Number(data.fan_total)).toPrecision(12))
-                            // data.sumPrice2 = parseFloat((Number(data.charge) + Number(data.commission) + Number(data.commission_charge) + Number(data.pay_price)).toPrecision(12))
-                            // data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
-                            // if(this.statusSelect == 2) {
-                            //     data.sumPrice = parseFloat((Number(data.charge) + Number(data.pay_price)).toPrecision(12))
-                            // } else if (this.statusSelect == 7) {
-                            //     data.sumPrice = parseFloat((Number(data.commission_charge) + Number(data.commission) + Number(data.pay_price)).toPrecision(12))
-                            // }
-                            // data.pay_records.forEach((data2) => {
-                            //     data.pictures.push(data2.pictures[0])
-                            // })
-                            data.img_count = data.pictures.length
+                            // 将对象转为数组
+                            Object.values(data).forEach((data2) => {
+                                console.log(data2)
+                                tableDataFilter1.push(data2)
+                            })
                         })
-                        if(this.statusSelect == 2) {
-                            this.filter_refund = true
-                            this.filter_commission = false
-                        } else if(this.statusSelect == 7) {
-                            this.filter_refund = false
-                            this.filter_commission = true
-                        } else {
-                            this.filter_refund = false
-                            this.filter_commission = false
-                        }
-                        this.tableData = res.data.data
+                        tableDataFilter1.forEach((data) => {
+                            if (data.site == 'US') {
+                                this.us_length += 1
+                                tableDataFilter.push(data)
+                            }
+                        })
+                        tableDataFilter1.forEach((data) => {
+                            if (data.site == 'DE') {
+                                this.de_length += 1
+                                tableDataFilter.push(data)
+                            }
+                        })
+                        tableDataFilter1.forEach((data) => {
+                            if (data.site == 'CA') {
+                                this.ca_length += 1
+                                tableDataFilter.push(data)
+                            }
+                        })
+                        tableDataFilter1.forEach((data) => {
+                            if (data.site == 'UK') {
+                                this.uk_length += 1
+                                tableDataFilter.push(data)
+                            }
+                        })
+                        tableDataFilter1.forEach((data) => {
+                            if (data.site == 'JP') {
+                                this.jp_length += 1
+                                tableDataFilter.push(data)
+                            }
+                        })
+                        console.log(this.us_length)
+                        this.tableData = tableDataFilter
                         this.totals = res.data.count
                     }
                     this.paginationShow = true
@@ -1057,7 +978,7 @@
                 this.filter_commission = false
                 this.apply_user_id = ''
                 this.is_pay_commission = ''
-                this.is_pay_capital = ''
+                this.role_id_filter = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
@@ -1850,6 +1771,50 @@
                         console.log('失败')
                     })
                 }
+            },
+            getSummaries(param) {
+                const { columns, data } = param;
+                const sums = [];
+                columns.forEach((column, index) => {
+                    if (index === 0) {
+                    sums[index] = '总计';
+                    return;
+                    }
+                    if (index === 1 || index === 2 || index === 3 || index === 4 || index === 5 || index === 6 || index === 7 || index === 8 || index === 9 || index === 10 || index === 11 || index === 12) {
+                        const values = data.map(item => Number(item[column.property]));
+                        if (!values.every(value => isNaN(value))) {
+                            sums[index] = values.reduce((prev, curr) => {
+                                const value = Number(curr);
+                                if (!isNaN(value)) {
+                                    return parseFloat((Number(prev) + Number(curr)).toPrecision(12));
+                                } else {
+                                    return Number(prev);
+                                }
+                            }, 0);
+                            sums[index] += ' ';
+                            // sums[index] = sums[index].toPrecision
+                            } else {
+                                sums[index] = 'N/A';
+                            }
+                    }
+                });
+                return sums;
+            },
+            objectSpanMethod(row, column, rowIndex, columnIndex) {
+                // console.log(666)
+                // if (columnIndex === 0) {
+                //     if (row.site === 'US') {
+                //         return {
+                //             rowspan: this.us_length,
+                //             colspan: 1
+                //         }
+                //     } else {
+                //         return {
+                //             rowspan: 0,
+                //             colspan: 0
+                //         }
+                //     }
+                // }
             },
             getStatusName(status, done_direct) {
                 if(status == 1) {

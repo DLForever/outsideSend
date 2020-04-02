@@ -14,8 +14,8 @@
                     <div class="user-info-list">上次登录地点：<span>东莞</span></div> -->
                 </el-card>
             </el-col>
-
-            <el-col :span="16" v-if="is_company === '1'">
+            <template v-if="is_company === '1' && restrict === 'false' && authority === 1">
+            <el-col :span="16">
                 <el-row :gutter="20" class="mgb20">
                     <el-col :span="6">
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
@@ -63,9 +63,10 @@
                     </el-col>
                 </el-row>
             </el-col>
+            </template>
 
         </el-row>
-        <el-row :gutter="20" v-if="schart_show === 1 && is_company ==='1'">
+        <el-row :gutter="20" v-if="schart_show === 1 && is_company ==='1' && restrict === 'false' && authority === 1">
             <el-col :span="12">
                 <el-card shadow="hover">
                     <schart ref="bar" class="schart" canvasId="bar" :options="options10"></schart>
@@ -89,7 +90,7 @@
     import Schart from 'vue-schart';
     import bus from '../common/bus';
     export default {
-        name: 'dashboard',
+        // name: 'dashboard',
         data() {
             return {
                 name: localStorage.getItem('ms_username'),
@@ -228,8 +229,9 @@
                 total_price: 0,
                 done: 0,
                 block: 0,
-                is_company: ''
-
+                is_company: '',
+                restrict: '',
+                authority: 0
             }
         },
         computed: {
@@ -241,14 +243,15 @@
             // console.log(111)
             // console.log(this.options10)
             this.is_company = localStorage.getItem('is_company')
+            this.restrict = localStorage.getItem('restrict')
             console.log(localStorage.getItem('is_company'))
             this.getData()
             // this.handleListener();
             // this.changeDate();
         },
-        // watch: {
-        //     "$route": "getData"
-        // },
+        watch: {
+            // "$route": "getData"
+        },
         activated(){
             // this.handleListener();
         },
@@ -261,6 +264,7 @@
                 this.$axios.get('/performances/today_info' 
                 ).then((res) => {
                     if(res.data.code == 200) {
+                        this.total = 0, this. total_price = 0, this.done = 0, this. block = 0
                         if (res.data.data.US != undefined) {
                             this.options10.datasets[0].data[0] = parseFloat(res.data.data.US.plan)
                             this.options10.datasets[1].data[0] = parseFloat(res.data.data.US.done)
@@ -321,7 +325,10 @@
                             this.block += parseFloat(res.data.data.CA.block)
                         }
                         this.schart_show = 1
-                        console.log()
+                        if(res.data.code != 300) {
+                            this.authority = 1
+                        }
+                        // setTimeout()
                         // console.log(res.data.data.US)
                         // res.data.data.forEach((data) => {
                             

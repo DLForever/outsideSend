@@ -1266,6 +1266,7 @@
                 this.apply_user_id = ''
                 this.is_pay_commission = ''
                 this.is_pay_capital = ''
+                this.role_id_filter = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
