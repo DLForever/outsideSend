@@ -8,6 +8,7 @@
         </div>
         <div class="container">
             <div class="handle-box">
+                <el-button type="primary" @click="confirmBatchAgree">分配</el-button>
                 <div class="fnsku_filter">
                     送测人员:
                     <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择用户" class="handle-select mr10">
@@ -424,7 +425,7 @@
                 }
                 this.$axios.patch('/task_records/' + this.form.id, params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.editVisible = false
                         this.detailVisible = false
@@ -602,7 +603,7 @@
                 }
                 this.$axios.patch('/period_change_records/' + this.form.id, params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('处理成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.handleVisible = false
                     }
@@ -610,6 +611,42 @@
                     console.log(res)
                 }).finally((res) => {
                     this.submitDisabled = false
+                })
+            },
+            confirmBatchAgree() {
+                if(this.multipleSelection.length == 0) {
+                    this.$message.error('请选择至少一个任务')
+                    return
+                }
+                this.remark = ''
+                this.handleVisible = true
+            },
+            batchAgree(type) {
+                let ids = []
+                this.multipleSelection.forEach((data) => {
+                    ids.push(data.id)
+                })
+                this.$confirm('确定审核通过？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(({value}) => {
+                    let params = {
+                        // task_ids: ids,
+                        pass: type,
+                        remark: this.remark
+                    }
+                    this.$axios.patch('/period_change_records', params
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.$message.success(res.data.message)
+                            this.getData()
+                        }
+                    }).catch(() => {
+                        
+                    })
+                }).catch(() => {
+                    this.$message.info('已取消审核')
                 })
             },
             handleDelete(index, row) {
@@ -625,7 +662,7 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.getData()
-                            this.$message.success("删除成功")
+                            this.$message.success(res.data.message)
                         }
                     }).catch(() => {
                         

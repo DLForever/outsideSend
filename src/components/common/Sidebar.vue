@@ -159,6 +159,17 @@
                         },
                         ]
                     },
+                    {
+                        icon: 'el-icon-lx-recharge',
+                        index: '9',
+                        title: '返款管理',
+                        subs: [
+                        {
+                            index: 'recordPay',
+                            title: '付款申请管理'
+                        },
+                        ]
+                    },
                     // {
                     //     icon: 'el-icon-lx-copy',
                     //     index: 'tabs',

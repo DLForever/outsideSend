@@ -94,6 +94,11 @@ export default new Router({
                     meta: { title: '绩效管理' }
                 },
                 {
+                    path: '/recordPay',
+                    component: resolve => require(['../components/views/record_pay/RecordPayInfoManage.vue'], resolve),
+                    meta: { title: '付款管理' }
+                },
+                {
                     path: '/fansmanage',
                     component: resolve => require(['../components/views/reviewer/FansManage.vue'], resolve),
                     meta: { title: '粉丝管理' }

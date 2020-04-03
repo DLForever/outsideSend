@@ -397,7 +397,7 @@
                 formData.append('user[is_company]', (this.form.is_company == true ? '1' : '0'))
                 this.$axios.patch('/users/' + this.form.id, formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.options = []
                         this.category_id = []
                         this.getData()
@@ -442,7 +442,7 @@
                     		this.tableData.splice(this.idx, 1)
                     		this.getData()
                             this.delVisible = false;
-                    		this.$message.success("删除成功")           		
+                    		this.$message.success(res.data.message)           		
                     	}
                         }).catch((res) => {
                         	this.$message.error("删除失败")
@@ -486,7 +486,7 @@
                 }
                 this.$axios.post('/users/' + this.idx +'/change_policy', params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.editPoliciesVisible = false
                     }
@@ -534,7 +534,7 @@
                 }
                 this.$axios.post('/users/' + this.idx +'/change_role', params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.editRolesVisible = false
                     }
@@ -557,7 +557,7 @@
                 this.$axios.post('/users/' + this.user_id + '/update_shopsum', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('修改成功')
+                        this.$message.success(res.data.message)
                         this.editCountVisible = false
                         this.getData()
                     }

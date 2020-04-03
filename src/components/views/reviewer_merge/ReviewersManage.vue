@@ -1070,7 +1070,7 @@
                 })
                 this.$axios.patch('/tasks/' + this.form.id, formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.editVisible = false
                     }

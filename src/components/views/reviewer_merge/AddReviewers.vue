@@ -22,6 +22,9 @@
 									<el-option v-for="item in site_options" :key="item" :label="item" :value="item"></el-option>
 								</el-select>
 							</el-form-item>
+							<el-form-item label="英文标题">
+								<el-input v-model="form.title"></el-input>
+							</el-form-item>
 							<el-form-item label="产品名称" prop="name">
 								<el-input v-model="form.name"></el-input>
 							</el-form-item>
@@ -33,6 +36,10 @@
 							</el-form-item>
 							<el-form-item label="产品链接" prop="website">
 								<el-input v-model.trim="form.website" placeholder="需加入https://或http://前缀"></el-input>
+							</el-form-item>
+							<el-form-item label="是否按照总数进行" prop="by_sum">
+								<el-radio v-model="form.by_sum" label="1">是</el-radio>
+								<el-radio v-model="form.by_sum" label="0">否</el-radio>
 							</el-form-item>
 							<el-form-item label="关键词/位置">
 								<table >
@@ -51,7 +58,22 @@
 									</tbody>
 								</table>
 							</el-form-item>
-							<el-form-item label="日期/每日次数">
+							<el-form-item label="是否线性送测" prop="is_line">
+								<el-radio v-model="form.is_line" label="1">是</el-radio>
+								<el-radio v-model="form.is_line" label="0">否</el-radio>
+							</el-form-item>
+							<template v-if="form.is_line === '1'">
+								<el-form-item label="送测数量">
+									<el-input-number style="margin-bottom: 5px;" v-model="form.line_sum" :min="0" label="描述文字"></el-input-number>
+								</el-form-item>
+								<el-form-item label="送测天数">
+									<el-input-number style="margin-bottom: 5px;" v-model="form.day" :min="0" label="描述文字"></el-input-number>
+								</el-form-item>
+								<el-form-item label="开始时间">
+									<el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="form.start_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
+								</el-form-item>
+							</template>
+							<el-form-item label="日期/每日次数" v-if="form.is_line === '0'">
 								<table >
 									<tbody v-for="(p,index) in date_time">
 										<td>
@@ -141,7 +163,15 @@
 					shopname: '',
 					price: '',
 					remark: '',
-					sku: ''
+					sku: '',
+					is_line: '',
+					line_sum: 0,
+					day: 0,
+					start_date: '',
+					category_id: '',
+					category_filter: '',
+					by_sum: '',
+					title: ''
 				},
 				rules: {
 					name: [{
@@ -269,10 +299,26 @@
 						formData.append('task[keyword_index]', String(tempkeyword_index))
 						formData.append('task[remark]', this.form.remark)
 						formData.append('task[sku]', this.form.sku)
+						formData.append('task[is_line]', this.form.is_line)
+						formData.append('task[title]', this.form.title)
 						this.date_time.forEach((data) => {
 							formData.append('task[plan_date][]', data.date)
 							formData.append('task[plan_sum][]', data.time)
 						})
+						if(this.form.is_line === '0') {
+							this.date_time.forEach((data) => {
+								formData.append('task[plan_date][]', data.date)
+								formData.append('task[plan_sum][]', data.time)
+							})
+						}
+						if(this.form.is_line === '1') {
+							formData.append('task[line_sum]', this.form.line_sum)
+							formData.append('task[day]', this.form.day)
+							formData.append('task[start_date]', this.form.start_date)
+							formData.append('task[by_sum]', this.form.by_sum)
+							formData.append('task[plan_date][]', '[]')
+							formData.append('task[plan_sum][]', '[]')
+						}
 						this.fileList.forEach((item) => {
 							formData.append('picture_adv[]', item.raw)
 						})

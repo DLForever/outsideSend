@@ -92,7 +92,7 @@
             <br><br>
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <!-- <el-table-column prop="email" label="截图" width="115" fixed>
+                <el-table-column prop="email" label="图片" width="115" fixed>
                     <template slot-scope="scope">
                         <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
                             <span v-if="scope.row.pictures.length === 0">无</span>
@@ -101,13 +101,13 @@
                         </el-badge>
                         <span v-else>无</span>
                     </template>
-                </el-table-column> -->
+                </el-table-column>
                 <el-table-column prop="asin" label="ASIN" width="150" fixed show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="country" label="站点" width="50">
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="role_name" label="已分配的组" width="90">
+                    <el-table-column prop="role_name" label="送测的组" width="90">
                     </el-table-column>
                 </template>
                 <el-table-column prop="apply_username" label="申请人" width="70">
@@ -127,11 +127,9 @@
                 </el-table-column>
                 <el-table-column prop="customer_commission" label="佣金" width="65">
                 </el-table-column>
-                <el-table-column prop="total" label="测评总数" width="65">
+                <el-table-column prop="plan_sum" label="计划数量" width="65">
                 </el-table-column>
                 <el-table-column prop="block" label="失败数量" width="65">
-                </el-table-column>
-                <el-table-column prop="line_sum" label="线程数量" width="65">
                 </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
                 </el-table-column>
@@ -149,7 +147,7 @@
                 </el-table-column>
                 <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
                 </el-table-column>
-                <el-table-column label="操作" width="100" fixed="right">
+                <!-- <el-table-column label="操作" width="100" fixed="right">
                     <template slot-scope="scope">
                         <el-dropdown>
                             <el-button type="primary">
@@ -159,7 +157,7 @@
                                 <el-dropdown-item>
                                     <el-button @click="generatePicture(scope.row)" type="text">&nbsp&nbsp&nbsp生产大图</el-button>
                                 </el-dropdown-item>
-                                <!-- <el-dropdown-item>
+                                <el-dropdown-item>
                                     <el-button @click="handleDetails(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp详情</el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item v-if="isRestrict === 'false'">
@@ -190,11 +188,11 @@
                                 </el-dropdown-item>
                                 <el-dropdown-item>
                                     <el-button @click="handleDelete(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp删除</el-button>
-                                </el-dropdown-item> -->
+                                </el-dropdown-item>
                             </el-dropdown-menu>
                         </el-dropdown>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
             </el-table>
             </el-table>
             <div class="pagination" v-if="paginationShow && totals != 0">
@@ -531,12 +529,12 @@
             </el-table>
         </el-dialog>
 
-        <!-- 查看产品图片 -->
-        <el-dialog title="图片" :visible.sync="productVisible" width="70%">
+        <!-- 查看生成的大图 -->
+        <el-dialog title="图片" :visible.sync="bigPictureVisible" width="70%">
             <!-- <el-image style="width: 100px; height: 100px" :preview-src-list="picturestList"></el-image> -->
             <el-carousel height="600px" arrow="always" :autoplay="false">
                 <span>生成的图片</span>
-                <el-carousel-item v-for="(item, index) in picturestList" :key="index">
+                <el-carousel-item v-for="(item, index) in bigpicturestList" :key="index">
                     <img class="img_carousel" :src="$axios.defaults.baseURL+item.url" />
                 </el-carousel-item>
             </el-carousel>
@@ -549,6 +547,22 @@
             </el-carousel> -->
         </el-dialog>
 
+        <!-- 查看产品图片 -->
+        <el-dialog title="图片" :visible.sync="productVisible" width="70%">
+            <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList.length != 0">
+                <span>产品广告位图片</span>
+                <el-carousel-item v-for="(item, index) in picturestList" :key="index">
+                    <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
+                </el-carousel-item>
+            </el-carousel>
+            <br>
+            <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList2.length != 0">
+                <span class="demonstration">无logo非产品主图</span>
+                <el-carousel-item v-for="(item, index) in picturestList2" :key="index">
+                    <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
+                </el-carousel-item>
+            </el-carousel>
+        </el-dialog>
         <!-- 删除产品图片提示 -->
         <el-dialog title="删除图片" :visible.sync="confirmDelProVis" width="35%">
             <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
@@ -1000,7 +1014,9 @@
                 total: '',
                 done: '',
                 block: '',
-                done_filter: ''
+                done_filter: '',
+                bigPictureVisible: false,
+                bigpicturestList: []
             }
         },
         created() {
@@ -1077,7 +1093,6 @@
                             data.asin = data.task.asin
                             data.name = data.task.name
                             data.category_name = data.task.category_name
-                            data.role_name = data.task.role_name
                             data.weight = data.task.weight
                             data.total = data.task.total
                             data.line_sum = data.task.line_sum
@@ -1092,6 +1107,7 @@
                             data.url = data.task.url
                             data.remark = data.task.remark
                             data.status = data.task.status
+                            data.pictures = data.task.pictures
                             // })
                             // data.username = ''
                             // data.operate_users.forEach((data3) => {
@@ -1123,7 +1139,6 @@
                             data.asin = data.task.asin
                             data.name = data.task.name
                             data.category_name = data.task.category_name
-                            data.role_name = data.task.role_name
                             data.weight = data.task.weight
                             data.total = data.task.total
                             data.line_sum = data.task.line_sum
@@ -1138,6 +1153,7 @@
                             data.url = data.task.url
                             data.remark = data.task.remark
                             data.status = data.task.status
+                            data.pictures = data.task.pictures
                             // data.task.role_name = data.role_name
                             // data.task.plan_sum = data.plan_sum
                             // data.task.done_sum = data.done_sum
@@ -1270,7 +1286,7 @@
                 })
                 this.$axios.patch('/tasks/' + this.form.id, formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.editVisible = false
                     }
@@ -1292,7 +1308,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success("删除成功")
+            		this.$message.success(res.data.message)
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1374,7 +1390,7 @@
                             this.picturestList2.splice(this.idx, 1);
                         }
                         this.getData()
-                        this.$message.success("删除成功")
+                        this.$message.success(res.data.message)
                         this.confirmDelProVis = false
                     }
                 }).catch((res) => {
@@ -1419,7 +1435,7 @@
                         formData.append('task_record[homepage]', this.addReviewerForm.homepage)
                         this.$axios.post('/task_records', formData).then((res) => {
                             if(res.data.code == 200) {
-                                this.$message.success('提交成功！')
+                                this.$message.success(res.data.message)
                                 this.$refs[formName].resetFields()
                                 this.addReviewerForm.keyword = ''
                                 this.getData()
@@ -1561,7 +1577,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("通过自审")
+                        this.$message.success(res.data.message)
                         this.detailVisible = false
                     }
                 }).catch((res) => {
@@ -1571,7 +1587,7 @@
             confirmDistribute() {
                 this.picturestList = []
                 if(this.multipleSelection.length == 0) {
-                    this.$message.error('请选择至少一个任务')
+                    this.$message.error('请选择至少一个订单')
                     return
                 }
                 let task_ids = []
@@ -1591,8 +1607,8 @@
                         if(res.data.code == 200) {
                             this.getData()
                             this.$message.success(res.data.message)
-                            this.picturestList.push({url: res.data.data})
-                            this.productVisible = true
+                            this.bigpicturestList.push({url: res.data.data})
+                            this.bigpicturestList = true
                         }
                     }).catch((res) => {
                         console.log(res)
@@ -1617,7 +1633,7 @@
                 this.$axios.post('/tasks/allocate_task_by_role', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('分配成功!')
+                        this.$message.success(res.data.message)
                         this.distributeVisible = false
                         this.distributeUser = []
                         this.getData()
@@ -1628,7 +1644,7 @@
             },
             confirmReDistribute() {
                 if(this.multipleSelection.length == 0) {
-                    this.$message.error('请选择至少一个任务')
+                    this.$message.error('请选择至少一个订单')
                     return
                 }
                 let isSingle = ''
@@ -1664,7 +1680,7 @@
                     this.$axios.post('/tasks/reallocate_role_sum', params
                     ).then((res) => {
                         if(res.data.code == 200) {
-                            this.$message.success("任务已重新分配！")
+                            this.$message.success(res.data.message)
                             this.getData()
                         }
                     }).catch(() => {
@@ -1743,10 +1759,10 @@
                         this.getData()
                         if (this.username != null) {
                             row.plan_sum = row.originalSum
-                            this.$message.success("请求已提交，等待送测人同意！")
+                            this.$message.success(res.data.message)
                         } else {
                             row.originalSum = row.plan_sum
-                            this.$message.success("更新成功")
+                            this.$message.success(res.data.message)
                         }
                         row.edit = false
                         // this.updateplanVisible = false
@@ -1769,7 +1785,7 @@
                     if(res.data.code == 200) {
                         this.getData()
                         row.originalaccept = row.accept_sum
-                        this.$message.success("更新成功")
+                        this.$message.success(res.data.message)
                         row.editAccept = false
                         // this.updateplanVisible = false
                         // this.detailVisible = false
@@ -1798,7 +1814,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("增加成功")
+                        this.$message.success(res.data.message)
                         this.isaddPlan = false
                         this.detailOptions2.push({ plan_sum: this.plan_sum, plan_date: this.plan_date, start_sum: 0, accept_sum: 0,noshow: true})
                         this.plan_sum = 0
@@ -1828,10 +1844,10 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             if (this.username != null) {
-                                this.$message.success("请求已提交,等待送测人同意！")
+                                this.$message.success(res.data.message)
                             } else {
                                 this.detailOptions2.splice(index, 1);
-                                this.$message.success("已删除")
+                                this.$message.success(res.data.message)
                             }
                             this.getData()
                             
@@ -1882,7 +1898,7 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.getData()
-                            this.$message.success("拒绝成功")
+                            this.$message.success(res.data.message)
                         }
                     }).catch(() => {
                         
@@ -1908,7 +1924,7 @@
                 }
                 this.$axios.post('/tasks/' + this.form.id + '/manager_check', params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('处理成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.checkVisible = false
                     }
@@ -1928,7 +1944,7 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.getData()
-                            this.$message.success("恢复成功")
+                            this.$message.success(res.data.message)
                         }
                     }).catch(() => {
                         
@@ -1964,7 +1980,7 @@
                 this.$axios.post('/tasks/update_category', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('分类成功!')
+                        this.$message.success(res.data.message)
                         this.categoryVisible = false
                         this.getData()
                     }
@@ -2035,7 +2051,7 @@
                 this.$axios.post('/tasks/' + this.idx + '/set_weight', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('设置成功!')
+                        this.$message.success(res.data.message)
                         this.setWeightVisible = false
                         this.getData()
                     }
@@ -2143,7 +2159,7 @@
                 formData.append('line_sum', this.updateform.line_sum)
                 this.$axios.post('/tasks/' + this.updateform.id + '/update_task_period', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.updateVisble = false
                     }

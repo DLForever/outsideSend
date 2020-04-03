@@ -300,9 +300,9 @@
                 <el-form-item label="税费" prop="tax">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.tax" :min="0"></el-input-number>
                 </el-form-item>
-                <!-- <el-form-item label="佣金" prop="commission">
-                    <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.commission" :min="0" @change="totalPrice"></el-input-number>
-                </el-form-item> -->
+                <el-form-item label="佣金" prop="commission">
+                    <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.commission" :min="0"></el-input-number>
+                </el-form-item>
                 <!-- <el-form-item label="手续费" prop="poundage">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.poundage" :min="0" @change="totalPrice"></el-input-number>
                 </el-form-item> -->
@@ -360,13 +360,14 @@
 
         <!-- 详情提示 -->
         <el-dialog title="详情" :visible.sync="detailVisible" width="90%">
-            <el-button :disabled="submitDisabled" v-if="isaddPlan" type="success" size="small" icon="el-icon-circle-check-outline" @click="saveaddplan">确认</el-button>
+            <el-button type="primary" @click="handleAddPlan">增加任务</el-button>
+            <!-- <el-button :disabled="submitDisabled" v-if="isaddPlan" type="success" size="small" icon="el-icon-circle-check-outline" @click="saveaddplan">确认</el-button>
             <el-button v-else type="primary" @click="isaddPlan=!isaddPlan">增加任务</el-button>
             <template v-if="isaddPlan">
                 <el-button type="warning" icon="el-icon-refresh" @click="cancelAddPlan">取消</el-button>
                 <el-date-picker style="margin-right: 10px; margin-bottom: 5px; margin-left: 5px;" v-model="plan_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
                 <el-input-number style="margin-bottom: 5px;" v-model="plan_sum" :min="0" label="数量"></el-input-number>
-            </template>
+            </template> -->
             <el-button style="float: right;" type="primary" @click="checkSelf">通过自审</el-button>
             <br><br>
             <el-table :data="detailOptions" border style="width: 100%">
@@ -570,7 +571,7 @@
         <!-- 更新计划 -->
         <el-dialog title="增加计划" :visible.sync="addplanVisible" width="50%">
             <el-form ref="form" :model="form" label-width="110px">
-                <el-form-item label="日期/每日次数">
+                <!-- <el-form-item label="日期/每日次数">
                     <table >
                         <tbody v-for="(p,index) in date_time">
                             <td>
@@ -579,10 +580,41 @@
                             <td>
                                 <el-input-number style="margin-bottom: 5px;" v-model="p.plan_sum" :min="0" label="数量"></el-input-number>
                             </td>
-                            <!-- <div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
+                            <div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
                                 <i style="margin-right: 5px;  font-size: 15px" class="el-icon-circle-plus" @click="orderAdd(index)"></i>
                                 <i style="font-size: 15px" class="el-icon-remove" @click="orderDel(index)" v-if="date_time.length >1"></i>
-                            </div> -->
+                            </div>
+                        </tbody>
+                    </table>
+                </el-form-item> -->
+                <el-form-item label="是否线性送测" prop="is_line">
+                    <el-radio v-model="is_line" label="1">是</el-radio>
+                    <el-radio v-model="is_line" label="0">否</el-radio>
+                </el-form-item>
+                <template v-if="is_line === '1'">
+                    <el-form-item label="送测数量">
+                        <el-input-number style="margin-bottom: 5px;" v-model="line_sum" :min="0" label="描述文字"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="送测天数">
+                        <el-input-number style="margin-bottom: 5px;" v-model="day" :min="0" label="描述文字"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="开始时间">
+                        <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="start_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
+                    </el-form-item>
+                </template>
+                <el-form-item label="日期/每日次数" v-if="is_line === '0'">
+                    <table >
+                        <tbody v-for="(p,index) in date_time">
+                            <td>
+                                <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="p.plan_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
+                            </td>
+                            <td>
+                                <el-input-number style="margin-bottom: 5px;" v-model="p.plan_sum" :min="0" label="描述文字"></el-input-number>
+                            </td>
+                            <div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
+                                <i style="margin-right: 5px;  font-size: 15px;cursor: pointer;" class="el-icon-circle-plus" @click="orderAdd2(index)"></i>
+                                <i style="font-size: 15px;cursor: pointer;" class="el-icon-remove" @click="orderDel2(index)" v-if="date_time.length >1"></i>
+                            </div>
                         </tbody>
                     </table>
                 </el-form-item>
@@ -900,6 +932,11 @@
                         message: '请输入主页',
                         trigger: 'blur'
                     }],
+                    profile_url: [{
+                        required: false,
+                        message: '请输入profile_url',
+                        trigger: 'blur'
+                    }],
                 },
                 task_id: '',
                 distributeUserOptions: [],
@@ -970,7 +1007,11 @@
                     role_ids: '',
                     new_sum: 0
                 },
-                need_charge: ''
+                need_charge: '',
+                is_line: '',
+                line_sum: 0,
+                day: 0,
+                start_date: ''
             }
         },
         created() {
@@ -1342,7 +1383,7 @@
                         formData.append('task_record[currency]', this.addReviewerForm.currency)
                         formData.append('task_record[pay_time]', this.addReviewerForm.pay_time)
                         formData.append('task_record[pay_price]', this.addReviewerForm.pay_price)
-                        // formData.append('task_record[commission]', this.addReviewerForm.commission)
+                        formData.append('task_record[commission]', this.addReviewerForm.commission)
                         // formData.append('task_record[charge]', this.addReviewerForm.poundage)
                         formData.append('task_record[paypal_account]', this.addReviewerForm.paypal_account)
                         formData.append('task_record[profile_url]', this.addReviewerForm.profile_url)
@@ -1484,14 +1525,14 @@
                 this.$router.push({name: 'Reviewerschangemanagecompany', params: {task_period_id: row.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
-            orderAdd() {
+            orderAdd2() {
                 this.date_time.push(this.add_date_time)
                 this.add_date_time = {
                     plan_date: '',
                     plan_sum: 0
                 }
             },
-            orderDel(index) {
+            orderDel2(index) {
                 this.date_time.pop()
             },
             checkSelf() {
@@ -1709,7 +1750,7 @@
                     if(res.data.code == 200) {
                         this.getData()
                         row.originalaccept = row.accept_sum
-                        this.$message.success("更新成功")
+                        this.$message.success(res.data.message)
                         row.editAccept = false
                         // this.updateplanVisible = false
                         // this.detailVisible = false
@@ -1721,6 +1762,10 @@
                 })
             },
             handleAddPlan() {
+                this.is_line = ''
+                this.line_sum = 0
+                this.day = 0
+                this.start_date = ''
                 this.date_time = [{
                     plan_date: '',
                     plan_sum: 0
@@ -1730,19 +1775,35 @@
             },
             saveaddplan() {
                 this.submitDisabled = true
-                let params = {
-                    plan_date: this.plan_date,
-                    plan_sum: this.plan_sum
+                let formData = new FormData()
+                formData.append('is_line', this.is_line)
+                if(this.is_line === '0') {
+                    this.date_time.forEach((data) => {
+                        formData.append('plan_date[]', data.plan_date)
+                        formData.append('plan_sum[]', data.plan_sum)
+                    })
                 }
-                this.$axios.post('/tasks/' + this.task_id + '/create_period', params
+                if(this.is_line === '1') {
+                    formData.append('line_sum', this.line_sum)
+                    formData.append('day', this.day)
+                    formData.append('start_date', this.start_date)
+                    // formData.append('task[by_sum]', this.by_sum)
+                    formData.append('plan_date[]', '[]')
+                    formData.append('plan_sum[]', '[]')
+                }
+                // let params = {
+                //     plan_date: this.plan_date,
+                //     plan_sum: this.plan_sum
+                // }
+                this.$axios.post('/tasks/' + this.task_id + '/create_period', formData
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("增加成功")
-                        this.isaddPlan = false
-                        this.detailOptions2.push({ plan_sum: this.plan_sum, plan_date: this.plan_date, start_sum: 0, accept_sum: 0,noshow: true})
-                        this.plan_sum = 0
-                        this.plan_date = ''
+                        this.$message.success(res.data.message)
+                        this.addplanVisible = false
+                        // this.detailOptions2.push({ plan_sum: this.plan_sum, plan_date: this.plan_date, start_sum: 0, accept_sum: 0,noshow: true})
+                        // this.plan_sum = 0
+                        // this.plan_date = ''
                     }
                 }).catch((res) => {
 
@@ -1768,7 +1829,7 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             if (this.username != null) {
-                                this.$message.success("请求已提交,等待送测人同意！")
+                                this.$message.success(res.data.message)
                             } else {
                                 this.detailOptions2.splice(index, 1);
                                 this.$message.success("已删除")
@@ -1822,7 +1883,7 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.getData()
-                            this.$message.success("拒绝成功")
+                            this.$message.success(res.data.message)
                         }
                     }).catch(() => {
                         
@@ -1870,7 +1931,7 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.getData()
-                            this.$message.success("恢复成功")
+                            this.$message.success(res.data.message)
                         }
                     }).catch(() => {
                         
@@ -1906,7 +1967,7 @@
                 this.$axios.post('/tasks/update_category', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('分类成功!')
+                        this.$message.success(res.data.message)
                         this.categoryVisible = false
                         this.getData()
                     }
@@ -1977,7 +2038,7 @@
                 this.$axios.post('/tasks/' + this.idx + '/set_weight', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('设置成功!')
+                        this.$message.success(res.data.message)
                         this.setWeightVisible = false
                         this.getData()
                     }
@@ -2074,7 +2135,7 @@
                 formData.append('line_sum', this.updateform.line_sum)
                 this.$axios.post('/tasks/' + this.updateform.id + '/update_task_period', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.updateVisble = false
                     }
