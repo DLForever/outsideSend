@@ -87,7 +87,7 @@
 				// formData.append('remark', this.remark)
 				this.$axios.post('/pay_records/batch_create', formData, config).then((res) => {
 					if(res.data.code == 200) {
-						this.$message.success("提交成功")
+						this.$message.success(res.data.message)
 						this.xlsxList = []
 						// this.remark = ''
 					}

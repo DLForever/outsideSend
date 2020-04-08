@@ -2,15 +2,16 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 公司测评管理</el-breadcrumb-item>
-                <el-breadcrumb-item>测评任务管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 付款管理</el-breadcrumb-item>
+                <el-breadcrumb-item>付款申请管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
             <div class="handle-box">
+                <el-button  type="warning" @click="updateRate">更新汇率</el-button>
+                <el-button type="primary" @click="exportRecord">导出</el-button>
                 <!-- <template v-if="isRestrict === 'false'">
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
-                    <el-button type="primary" @click="exportReviewers">部分导出</el-button>
                     <el-button  type="success">
                         <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&is_company=1'">导出全部</a>
                     </el-button>
@@ -93,13 +94,13 @@
                         <span v-else>无</span>
                     </template>
                 </el-table-column>
-                <el-table-column fixed prop="price" label="产品价格" width="130" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="customer_price" label="客户费用" width="70" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="customer_charge" label="客户手续费" show-overflow-tooltip>
+                <el-table-column prop="price" label="支付价格" width="130" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="charge" label="手续费" width="70">
+                </el-table-column>
+                <el-table-column prop="customer_price" label="收取客户价格" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="customer_charge" label="客户支付手续费" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="need_charge" label="是否客户支付手续费" show-overflow-tooltip>
                     <template slot-scope="scope">
@@ -119,11 +120,11 @@
                         <el-tag type="warning" v-else-if="scope.row.pay == false">否</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="pay_type" label="类型" width="120">
+                <!-- <el-table-column prop="pay_type" label="类型" width="120">
                     <template slot-scope="scope">
                         <el-tag :type="scope.row.pay_type | statusFilter">{{getStatusPayType(scope.row.pay_type)}}</el-tag>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                <!--  <template v-if="isRestrict === 'false'">
                     <template v-if="filter_refund">
                         <el-table-column key="5" prop="total_price" label="总费用" show-overflow-tooltip>
@@ -195,9 +196,6 @@
                                     </el-dropdown-item>
                                     <el-dropdown-item>
                                         <el-button @click="handleAddRefund(scope.$index, scope.row)" type="text">添加返款</el-button>
-                                    </el-dropdown-item>
-                                    <el-dropdown-item>
-                                        <el-button @click="handleRecordPay(scope.$index, scope.row)" type="text">申请补款</el-button>
                                     </el-dropdown-item>
                                 </template>
                                 <template v-if="isRestrict === 'false'">
@@ -582,7 +580,7 @@
 
         <!-- 下载提示 -->
         <el-dialog title="下载" :visible.sync="exportVisible" width="35%" @close="closeExport">
-            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?ids=' + exportIds + '&token=' + export_token + '&is_company=1'">下载excel文件</a></el-button>
+            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/record_pay_infos/export_url?ids=' + exportIds + '&token=' + export_token + '&pay=' + paydone + '&user_id=' + user_id_filter + '&apply_user_id=' + apply_user_id + '&record_id='">下载excel文件</a></el-button>
         </span>
         </el-dialog>
 
@@ -653,29 +651,21 @@
                 <el-button type="primary" @click="saveComRes" :disabled="submitDisabled">确 定</el-button>
             </span>
         </el-dialog>
-        <!-- 申请补款 -->
-        <el-dialog title="申请补款" :visible.sync="commissionVisible" width="60%">
-            <el-form ref="form" :model="form" label-width="70px">
-                <el-form-item label="金额">
-                    <el-input-number v-model="price" :min="0"></el-input-number>
-                </el-form-item>
-                <el-form-item label="返款方式">
-                    <el-select v-model="charge_type" class="handle-select">
-                        <el-option v-for="item in chargetypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="返款方式">
-                    <el-select v-model="p_type" class="handle-select">
-                        <el-option v-for="item in p_type_ptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="备注">
-                    <el-input v-model="remark"></el-input>
+
+        <!-- 更新汇率 -->
+        <el-dialog title="更新汇率" :visible.sync="rateVisible" width="50%">
+            <el-form label-width="100px">
+                <el-form-item label="汇率文件">
+                    <el-upload class="upload-demo" drag action="" :file-list="fileList4" :on-remove="handleRemove4" :auto-upload="false" :on-change="changeFile4" :limit="1" multiple>
+                        <i class="el-icon-upload"></i>
+                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                    </el-upload>
+                    <a :href="$axios.defaults.baseURL +'/batch_exchange_rate.xlsx'">模板下载</a>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="commissionVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveAppendPay" :disabled="submitDisabled">确 定</el-button>
+                <el-button @click="rateVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveRate" :disabled="submitDisabled">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -933,13 +923,14 @@
               append_commission: 0,
               commissionVisible: false,
               pay_tax_options: [{value: '0', label: '否'},  {value: '1', label: '是'}],
-              chargetypeoptions: [{id: '1', type: '自返'}, {id: '2', type: '中介'}],
               charge_type: '',
               p_type_ptions: [{id: '1', type: '补款'}, {id: '2', type: '退款'}],
               price: '',
               p_type: '',
               paydoneoptions: [{value: '0', label: '未付款'},  {value: '1', label: '已付款'}],
-              paydone: ''
+              paydone: '',
+              rateVisible: false,
+              fileList4: []
             }
         },
         created() {
@@ -1224,7 +1215,7 @@
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/done_review', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成评论！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.doneVisible = false
                     }
@@ -1246,7 +1237,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success("删除成功")           		
+            		this.$message.success(res.data.message)           		
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1342,7 +1333,7 @@
                             this.picturestList3.splice(this.idx, 1)
                         }
                         this.getData()
-                        this.$message.success("删除成功")
+                        this.$message.success(res.data.message)
                         this.confirmDelProVis = false
                     }
                 }).catch((res) => {
@@ -1374,7 +1365,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("反馈成功!")
+                        this.$message.success(res.data.message)
                         this.feedbackVisible = false
                     }
                 }).catch((res) => {
@@ -1509,7 +1500,7 @@
                         })
                         this.$axios.patch('/task_records/' + this.idx, formData).then((res) => {
                             if(res.data.code == 200) {
-                                this.$message.success('提交成功！')
+                                this.$message.success(res.data.message)
                                 this.$refs[formName].resetFields()
                                 this.updatereviewerVisible = false
                                 this.getData()
@@ -1592,7 +1583,7 @@
             totalPrice() {
                 // this.sumPrice = parseFloat((this.addReviewerForm.pay_price + this.addReviewerForm.commission + this.addReviewerForm.poundage).toPrecision(12))
             },
-            exportReviewers() {
+            exportRecord() {
                 if(this.multipleSelection.length == 0) {
                     this.$message.error('请至少选择一条数据')
                     return
@@ -1653,7 +1644,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("处理成功")
+                        this.$message.success(res.data.message)
                         this.checkVisible = false
                     }
                 }).catch((res) => {
@@ -1722,7 +1713,7 @@
                 // }
                 this.$axios.post('/task_records/done_pay', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.comResVisible = false
                     }
@@ -1788,32 +1779,24 @@
                     this.date_end_ex = ''
                 }
             },
-            handleRecordPay(index, row) {
-                this.form.id = row.id
-                this.price = ''
-                this.p_type = ''
-                this.charge_type = ''
-                this.remark = ''
-                this.commissionVisible = true
+            updateRate() {
+                this.fileList4 = []
+                this.rateVisible = true
             },
-            saveAppendPay() {
-                let params = {
-                    id: this.form.id,
-                    price: this.price,
-                    p_type: this.p_type,
-                    charge_type: this.charge_type,
-                    remark: this.remark
-                }
-                this.$axios.post('/record_pay_infos', params).then((res) => {
+            saveRate() {
+                let formData = new FormData()
+                this.fileList4.forEach((item) => {
+                    formData.append('file', item.raw)
+                })
+                this.$axios.post('/record_pay_infos/update_exchange_rate', formData
+                ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success(res.data.message)
                         this.getData()
-                        this.commissionVisible = false
+                        this.$message.success(res.data.message)
+                        this.rateVisible = false
                     }
                 }).catch((res) => {
-                    console.log('err')
-                }).finally((res) => {
-                    this.submitDisabled = false
+
                 })
             },
             getStatusName(status, done_direct) {

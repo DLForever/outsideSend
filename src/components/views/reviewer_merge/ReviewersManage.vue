@@ -51,41 +51,7 @@
             <br><br>
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="asin" label="ASIN" width="150" fixed show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="sku" label="SKU" width="150" fixed show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="country" label="站点" width="50">
-                </el-table-column>
-                <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="username" label="送测人" width="140">
-                    </el-table-column>
-                </template>
-                <el-table-column prop="apply_username" label="申请人" width="70">
-                </el-table-column>
-                <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="category_name" label="分类" width="100" show-overflow-tooltip>
-                    </el-table-column>
-                </template>
-                <el-table-column prop="name" label="产品名称" width="100" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="weight" label="优先级" width="70">
-                    <template slot-scope="scope">
-                        <el-tag :type="scope.row.weight | statusFilterWeight">{{getStatusWeight(scope.row.weight)}}</el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="price" label="价格" width="70">
-                </el-table-column>
-                <el-table-column prop="customer_commission" label="佣金" width="65">
-                </el-table-column>
-                <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="url" label="url" width="50">
-                    <template slot-scope="scope">
-                        <a v-if="scope.row.url != null && scope.row.url != '' && scope.row.url != 'null'" :href="scope.row.url" target="_blank">链接</a>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="email" label="Review截图" width="115">
+                <el-table-column prop="email" label="产品图片" width="115">
                     <template slot-scope="scope">
                         <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
                             <span v-if="scope.row.pictures.length === 0">无</span>
@@ -95,6 +61,51 @@
                         <span v-else>无</span>
                     </template>
                 </el-table-column>
+                <el-table-column prop="asin" label="ASIN" width="150" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="sku" label="SKU" width="150" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="country" label="站点" width="50">
+                </el-table-column>
+                <template v-if="isRestrict === 'false'">
+                    <el-table-column prop="username" label="送测人" width="140">
+                    </el-table-column>
+                </template>
+                <el-table-column prop="apply_username" label="申请人" width="70">
+                </el-table-column>
+                <el-table-column prop="category_name" label="分类" width="100" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="name" label="产品名称" width="100" show-overflow-tooltip>
+                </el-table-column>
+                <template v-if="isRestrict === 'false'">
+                    <el-table-column prop="category_name" label="分类" width="100" show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column prop="weight" label="优先级" width="70">
+                        <template slot-scope="scope">
+                            <el-tag :type="scope.row.weight | statusFilterWeight">{{getStatusWeight(scope.row.weight)}}</el-tag>
+                        </template>
+                    </el-table-column>
+                </template>
+                <el-table-column prop="price" label="价格" width="70">
+                </el-table-column>
+                <el-table-column prop="customer_commission" label="佣金" width="65">
+                </el-table-column>
+                <el-table-column prop="total" label="测评总数" width="65">
+                </el-table-column>
+                <el-table-column prop="current" label="当前进行数量" width="65">
+                </el-table-column>
+                <el-table-column prop="block" label="失败数量" width="65">
+                </el-table-column>
+                <el-table-column prop="skip_review" label="免评数量" width="65">
+                </el-table-column>
+                <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="url" label="url" width="50">
+                    <template slot-scope="scope">
+                        <a v-if="scope.row.url != null && scope.row.url != '' && scope.row.url != 'null'" :href="scope.row.url" target="_blank">链接</a>
+                    </template>
+                </el-table-column>
+                
                 <el-table-column prop="status" label="状态" width="115">
                     <template slot-scope="scope">
                         <el-tag :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status)}}</el-tag>
@@ -119,7 +130,7 @@
                                 <el-dropdown-item v-if="isRestrict === 'false'">
                                     <el-button @click="handleCheck(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp审核</el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
+                                <el-dropdown-item v-if="isRestrict === 'false'">
                                     <el-button type="text" @click="handleSetWeight(scope.$index, scope.row)">&nbsp&nbsp&nbsp设置权重
                                     </el-button>
                                 </el-dropdown-item>
@@ -342,13 +353,14 @@
 
         <!-- 详情提示 -->
         <el-dialog title="详情" :visible.sync="detailVisible" width="90%">
-            <el-button :disabled="submitDisabled" v-if="isaddPlan" type="success" size="small" icon="el-icon-circle-check-outline" @click="saveaddplan">确认</el-button>
+            <el-button type="primary" @click="handleAddPlan">增加任务</el-button>
+            <!-- <el-button :disabled="submitDisabled" v-if="isaddPlan" type="success" size="small" icon="el-icon-circle-check-outline" @click="saveaddplan">确认</el-button>
             <el-button v-else type="primary" @click="isaddPlan=!isaddPlan">增加任务</el-button>
             <template v-if="isaddPlan">
                 <el-button type="warning" icon="el-icon-refresh" @click="cancelAddPlan">取消</el-button>
                 <el-date-picker style="margin-right: 10px; margin-bottom: 5px; margin-left: 5px;" v-model="plan_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
                 <el-input-number style="margin-bottom: 5px;" v-model="plan_sum" :min="0" label="数量"></el-input-number>
-            </template>
+            </template> -->
             <el-button style="float: right;" type="primary" @click="checkSelf">通过自审</el-button>
             <br><br>
             <el-table :data="detailOptions" border style="width: 100%">
@@ -432,7 +444,9 @@
                 </el-table-column>
                 <el-table-column prop="start_sum" label="已进行的数量" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="accept_sum" label="接受数量" show-overflow-tooltip>
+                <el-table-column prop="block_sum" label="失败数量" show-overflow-tooltip>
+                </el-table-column>
+                <!-- <el-table-column prop="accept_sum" label="接受数量" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <template v-if="scope.row.editAccept">
                             <el-input-number style="margin-bottom: 5px;" v-model="scope.row.accept_sum" :min="0"></el-input-number>
@@ -440,7 +454,7 @@
                         </template>
                         <span v-else>{{scope.row.accept_sum}}</span>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column label="操作" :width="isRestrict === 'false' ? 450 : 200" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <template v-if="!scope.row.editAccept">
@@ -526,7 +540,7 @@
         <!-- 更新计划 -->
         <el-dialog title="增加计划" :visible.sync="addplanVisible" width="50%">
             <el-form ref="form" :model="form" label-width="110px">
-                <el-form-item label="日期/每日次数">
+                <!-- <el-form-item label="日期/每日次数">
                     <table >
                         <tbody v-for="(p,index) in date_time">
                             <td>
@@ -535,10 +549,37 @@
                             <td>
                                 <el-input-number style="margin-bottom: 5px;" v-model="p.plan_sum" :min="0" label="数量"></el-input-number>
                             </td>
-                            <!-- <div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
-                                <i style="margin-right: 5px;  font-size: 15px" class="el-icon-circle-plus" @click="orderAdd(index)"></i>
-                                <i style="font-size: 15px" class="el-icon-remove" @click="orderDel(index)" v-if="date_time.length >1"></i>
-                            </div> -->
+                        </tbody>
+                    </table>
+                </el-form-item> -->
+                <el-form-item label="是否线性送测" prop="is_line">
+                    <el-radio v-model="is_line" label="1">是</el-radio>
+                    <el-radio v-model="is_line" label="0">否</el-radio>
+                </el-form-item>
+                <template v-if="is_line === '1'">
+                    <el-form-item label="送测数量">
+                        <el-input-number style="margin-bottom: 5px;" v-model="line_sum" :min="0" label="描述文字"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="送测天数">
+                        <el-input-number style="margin-bottom: 5px;" v-model="day" :min="0" label="描述文字"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="开始时间">
+                        <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="start_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
+                    </el-form-item>
+                </template>
+                <el-form-item label="日期/每日次数" v-if="is_line === '0'">
+                    <table >
+                        <tbody v-for="(p,index) in date_time">
+                            <td>
+                                <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="p.plan_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
+                            </td>
+                            <td>
+                                <el-input-number style="margin-bottom: 5px;" v-model="p.plan_sum" :min="0" label="描述文字"></el-input-number>
+                            </td>
+                            <div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
+                                <i style="margin-right: 5px;  font-size: 15px;cursor: pointer;" class="el-icon-circle-plus" @click="orderAdd2(index)"></i>
+                                <i style="font-size: 15px;cursor: pointer;" class="el-icon-remove" @click="orderDel2(index)" v-if="date_time.length >1"></i>
+                            </div>
                         </tbody>
                     </table>
                 </el-form-item>
@@ -827,7 +868,20 @@
                 pay_tax_options: [{value: 0, label: '否'},  {value: 1, label: '是'}],
                 is_company: '',
                 exportVisible: false,
-                exportIds: []
+                exportIds: [],
+                role_sum: [{
+                    role_ids: '',
+                    new_sum: 0
+                }],
+                add_role_sum: {
+                    role_ids: '',
+                    new_sum: 0
+                },
+                need_charge: '',
+                is_line: '',
+                line_sum: 0,
+                day: 0,
+                start_date: ''
             }
         },
         created() {
@@ -915,9 +969,9 @@
                                 data2.originalaccept = data2.accept_sum
                             })
                             data.username = ''
-                            data.operate_users.forEach((data3) => {
-                                data.username += data3.username + ','
-                            })
+                            // data.operate_users.forEach((data3) => {
+                            //     data.username += data3.username + ','
+                            // })
                             data.username = data.username.substr(0, data.username.length - 1)
                         })
                         this.tableData = res.data.data
@@ -947,9 +1001,9 @@
                                 data2.originalaccept = data2.accept_sum
                             })
                             data.username = ''
-                            data.operate_users.forEach((data3) => {
-                                data.username += data3.username + ','
-                            })
+                            // data.operate_users.forEach((data3) => {
+                            //     data.username += data3.username + ','
+                            // })
                             data.username = data.username.substr(0, data.username.length - 1)
                         })
                         this.tableData = res.data.data
@@ -1092,7 +1146,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success("删除成功")           		
+            		this.$message.success(res.data.message)           		
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1174,7 +1228,7 @@
                             this.picturestList2.splice(this.idx, 1);
                         }
                         this.getData()
-                        this.$message.success("删除成功")
+                        this.$message.success(res.data.message)
                         this.confirmDelProVis = false
                     }
                 }).catch((res) => {
@@ -1217,7 +1271,7 @@
                         formData.append('task_record[pay_tax]', this.addReviewerForm.pay_tax)
                         this.$axios.post('/task_records', formData).then((res) => {
                             if(res.data.code == 200) {
-                                this.$message.success('提交成功！')
+                                this.$message.success(res.data.message)
                                 this.$refs[formName].resetFields()
                                 this.addReviewerForm.keyword = ''
                                 this.getData()
@@ -1359,7 +1413,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("通过自审")
+                        this.$message.success(res.data.message)
                         this.detailVisible = false
                     }
                 }).catch((res) => {
@@ -1417,7 +1471,7 @@
                 this.$axios.post('/tasks/allocate_task', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('分配成功!')
+                        this.$message.success(res.data.message)
                         this.distributeVisible = false
                         this.distributeUser = []
                         this.getData()
@@ -1495,10 +1549,10 @@
                         this.getData()
                         if (this.username != null) {
                             row.plan_sum = row.originalSum
-                            this.$message.success("请求已提交，等待送测人同意！")
+                            this.$message.success(res.data.message)
                         } else {
                             row.originalSum = row.plan_sum
-                            this.$message.success("更新成功")
+                            this.$message.success(res.data.message)
                         }
                         row.edit = false
                         // this.updateplanVisible = false
@@ -1521,7 +1575,7 @@
                     if(res.data.code == 200) {
                         this.getData()
                         row.originalaccept = row.accept_sum
-                        this.$message.success("更新成功")
+                        this.$message.success(res.data.message)
                         row.editAccept = false
                         // this.updateplanVisible = false
                         // this.detailVisible = false
@@ -1533,6 +1587,10 @@
                 })
             },
             handleAddPlan() {
+                this.is_line = ''
+                this.line_sum = 0
+                this.day = 0
+                this.start_date = ''
                 this.date_time = [{
                     plan_date: '',
                     plan_sum: 0
@@ -1542,19 +1600,35 @@
             },
             saveaddplan() {
                 this.submitDisabled = true
-                let params = {
-                    plan_date: this.plan_date,
-                    plan_sum: this.plan_sum
+                let formData = new FormData()
+                formData.append('is_line', this.is_line)
+                if(this.is_line === '0') {
+                    this.date_time.forEach((data) => {
+                        formData.append('plan_date[]', data.plan_date)
+                        formData.append('plan_sum[]', data.plan_sum)
+                    })
                 }
-                this.$axios.post('/tasks/' + this.task_id + '/create_period', params
+                if(this.is_line === '1') {
+                    formData.append('line_sum', this.line_sum)
+                    formData.append('day', this.day)
+                    formData.append('start_date', this.start_date)
+                    // formData.append('task[by_sum]', this.by_sum)
+                    formData.append('plan_date[]', '')
+                    formData.append('plan_sum[]', '')
+                }
+                // let params = {
+                //     plan_date: this.plan_date,
+                //     plan_sum: this.plan_sum
+                // }
+                this.$axios.post('/tasks/' + this.task_id + '/create_period', formData
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("增加成功")
-                        this.isaddPlan = false
-                        this.detailOptions2.push({ plan_sum: this.plan_sum, plan_date: this.plan_date, start_sum: 0, accept_sum: 0,noshow: true})
-                        this.plan_sum = 0
-                        this.plan_date = ''
+                        this.$message.success(res.data.message)
+                        this.addplanVisible = false
+                        // this.detailOptions2.push({ plan_sum: this.plan_sum, plan_date: this.plan_date, start_sum: 0, accept_sum: 0,noshow: true})
+                        // this.plan_sum = 0
+                        // this.plan_date = ''
                     }
                 }).catch((res) => {
 
@@ -1580,10 +1654,10 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             if (this.username != null) {
-                                this.$message.success("请求已提交,等待送测人同意！")
+                                this.$message.success(res.data.message)
                             } else {
                                 this.detailOptions2.splice(index, 1);
-                                this.$message.success("已删除")
+                                this.$message.success(res.data.message)
                             }
                             this.getData()
                             
@@ -1634,7 +1708,7 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.getData()
-                            this.$message.success("拒绝成功")
+                            this.$message.success(res.data.message)
                         }
                     }).catch(() => {
                         
@@ -1660,7 +1734,7 @@
                 }
                 this.$axios.post('/tasks/' + this.form.id + '/manager_check', params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('处理成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.checkVisible = false
                     }
@@ -1680,7 +1754,7 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.getData()
-                            this.$message.success("恢复成功")
+                            this.$message.success(res.data.message)
                         }
                     }).catch(() => {
                         
@@ -1716,7 +1790,7 @@
                 this.$axios.post('/tasks/update_category', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('分类成功!')
+                        this.$message.success(res.data.message)
                         this.categoryVisible = false
                         this.getData()
                     }
@@ -1770,7 +1844,7 @@
                             }
                         }
                     }).catch((res) => {
-                        console.log('失败')
+                        console.log(res)
                     })
                 }
             },
@@ -1787,7 +1861,7 @@
                 this.$axios.post('/tasks/' + this.idx + '/set_weight', params
                 ).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('设置成功!')
+                        this.$message.success(res.data.message)
                         this.setWeightVisible = false
                         this.getData()
                     }
@@ -1812,6 +1886,16 @@
                 this.exportVisible = false
                 this.exportIds = []
                 this.$refs.multipleTable.clearSelection()
+            },
+            orderAdd2() {
+                this.date_time.push(this.add_date_time)
+                this.add_date_time = {
+                    plan_date: '',
+                    plan_sum: 0
+                }
+            },
+            orderDel2(index) {
+                this.date_time.pop()
             },
             getStatusName(status) {
                 if(status == 1) {

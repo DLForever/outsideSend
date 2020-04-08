@@ -162,7 +162,7 @@
                     {
                         icon: 'el-icon-lx-recharge',
                         index: '9',
-                        title: '返款管理',
+                        title: '付款管理',
                         subs: [
                         {
                             index: 'recordPay',

@@ -8,7 +8,7 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button type="primary" @click="confirmBatchAgree">分配</el-button>
+                <el-button type="primary" @click="confirmBatchAgree">处理</el-button>
                 <div class="fnsku_filter">
                     送测人员:
                     <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择用户" class="handle-select mr10">
@@ -30,7 +30,7 @@
             </div>
             <br><br>
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
-                <!-- <el-table-column type="selection" width="55"></el-table-column> -->
+                <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column type="expand">
                     <template slot-scope="props">
                         <el-form label-position="left" inline class="demo-table-expand">
@@ -138,8 +138,8 @@
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleVisible = false">取 消</el-button>
-                <el-button type="warning" @click="saveAgree(0)">拒 绝</el-button>
-                <el-button type="primary" @click="saveAgree(1)">通 过</el-button>
+                <el-button type="warning" @click="batchAgree(0)">拒 绝</el-button>
+                <el-button type="primary" @click="batchAgree(1)">通 过</el-button>
             </span>
         </el-dialog>
 
@@ -632,15 +632,16 @@
                     type: 'warning'
                 }).then(({value}) => {
                     let params = {
-                        // task_ids: ids,
+                        change_ids: ids,
                         pass: type,
                         remark: this.remark
                     }
-                    this.$axios.patch('/period_change_records', params
+                    this.$axios.patch('/period_change_records/1', params
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.$message.success(res.data.message)
                             this.getData()
+                            this.handleVisible = false
                         }
                     }).catch(() => {
                         

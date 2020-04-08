@@ -147,8 +147,9 @@
                     </el-table-column>
                     <el-table-column prop="skip_review" label="是否免评" show-overflow-tooltip>
                         <template slot-scope="scope">
-                            <el-tag type="warning" v-if="scope.row.skip_review === true && scope.row.status !== 1">是</el-tag>
-                            <el-tag type="success" v-else-if="scope.row.skip_review === false && scope.row.status !== 1">否</el-tag>
+                            <el-tag type="warning" v-if="scope.row.skip_review === true && scope.row.is_review === true">是</el-tag>
+                            <el-tag type="success" v-else-if="scope.row.skip_review === false && scope.row.is_review === true">否</el-tag>
+                            <el-tag type="primary" v-else-if="scope.row.skip_review === false && scope.row.is_review === false">待处理</el-tag>
                             <span v-else></span>
                         </template>
                     </el-table-column>
@@ -216,15 +217,18 @@
                                     <el-dropdown-item>
                                         <el-button @click="handleDone(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp完成评论</el-button>
                                     </el-dropdown-item>
+                                    <el-dropdown-item>
+                                        <el-button @click="handleRecordPay(scope.$index, scope.row)" type="text">申请补款/退款</el-button>
+                                    </el-dropdown-item>
                                     <!-- <el-dropdown-item>
                                         <el-button @click="handleDoneRefund(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp完成返款</el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
                                         <el-button @click="handleAddRefund(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp添加返款</el-button>
                                     </el-dropdown-item> -->
-                                    <el-dropdown-item>
+                                    <!-- <el-dropdown-item>
                                         <el-button @click="handleCommission(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp追加佣金</el-button>
-                                    </el-dropdown-item>
+                                    </el-dropdown-item> -->
                                     <!-- <el-dropdown-item>
                                         <el-button @click="handleComRes(scope.$index, scope.row)" type="text">佣金/本金</el-button>
                                     </el-dropdown-item> -->
@@ -268,27 +272,22 @@
                         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                     </el-upload>
                 </el-form-item>
-                <template v-if="form.status == '1'">
-                    <el-form-item label="是否免评" prop="skip_review">
-                        <el-radio v-model="form.skip_review" label="1">是</el-radio>
-                        <el-radio v-model="form.skip_review" label="0">否</el-radio>
-                    </el-form-item>
-                    <el-form-item label="是否需要返款" prop="isPay">
-                        <el-radio v-model="form.need_refund" label="1">是</el-radio>
-                        <el-radio v-model="form.need_refund" label="0">否</el-radio>
-                    </el-form-item>
-                </template>
-                <template v-if="form.need_refund=='1'">
+                <!-- <template v-if="form.status == '1'"> -->
+                <el-form-item label="是否免评" prop="skip_review">
+                    <el-radio v-model="form.skip_review" label="1">是</el-radio>
+                    <el-radio v-model="form.skip_review" label="0">否</el-radio>
+                </el-form-item>
+                <el-form-item label="是否需要返款" prop="isPay">
+                    <el-radio v-model="form.need_refund" label="1">是</el-radio>
+                    <el-radio v-model="form.need_refund" label="0">否</el-radio>
+                </el-form-item>
+                <!-- </template> -->
+                <!-- <template v-if="form.need_refund=='1'">
                     <el-form-item label="是否完全返款">
                         <el-radio v-model="form.done_direct" label="1">是</el-radio>
                         <el-radio v-model="form.done_direct" label="0">否</el-radio>
                     </el-form-item>
                 </template>
-                <!-- <template v-if="form.status == '6'">
-                    <el-form-item label="佣金">
-                        <el-input-number v-model="form.commission" :min="0"></el-input-number>
-                    </el-form-item>
-                </template> -->
                 <el-form-item label="返款方式">
                     <el-select v-model="charge_type" class="handle-select">
                         <el-option v-for="item in chargetypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
@@ -296,13 +295,13 @@
                 </el-form-item>
                 <el-form-item label="佣金" v-if="form.status == '6'">
                     <el-input-number v-model="form.commission" :min="0"></el-input-number>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="建议佣金">
                     <el-input-number v-model="form.recommend_commission" :min="0"></el-input-number>
                 </el-form-item>
-                <el-form-item label="返款时间" prop="pay_time">
+                <!-- <el-form-item label="返款时间" prop="pay_time">
                     <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="form.refund_time" type="datetime" placeholder="选择日期" ></el-date-picker>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="评论url" prop="review_url">
                     <el-input v-model="review_url"></el-input>
                 </el-form-item>
@@ -329,6 +328,9 @@
                 <el-form-item label="订单号" prop="order_number">
                     <el-input v-model="addReviewerForm.order_number"></el-input>
                 </el-form-item>
+                <!-- <el-form-item label="标题" prop="item">
+                    <el-input v-model="addReviewerForm.title"></el-input>
+                </el-form-item> -->
                 <!-- <el-form-item label="支付类型" prop="pay_type">
                     <el-select v-model="addReviewerForm.pay_type">
                         <el-option v-for="item in paytype_options" :key="item" :label="item" :value="item"></el-option>
@@ -340,7 +342,7 @@
                     </el-select>
                 </el-form-item> -->
                 <el-form-item label="支付时间" prop="pay_time">
-                    <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="addReviewerForm.pay_time" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
+                    <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="addReviewerForm.pay_time" type="datetime" placeholder="选择日期"></el-date-picker>
                 </el-form-item>
                 <!-- <el-form-item label="支付价格" prop="pay_price">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.pay_price" :min="0" :step="10" @change="totalPrice"></el-input-number>
@@ -480,7 +482,8 @@
                 </el-table-column>
                 <el-table-column prop="status" label="状态" width="120">
                     <template slot-scope="scope">
-                        <el-tag :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status)}}</el-tag>
+                        <el-tag v-if="isRestrict === 'false'" :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status, scope.row.done_direct)}}</el-tag>
+                        <el-tag v-else :type="scope.row.status | statusFilterRestrict">{{getStatusNameReStrict(scope.row.status, scope.row.done_direct)}}</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column prop="is_pay_commission" label="佣金" width="65">
@@ -512,7 +515,7 @@
                 </el-table-column>
                 <el-table-column prop="self_pay_price" label="自费" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="fan_total" label="粉丝费用" show-overflow-tooltip>
+                <el-table-column prop="tax" label="税费" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="pay_tax" label="是否含税" show-overflow-tooltip>
                     <template slot-scope="scope">
@@ -695,19 +698,29 @@
                 <el-button type="primary" @click="saveComRes" :disabled="submitDisabled">确 定</el-button>
             </span>
         </el-dialog>
-        <!-- 追加佣金 -->
-        <el-dialog title="追加佣金" :visible.sync="commissionVisible" width="60%">
-            <el-form ref="form" :model="form" label-width="50px">
-                <el-form-item label="佣金">
-                    <el-input-number v-model="append_commission" :min="0"></el-input-number>
+        <!-- 申请补款 -->
+        <el-dialog title="申请补款" :visible.sync="commissionVisible" width="60%">
+            <el-form ref="form" :model="form" label-width="70px">
+                <el-form-item label="返款方式">
+                    <el-select v-model="charge_type" class="handle-select">
+                        <el-option v-for="item in chargetypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
+                    </el-select>
                 </el-form-item>
-                <!-- <el-form-item label="备注">
+                <el-form-item label="类型">
+                    <el-select v-model="pay_reason_type" class="handle-select">
+                        <el-option v-for="item in reasontypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="金额" v-if="pay_reason_type === '4' || pay_reason_type === '5' || pay_reason_type === '6' || pay_reason_type === '7'">
+                    <el-input-number v-model="price" :min="0"></el-input-number>
+                </el-form-item>
+                <el-form-item label="备注">
                     <el-input v-model="remark"></el-input>
-                </el-form-item> -->
+                </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="commissionVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveAppendComisson" :disabled="submitDisabled">确 定</el-button>
+                <el-button type="primary" @click="saveAppendPay" :disabled="submitDisabled">确 定</el-button>
             </span>
         </el-dialog>
 
@@ -837,8 +850,8 @@
                 search_keyword: '',
                 feedbackVisible: false,
                 status: '',
-                statusOptions: [{value: 1, label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}, {value: 5, label: '失败'}, {value: 6, label: '等待评论'}, {value: 7, label: '需返佣金'}, {value: 8, label: '反馈待审核'}],
-                statusOptions2: [{value: '1,2,6,7,8', label: '正在进行中'},  {value: 3, label: '已完成'}, {value: 5, label: '失败'}],
+                statusOptions: [{value: 1, label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}, {value: 5, label: '失败'}, {value: 8, label: '反馈待审核'}],
+                statusOptions2: [{value: '1,2,8', label: '正在进行中'},  {value: 3, label: '已完成'}, {value: 5, label: '失败'}],
                 statusSelect: '',
                 user_id_filter: '',
                 query: undefined,
@@ -1025,7 +1038,7 @@
               filter_refund: false,
               filter_commission: false,
               table_loading: true,
-              checkOptions: [{value: '1', label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}, {value: 6, label: '等待评论'}, {value: 7, label: '需返佣金'}],
+              checkOptions: [{value: '1', label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}],
               checkStatus: '',
               checkVisible: false,
               isProblem: '',
@@ -1060,7 +1073,10 @@
               chargetypeoptions: [{id: '1', type: '自返'}, {id: '2', type: '中介'}],
               charge_type: '',
               review_url: '',
-              write_feedback: ''
+              write_feedback: '',
+              pay_reason_type: '',
+              reasontypeoptions: [{id: '1', type: '粉丝支付价格'}, {id: '2', type: '佣金'}, {id: '3', type: '粉丝支付价格+佣金'}, {id: '4', type: '补款'}, {id: '5', type: '本金退款'}, {id: '6', type: '佣金退款'}, {id: '7', type: '部分本金'}],
+              price: ''
             }
         },
         created() {
@@ -1350,41 +1366,30 @@
                         this.$message.error('请选择是否需要返款')
                         return
                     }
-                    if (this.form.need_refund == '1' && this.form.done_direct == undefined) {
-                        this.$message.error('请选择是否完全返款')
-                        return
-                    }
-                    if (this.form.skip_review == '' && this.form.done_direct == undefined) {
+                    if (this.form.skip_review == '') {
                         this.$message.error('请选择是否免评')
                         return
                     }
-                }
-                if(this.form.status == '6') {
-
-                }
-                if(this.form.refund_time == undefined) {
-                    this.$message.error('请选择返款时间')
-                    return
                 }
                 this.submitDisabled = true
                 let formData = new FormData()
                 formData.append('remark', this.remark)
                 formData.append('need_refund', this.form.need_refund)
-                formData.append('refund_time', this.form.refund_time)
+                // formData.append('refund_time', this.form.refund_time)
                 formData.append('skip_review', this.form.skip_review)
-                formData.append('commission', this.form.commission)
-                formData.append('charge_type', this.charge_type)
+                // formData.append('commission', this.form.commission)
+                // formData.append('charge_type', this.charge_type)
                 formData.append('review_url', this.review_url)
                 formData.append('recommend_commission', (this.form.recommend_commission == 0 ? '' : this.form.recommend_commission))
-                if(this.form.done_direct != undefined) {
-                    formData.append('done_direct', this.form.done_direct)
-                }
+                // if(this.form.done_direct != undefined) {
+                //     formData.append('done_direct', this.form.done_direct)
+                // }
                 this.fileList.forEach((item) => {
                     formData.append('picture_review[]', item.raw)
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/done_review', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成评论！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.doneVisible = false
                     }
@@ -1406,7 +1411,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success("删除成功")           		
+            		this.$message.success(res.data.message)           		
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1502,7 +1507,7 @@
                             this.picturestList3.splice(this.idx, 1)
                         }
                         this.getData()
-                        this.$message.success("删除成功")
+                        this.$message.success(res.data.message)
                         this.confirmDelProVis = false
                     }
                 }).catch((res) => {
@@ -1534,7 +1539,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("反馈成功!")
+                        this.$message.success(res.data.message)
                         this.feedbackVisible = false
                     }
                 }).catch((res) => {
@@ -1607,7 +1612,8 @@
                     remark: item.remark,
                     homepage: item.homepage,
                     skip_review: item.skip_review,
-                    fan: item.fan
+                    fan: item.fan,
+                    // title: item.title
                 }
                 // if(this.addReviewerForm.isPay == 'true') {
                 //     this.addReviewerForm.isPay = '1'
@@ -1644,6 +1650,7 @@
                         formData.append('task_record[remark]', this.addReviewerForm.remark)
                         formData.append('task_record[skip_review]', this.addReviewerForm.skip_review)
                         formData.append('task_record[fan]', this.addReviewerForm.fan)
+                        // formData.append('task_record[title]', this.addReviewerForm.title)
                         // formData.append('task_record[task_id]', this.addReviewerForm.task_id)
                         // formData.append('task_record[task_period_id]', this.addReviewerForm.task_period_id)
                         formData.append('task_record[homepage]', this.addReviewerForm.homepage)
@@ -1690,7 +1697,7 @@
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/done_refund', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成返款！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.refundVisible = false
                     }
@@ -1723,7 +1730,7 @@
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/update_picture', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成添加返款！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.$refs.md2.removeLine()
                         this.addrefundVisible = false
@@ -1800,7 +1807,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("处理成功")
+                        this.$message.success(res.data.message)
                         this.checkVisible = false
                     }
                 }).catch((res) => {
@@ -1869,7 +1876,7 @@
                 // }
                 this.$axios.post('/task_records/done_pay', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.comResVisible = false
                     }
@@ -1935,33 +1942,6 @@
                     this.date_end_ex = ''
                 }
             },
-            handleCommission(index, row) {
-                this.form.id = row.id
-                this.append_commission = ''
-                this.commissionVisible = true
-                this.charge_type = ''
-            },
-            saveAppendComisson() {
-                if(this.append_commission == 0) {
-                    this.$message.error('佣金不能为0，请重新输入。')
-                    return
-                }
-                let params = {
-                    commission: this.append_commission,
-                    charge_type: this.charge_type
-                }
-                this.$axios.post('/task_records/' + this.form.id + '/append_commission', params).then((res) => {
-                    if(res.data.code == 200) {
-                        this.$message.success(res.data.message)
-                        this.getData()
-                        this.commissionVisible = false
-                    }
-                }).catch((res) => {
-                    console.log('err')
-                }).finally((res) => {
-                    this.submitDisabled = false
-                })
-            },
             handleUpdatePay(index, row) {
                 this.idx = row.id
                 const item = this.tableData[index]
@@ -2020,7 +2000,7 @@
                         formData.append('task_record[tax]', this.addReviewerForm2.tax)
                         this.$axios.post('/task_records/' + this.idx + '/update_pay', formData).then((res) => {
                             if(res.data.code == 200) {
-                                this.$message.success('提交成功！')
+                                this.$message.success(res.data.message)
                                 this.$refs[formName2].resetFields()
                                 this.updatePayVisible = false
                                 this.getData()
@@ -2084,6 +2064,37 @@
                     })
                 }
             },
+            handleRecordPay(index, row) {
+                this.form.id = row.id
+                this.price = ''
+                this.pay_reason_type = ''
+                this.charge_type = ''
+                this.remark = ''
+                this.commissionVisible = true
+            },
+            saveAppendPay() {
+                if (this.pay_reason_type === '' || this.pay_reason_type === '1' || this.pay_reason_type === '2' || this.pay_reason_type === '3') {
+                    this.price = ''
+                }
+                let params = {
+                    record_id: this.form.id,
+                    price: this.price,
+                    pay_reason_type: this.pay_reason_type,
+                    charge_type: this.charge_type,
+                    remark: this.remark
+                }
+                this.$axios.post('/record_pay_infos', params).then((res) => {
+                    if(res.data.code == 200) {
+                        this.$message.success(res.data.message)
+                        this.getData()
+                        this.commissionVisible = false
+                    }
+                }).catch((res) => {
+                    console.log(res)
+                }).finally((res) => {
+                    this.submitDisabled = false
+                })
+            },
             getStatusName(status, done_direct) {
                 if(status == 1) {
                     return "正在进行中"
@@ -2135,7 +2146,7 @@
     }
 
     .handle-select {
-        width: 120px;
+        width: 160px;
     }
 
     .handle-input {

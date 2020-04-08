@@ -218,7 +218,7 @@
                     ).then((res) => {
                         if(res.data.code == 200) {
                             this.getData()
-                            this.$message.success("删除成功")
+                            this.$message.success(res.data.message)
                         }
                     }).catch(() => {
                         
@@ -252,7 +252,7 @@
                 }
                 this.$axios.patch('/categories/' + this.idx, params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('更新成功！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.editVisible = false
                     }
@@ -294,7 +294,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success("删除成功")           		
+            		this.$message.success(res.data.message)           		
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")

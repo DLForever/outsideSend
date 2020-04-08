@@ -106,7 +106,7 @@
 						formData.append('can_allocate', this.form.can_allocate)
 						this.$axios.post('/roles', formData).then((res) => {
 							if(res.data.code == 200) {
-								this.$message.success('提交成功！')
+								this.$message.success(res.data.message)
 								this.$refs['form'].resetFields()
 								this.$router.push('/rolesmanage')
 							}
@@ -145,7 +145,7 @@
 				})
 				this.$axios.post('/products/batch', formData).then((res) => {
 					if(res.data.code == 200) {
-						this.$message.success("提交成功")
+						this.$message.success(res.data.message)
 						this.batchProduct = []
 					}
 				}).catch((res) => {

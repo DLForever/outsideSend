@@ -22,6 +22,12 @@
 									<el-option v-for="item in site_options" :key="item" :label="item" :value="item"></el-option>
 								</el-select>
 							</el-form-item>
+							<el-form-item label="分类名" prop="category_filter">
+								<el-select v-model="form.category_filter" filterable remote :loading="loading4" @visible-change="selectVisble4" :remote-method="remoteMethod4" placeholder="选择分类" class="handle-select mr10">
+									<el-option v-for="item in category_options" :key="item.id" :label="item.name" :value="item.id + '@' + item.name"></el-option>
+									<infinite-loading :on-infinite="onInfinite_category" ref="infiniteLoading4"></infinite-loading>
+								</el-select>
+							</el-form-item>
 							<el-form-item label="英文标题">
 								<el-input v-model="form.title"></el-input>
 							</el-form-item>
@@ -143,6 +149,7 @@
 </template>
 
 <script>
+	import VueInfiniteLoading from "vue-infinite-loading"
 	export default {
 		// name: 'addProduct',
 		data: function() {
@@ -214,6 +221,16 @@
 						message: '请输入链接',
 						trigger: 'blur'
 					}],
+					category_filter: [{
+						required: true,
+						message: '请选择分类',
+						trigger: 'blur'
+					}],
+					by_sum: [{
+						required: true,
+						message: '请选择是否按照总数进行',
+						trigger: 'blur'
+					}],
 				},
 				radio: undefined,
 				category_id: [],
@@ -235,7 +252,12 @@
 					keywords: '',
 					keyword_index: ''
 				},
-				site_options: ['US', 'UK', 'DE', 'JP', 'CA']
+				site_options: ['US', 'UK', 'DE', 'JP', 'CA'],
+				category_options: [],
+				query4: undefined,
+				loading4: false,
+				category_page: 1,
+				category_total: 0,
 			}
 		},
 		beforeRouteEnter: (to, from, next) => {
@@ -266,9 +288,12 @@
 				formData.append('file', content.file)
 			},
 			onSubmit(formName) {
-				console.log(this.keywordsArr)
 				let tempkeywords = []
 				let tempkeyword_index = []
+				if(this.keywordsArr[0].keywords.trim() == '') {
+					this.$message.info('请输入关键词')
+					return
+				}
 				this.keywordsArr.forEach((data) => {
 					if (data.keywords.trim() != '' && data.keyword_index.trim() != '') {
 						tempkeywords.push(data.keywords)
@@ -301,10 +326,8 @@
 						formData.append('task[sku]', this.form.sku)
 						formData.append('task[is_line]', this.form.is_line)
 						formData.append('task[title]', this.form.title)
-						this.date_time.forEach((data) => {
-							formData.append('task[plan_date][]', data.date)
-							formData.append('task[plan_sum][]', data.time)
-						})
+						formData.append('task[category_id]', this.form.category_filter.split('@')[0])
+						formData.append('task[category_name]', this.form.category_filter.split('@')[1])
 						if(this.form.is_line === '0') {
 							this.date_time.forEach((data) => {
 								formData.append('task[plan_date][]', data.date)
@@ -327,7 +350,7 @@
 						})
 						this.$axios.post('/tasks', formData).then((res) => {
 							if(res.data.code == 200) {
-								this.$message.success('提交成功！')
+								this.$message.success(res.data.message)
 								this.$refs['form'].resetFields()
 								this.$router.push('/reviewersmanage')
 								this.getMessageCount()
@@ -367,7 +390,7 @@
 				})
 				this.$axios.post('/products/batch', formData).then((res) => {
 					if(res.data.code == 200) {
-						this.$message.success("提交成功")
+						this.$message.success(res.data.message)
 						this.batchProduct = []
 					}
 				}).catch((res) => {
@@ -437,6 +460,57 @@
 			keywordsDel(index) {
 				this.keywordsArr.pop()
 			},
+			onInfinite_category(obj) {
+				if((this.category_page * 20) < this.category_total) {
+					this.category_page += 1
+					// this.getUsers(obj.loaded)
+					this.remoteMethod4(this.query4,obj.loaded)
+				} else {
+					obj.complete()
+				}
+			},
+			selectVisble4(visible) {
+                if(visible) {
+                    this.query4 = undefined
+                    this.remoteMethod4("")
+                }
+            },
+            remoteMethod4(query, callback = undefined) {
+                if(query != "" || this.query4 != "" || callback) {
+                    let reload = false
+                    if(this.query4 != query) {
+                        this.loading4 = true
+                        this.category_page = 1
+                        this.query4 = query
+                        reload = true
+                        if(this.$refs.infiniteLoading4.isComplete) {
+                            this.$refs.infiniteLoading4.stateChanger.reset()
+                        }
+                    }
+                    this.$axios.get("/categories/?page=" + this.category_page + '&query=' + query.trim()
+                    ).then((res) => {
+                        if(res.data.code == 200) {
+                            this.loading4 = false
+                            //                          this.options = res.data.data
+                            if(reload) {
+                                let tempOptions = []
+                                this.category_options = tempOptions.concat(res.data.data)
+                            } else {
+                                this.category_options = this.category_options.concat(res.data.data)
+                            }
+                            this.category_total = res.data.count
+                            if(callback) {
+                                callback()
+                            }
+                        }
+                    }).catch((res) => {
+                        console.log('失败')
+                    })
+                }
+            },
+		},
+		components: {
+			"infinite-loading": VueInfiniteLoading
 		}
 	}
 </script>

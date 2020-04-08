@@ -1080,7 +1080,7 @@
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/done_review', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成评论！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.doneVisible = false
                     }
@@ -1102,7 +1102,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success("删除成功")           		
+            		this.$message.success(res.data.message)           		
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1198,7 +1198,7 @@
                             this.picturestList3.splice(this.idx, 1)
                         }
                         this.getData()
-                        this.$message.success("删除成功")
+                        this.$message.success(res.data.message)
                         this.confirmDelProVis = false
                     }
                 }).catch((res) => {
@@ -1230,7 +1230,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("反馈成功!")
+                        this.$message.success(res.data.message)
                         this.feedbackVisible = false
                     }
                 }).catch((res) => {
@@ -1347,7 +1347,7 @@
                         })
                         this.$axios.patch('/task_records/' + this.idx, formData).then((res) => {
                             if(res.data.code == 200) {
-                                this.$message.success('提交成功！')
+                                this.$message.success(res.data.message)
                                 this.$refs[formName].resetFields()
                                 this.updatereviewerVisible = false
                                 this.getData()
@@ -1382,7 +1382,7 @@
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/done_refund', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成返款！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.refundVisible = false
                     }
@@ -1415,7 +1415,7 @@
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/update_picture', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成添加返款！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.$refs.md2.removeLine()
                         this.addrefundVisible = false
@@ -1490,7 +1490,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("处理成功")
+                        this.$message.success(res.data.message)
                         this.checkVisible = false
                     }
                 }).catch((res) => {
@@ -1559,7 +1559,7 @@
                 // }
                 this.$axios.post('/task_records/done_pay', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.comResVisible = false
                     }
@@ -1640,7 +1640,7 @@
                 }
                 this.$axios.post('/task_records/' + this.form.id + '/append_commission', params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('成功提交！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.commissionVisible = false
                     }
@@ -1708,7 +1708,7 @@
                         formData.append('task_record[tax]', this.addReviewerForm2.tax)
                         this.$axios.post('/task_records/' + this.idx + '/update_pay', formData).then((res) => {
                             if(res.data.code == 200) {
-                                this.$message.success('提交成功！')
+                                this.$message.success(res.data.message)
                                 this.$refs[formName].resetFields()
                                 this.updatereviewerVisible = false
                                 this.getData()

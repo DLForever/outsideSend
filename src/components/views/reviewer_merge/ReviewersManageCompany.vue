@@ -37,7 +37,7 @@
                             <infinite-loading :on-infinite="onInfinite_user2" ref="infiniteLoading2"></infinite-loading>
                         </el-select>
                         &nbsp
-                        <el-checkbox v-model="is_self" label="被分配" border></el-checkbox>
+                        <!-- <el-checkbox v-model="is_self" label="被分配" border></el-checkbox> -->
                         <el-checkbox v-model="weight_filter" label="优先级" border></el-checkbox>
                     </template>
                     状态:
@@ -74,10 +74,8 @@
                 </template>
                 <el-table-column prop="apply_username" label="申请人" width="70">
                 </el-table-column>
-                <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="category_name" label="分类" width="100" show-overflow-tooltip>
-                    </el-table-column>
-                </template>
+                <el-table-column prop="category_name" label="分类" width="100" show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="name" label="产品名称" width="100" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="weight" label="优先级" width="70">
@@ -190,6 +188,9 @@
                 </el-form-item>
                 <el-form-item label="名称">
                     <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                <el-form-item label="标题">
+                    <el-input v-model="form.title"></el-input>
                 </el-form-item>
                 <el-form-item label="价格">
                     <el-input v-model="form.price"></el-input>
@@ -1237,6 +1238,7 @@
                 formData.append('task[keyword_index]', String(tempkeyword_index))
                 formData.append('task[remark]', this.form.remark)
                 formData.append('task[sku]', this.form.sku)
+                formData.append('task[title]', this.form.title)
                 this.date_time.forEach((data) => {
                     formData.append('task[plan_date][]', data.plan_date)
                     formData.append('task[plan_sum][]', data.plan_sum)
@@ -1271,7 +1273,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success("删除成功")           		
+            		this.$message.success(res.data.message)           		
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1353,7 +1355,7 @@
                             this.picturestList2.splice(this.idx, 1);
                         }
                         this.getData()
-                        this.$message.success("删除成功")
+                        this.$message.success(res.data.message)
                         this.confirmDelProVis = false
                     }
                 }).catch((res) => {
@@ -1788,8 +1790,8 @@
                     formData.append('day', this.day)
                     formData.append('start_date', this.start_date)
                     // formData.append('task[by_sum]', this.by_sum)
-                    formData.append('plan_date[]', '[]')
-                    formData.append('plan_sum[]', '[]')
+                    formData.append('plan_date[]', '')
+                    formData.append('plan_sum[]', '')
                 }
                 // let params = {
                 //     plan_date: this.plan_date,
@@ -1832,7 +1834,7 @@
                                 this.$message.success(res.data.message)
                             } else {
                                 this.detailOptions2.splice(index, 1);
-                                this.$message.success("已删除")
+                                this.$message.success(res.data.message)
                             }
                             this.getData()
                             

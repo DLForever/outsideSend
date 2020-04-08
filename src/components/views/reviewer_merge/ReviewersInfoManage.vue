@@ -765,8 +765,8 @@
                 search_keyword: '',
                 feedbackVisible: false,
                 status: '',
-                statusOptions: [{value: 1, label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}, {value: 5, label: '失败'}, {value: 6, label: '等待评论'}, {value: 7, label: '需返佣金'}, {value: 8, label: '反馈待审核'}],
-                statusOptions2: [{value: '1,2,6,7,8', label: '正在进行中'},  {value: 3, label: '已完成'}, {value: 5, label: '失败'}],
+                statusOptions: [{value: 1, label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}, {value: 5, label: '失败'}, {value: 8, label: '反馈待审核'}],
+                statusOptions2: [{value: '1,2,8', label: '正在进行中'},  {value: 3, label: '已完成'}, {value: 5, label: '失败'}],
                 statusSelect: '',
                 user_id_filter: '',
                 query: undefined,
@@ -933,7 +933,7 @@
               filter_refund: false,
               filter_commission: false,
               table_loading: true,
-              checkOptions: [{value: '1', label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}, {value: 6, label: '等待评论'}, {value: 7, label: '需返佣金'}],
+              checkOptions: [{value: '1', label: '正在进行中'}, {value: 2, label: '需返款'}, {value: 3, label: '已完成'}],
               checkStatus: '',
               checkVisible: false,
               isProblem: '',
@@ -1281,7 +1281,7 @@
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/done_review', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成评论！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.doneVisible = false
                     }
@@ -1303,7 +1303,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success("删除成功")           		
+            		this.$message.success(res.data.message)           		
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1399,7 +1399,7 @@
                             this.picturestList3.splice(this.idx, 1)
                         }
                         this.getData()
-                        this.$message.success("删除成功")
+                        this.$message.success(res.data.message)
                         this.confirmDelProVis = false
                     }
                 }).catch((res) => {
@@ -1431,7 +1431,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("反馈成功!")
+                        this.$message.success(res.data.message)
                         this.feedbackVisible = false
                     }
                 }).catch((res) => {
@@ -1566,7 +1566,7 @@
                         })
                         this.$axios.patch('/task_records/' + this.idx, formData).then((res) => {
                             if(res.data.code == 200) {
-                                this.$message.success('提交成功！')
+                                this.$message.success(res.data.message)
                                 this.$refs[formName].resetFields()
                                 this.updatereviewerVisible = false
                                 this.getData()
@@ -1602,7 +1602,7 @@
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/done_refund', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成返款！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.refundVisible = false
                     }
@@ -1635,7 +1635,7 @@
                 })
                 this.$axios.post('/task_records/' + this.form.id + '/update_picture', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成添加返款！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.$refs.md2.removeLine()
                         this.addrefundVisible = false
@@ -1710,7 +1710,7 @@
                 ).then((res) => {
                     if(res.data.code == 200) {
                         this.getData()
-                        this.$message.success("处理成功")
+                        this.$message.success(res.data.message)
                         this.checkVisible = false
                     }
                 }).catch((res) => {
@@ -1779,7 +1779,7 @@
                 // }
                 this.$axios.post('/task_records/done_pay', formData).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('完成！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.comResVisible = false
                     }
@@ -1860,7 +1860,7 @@
                 }
                 this.$axios.post('/task_records/' + this.form.id + '/append_commission', params).then((res) => {
                     if(res.data.code == 200) {
-                        this.$message.success('成功提交！')
+                        this.$message.success(res.data.message)
                         this.getData()
                         this.commissionVisible = false
                     }

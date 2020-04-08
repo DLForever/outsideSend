@@ -225,14 +225,15 @@
         computed: {
             data() {
                 return this.tableData.filter((d) => {
-                    let is_del = false;
-                    if (!is_del) {
-                        if ((d.name.indexOf(this.select_word) > -1 ||
-                                d.fnsku.indexOf(this.select_word) > -1)
-                        ) {
-                            return d;
-                        }
-                    }
+                    return d
+                    // let is_del = false;
+                    // if (!is_del) {
+                    //     if ((d.name.indexOf(this.select_word) > -1 ||
+                    //             d.fnsku.indexOf(this.select_word) > -1)
+                    //     ) {
+                    //         return d;
+                    //     }
+                    // }
                 })
             }
         },
