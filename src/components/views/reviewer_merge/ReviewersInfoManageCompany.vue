@@ -706,6 +706,9 @@
                         <el-option v-for="item in chargetypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="返款时间" prop="refund_time">
+                    <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="refund_time" type="datetime" placeholder="选择日期" ></el-date-picker>
+                </el-form-item>
                 <el-form-item label="类型">
                     <el-select v-model="pay_reason_type" class="handle-select">
                         <el-option v-for="item in reasontypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
@@ -1076,7 +1079,8 @@
               write_feedback: '',
               pay_reason_type: '',
               reasontypeoptions: [{id: '1', type: '粉丝支付价格'}, {id: '2', type: '佣金'}, {id: '3', type: '粉丝支付价格+佣金'}, {id: '4', type: '补款'}, {id: '5', type: '本金退款'}, {id: '6', type: '佣金退款'}, {id: '7', type: '部分本金'}],
-              price: ''
+              price: '',
+              refund_time: ''
             }
         },
         created() {
@@ -2070,6 +2074,7 @@
                 this.pay_reason_type = ''
                 this.charge_type = ''
                 this.remark = ''
+                this.refund_time = ''
                 this.commissionVisible = true
             },
             saveAppendPay() {
@@ -2081,7 +2086,8 @@
                     price: this.price,
                     pay_reason_type: this.pay_reason_type,
                     charge_type: this.charge_type,
-                    remark: this.remark
+                    remark: this.remark,
+                    refund_time: this.refund_time
                 }
                 this.$axios.post('/record_pay_infos', params).then((res) => {
                     if(res.data.code == 200) {

@@ -4,7 +4,7 @@
 
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 公司排单管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 排单管理</el-breadcrumb-item>
                 <el-breadcrumb-item>排单管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -129,6 +129,12 @@
                 </el-table-column>
                 <el-table-column prop="plan_sum" label="计划数量" width="65">
                 </el-table-column>
+                <el-table-column label="完成数量" width="65">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.start_sum}}</span>
+                        <span>{{scope.row.done_sum}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="block" label="失败数量" width="65">
                 </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
@@ -147,7 +153,7 @@
                 </el-table-column>
                 <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
                 </el-table-column>
-                <!-- <el-table-column label="操作" width="100" fixed="right">
+                <el-table-column label="操作" width="100" fixed="right">
                     <template slot-scope="scope">
                         <el-dropdown>
                             <el-button type="primary">
@@ -155,12 +161,9 @@
                             </el-button>
                             <el-dropdown-menu slot="dropdown">
                                 <el-dropdown-item>
-                                    <el-button @click="generatePicture(scope.row)" type="text">&nbsp&nbsp&nbsp生产大图</el-button>
+                                    <el-button @click="handleDetails(scope.$index, scope.row)" type="text">详情</el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
-                                    <el-button @click="handleDetails(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp详情</el-button>
-                                </el-dropdown-item>
-                                <el-dropdown-item v-if="isRestrict === 'false'">
+                                <!-- <el-dropdown-item v-if="isRestrict === 'false'">
                                     <el-button @click="handleCheck(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp审核</el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item>
@@ -188,11 +191,11 @@
                                 </el-dropdown-item>
                                 <el-dropdown-item>
                                     <el-button @click="handleDelete(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp删除</el-button>
-                                </el-dropdown-item>
+                                </el-dropdown-item> -->
                             </el-dropdown-menu>
                         </el-dropdown>
                     </template>
-                </el-table-column> -->
+                </el-table-column>
             </el-table>
             </el-table>
             <div class="pagination" v-if="paginationShow && totals != 0">
@@ -387,7 +390,7 @@
 
         <!-- 详情提示 -->
         <el-dialog title="详情" :visible.sync="detailVisible" width="90%">
-            <el-button :disabled="submitDisabled" v-if="isaddPlan" type="success" size="small" icon="el-icon-circle-check-outline" @click="saveaddplan">确认</el-button>
+            <!-- <el-button :disabled="submitDisabled" v-if="isaddPlan" type="success" size="small" icon="el-icon-circle-check-outline" @click="saveaddplan">确认</el-button>
             <el-button v-else type="primary" @click="isaddPlan=!isaddPlan">增加任务</el-button>
             <template v-if="isaddPlan">
                 <el-button type="warning" icon="el-icon-refresh" @click="cancelAddPlan">取消</el-button>
@@ -395,7 +398,7 @@
                 <el-input-number style="margin-bottom: 5px;" v-model="plan_sum" :min="0" label="数量"></el-input-number>
             </template>
             <el-button style="float: right;" type="primary" @click="checkSelf">通过自审</el-button>
-            <br><br>
+            <br><br> -->
             <el-table :data="detailOptions" border style="width: 100%">
                 <el-table-column prop="asin" label="ASIN" show-overflow-tooltip>
                 </el-table-column>
@@ -435,6 +438,8 @@
                 </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column prop="remove_remark" label="移除备注" show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
                 </el-table-column>
                 <el-table-column prop="updated_at" label="更新时间" :formatter="formatter_updated_at" width="150">
@@ -460,70 +465,6 @@
                     <template slot-scope="scope">
                         <el-tag v-if="scope.row.need_charge === false" type="warning">否</el-tag>
                         <el-tag v-else-if="scope.row.need_charge === true" type="success">是</el-tag>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <br>
-            <el-table v-if="detailOptions3.length != 0" :data="detailOptions3" border style="width: 100%">
-                <el-table-column prop="keywords" label="关键词" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="keyword_index" label="关键词位置" show-overflow-tooltip>
-                </el-table-column>
-            </el-table>
-            <br>
-            <el-table :data="detailOptions2" border style="width: 100%">
-                <el-table-column v-if="isRestrict === 'false'" type="expand">
-                    <template slot-scope="scope" >
-                        <el-table :data="scope.row.task_period_infos" border style="width: 100%">
-                            <el-table-column prop="username" label="送测人" show-overflow-tooltip>
-                            </el-table-column>
-                            <el-table-column prop="sum" label="数量" show-overflow-tooltip>
-                            </el-table-column>
-                        </el-table>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="plan_date" label="计划日期" show-overflow-tooltip>
-                    <template slot-scope="scope">
-                        <el-tooltip class="item" effect="dark" content="查看该日期的变更记录" placement="top">
-                            <span class="link-type" @click="toReviewersChange2(scope.$index, scope.row)">{{ scope.row.plan_date }}</span>
-                        </el-tooltip>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="plan_sum" label="计划数量" show-overflow-tooltip>
-                    <template slot-scope="scope">
-                        <template v-if="scope.row.edit">
-                            <el-input-number style="margin-bottom: 5px;" v-model="scope.row.plan_sum" :min="0"></el-input-number>
-                            <el-button style="margin-left: 5px" class="cancel-btn" size="small" icon="el-icon-refresh" type="warning" @click="cancelEdit(scope.row)">取消</el-button>
-                        </template>
-                        <span v-else>{{scope.row.plan_sum}}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="start_sum" label="已进行的数量" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="block_sum" label="失败数量" show-overflow-tooltip>
-                </el-table-column>
-                <!-- <el-table-column prop="accept_sum" label="接受数量" show-overflow-tooltip>
-                    <template slot-scope="scope">
-                        <template v-if="scope.row.editAccept">
-                            <el-input-number style="margin-bottom: 5px;" v-model="scope.row.accept_sum" :min="0"></el-input-number>
-                            <el-button style="margin-left: 5px" class="cancel-btn" size="small" icon="el-icon-refresh" type="warning" @click="cancelEditAccept(scope.row)">取消</el-button>
-                        </template>
-                        <span v-else>{{scope.row.accept_sum}}</span>
-                    </template>
-                </el-table-column> -->
-                <el-table-column label="操作" :width="isRestrict === 'false' ? 450 : 200" show-overflow-tooltip>
-                    <template slot-scope="scope">
-                        <template v-if="!scope.row.editAccept">
-                            <el-button v-if="!scope.row.edit && isRestrict === 'false'" @click="handleCreate(scope.$index, scope.row)" :disabled="scope.row.noshow" type="primary" icon="el-icon-plus">添加送测记录</el-button>
-                            <el-button v-if="scope.row.edit" @click="saveupdateplan(scope.row)" :disabled="scope.row.noshow" icon="el-icon-circle-check-outline" type="success">确认</el-button>
-                            <el-button v-else type="warning" size="small" icon="el-icon-edit" :disabled="scope.row.noshow" @click="scope.row.edit=!scope.row.edit">编辑</el-button>
-                            <el-button v-if="!scope.row.edit" icon="el-icon-delete" @click="handleDeletePlan(scope.$index, scope.row)" :disabled="scope.row.noshow" type="danger">删除</el-button>
-                        </template>
-                        <template v-if="!scope.row.edit && isRestrict === 'false'">
-                            <el-button @click="handleReConfirm(scope.row)" icon="el-icon-circle-check-outline" type="success">重新分配数量</el-button>
-                            <!-- <el-button v-if="scope.row.editAccept" @click="saveAccept(scope.row)" :disabled="scope.row.noshow" icon="el-icon-circle-check-outline" type="success">确认</el-button>
-                            <el-button v-else type="success" size="small" icon="el-icon-edit" :disabled="scope.row.noshow" @click="scope.row.editAccept=!scope.row.editAccept">处理计划周期</el-button> -->
-                        </template>
                     </template>
                 </el-table-column>
             </el-table>
@@ -1095,6 +1036,7 @@
                             data.category_name = data.task.category_name
                             data.weight = data.task.weight
                             data.total = data.task.total
+                            data.role_name = data.task.role_name
                             data.line_sum = data.task.line_sum
                             data.block = data.task.block
                             data.by_sum = data.task.by_sum
@@ -1141,6 +1083,7 @@
                             data.category_name = data.task.category_name
                             data.weight = data.task.weight
                             data.total = data.task.total
+                            data.role_name = data.task.role_name
                             data.line_sum = data.task.line_sum
                             data.block = data.task.block
                             data.by_sum = data.task.by_sum
@@ -1291,7 +1234,7 @@
                         this.editVisible = false
                     }
                 }).catch((res) => {
-                    console.log('err')
+                    console.log(res)
                 }).finally((res) => {
                     this.submitDisabled = false
                 })
@@ -1316,27 +1259,8 @@
                 this.delVisible = false;
             },
             handleDetails(index, row) {
-                this.username = ''
-                this.username = row.username
-                this.detailOptions3 = []
-                if (row.keywords != '' || row.keyword_index != '') {
-                    let tempkeywords = row.keywords.split(',')
-                    let tempkeywordindex = row.keyword_index.split(',')
-                    tempkeywords.forEach((data, index) => {
-                        this.detailOptions3.push({keywords: data, keyword_index: tempkeywordindex[index]})
-                    })
-                } else {
-                    this.detailOptions3 = []
-                }
-                this.keyword_options = row.keywords.split(',')
-                this.task_id = row.id
-                this.addReviewerForm.asin = row.asin
-                this.detailOptions = [row]
-                // row.task_periods.forEach((data) => {
-                //     data.edit = false
-                //     data.originalSum = data.plan_sum
-                // })
-                this.detailOptions2 = row.task_periods
+                // this.task_id = row.id
+                this.detailOptions = [row.task]
                 this.detailVisible = true
             },
             changeFile(file) {
@@ -1444,7 +1368,7 @@
                                 // this.$router.push('/reviewersmanage')
                             }
                         }).catch((res) => {
-                            console.log('err')
+                            console.log(res)
                         }).finally((res) => {
                             this.submitDisabled = false
                         })
@@ -1498,7 +1422,7 @@
                             }
                         }
                     }).catch((res) => {
-                        console.log('失败')
+                        console.log(res)
                     })
                 }
             },
@@ -1546,7 +1470,7 @@
                             }
                         }
                     }).catch((res) => {
-                        console.log('失败')
+                        console.log(res)
                     })
                 }
             },
@@ -1585,7 +1509,7 @@
                 })
             },
             confirmDistribute() {
-                this.picturestList = []
+                this.bigpicturestList = []
                 if(this.multipleSelection.length == 0) {
                     this.$message.error('请选择至少一个订单')
                     return
@@ -1608,7 +1532,7 @@
                             this.getData()
                             this.$message.success(res.data.message)
                             this.bigpicturestList.push({url: res.data.data})
-                            this.bigpicturestList = true
+                            this.bigPictureVisible = true
                         }
                     }).catch((res) => {
                         console.log(res)
@@ -1714,14 +1638,13 @@
                             } else {
                                 this.distributeUserOptions = this.distributeUserOptions.concat(res.data.data)
                             }
-                            console.log(this.distributeUserOptions)
                             this.dis_user_total = res.data.count
                             if(callback) {
                                 callback()
                             }
                         }
                     }).catch((res) => {
-                        console.log('失败')
+                        console.log(res)
                     })
                 }
             },
@@ -2034,7 +1957,7 @@
                             }
                         }
                     }).catch((res) => {
-                        console.log('失败')
+                        console.log(res)
                     })
                 }
             },
@@ -2084,7 +2007,6 @@
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
                             data.change_sum = data.plan_sum
-                            console.log(data.change_sum)
                         })
                         this.distributeData = res.data.data
                         this.distributeDetailVisible = true
@@ -2095,7 +2017,6 @@
             },
             saveDistribute() {
                 this.submitDisabled = true
-                console.log(this.distributeData)
                 let operate_role_info_ids = []
                 let sum = []
                 let role_ids = []
@@ -2164,7 +2085,7 @@
                         this.updateVisble = false
                     }
                 }).catch((res) => {
-                    console.log('err')
+                    console.log(res)
                 }).finally((res) => {
                     this.submitDisabled = false
                 })

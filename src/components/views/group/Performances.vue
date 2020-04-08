@@ -60,6 +60,12 @@
                 </el-table-column>
                 <el-table-column fixed prop="site" label="站点" width="130" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column prop="rebuy" label="复购单" width="100" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="bind" label="捆版单" width="100" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="new_fan" label="新粉丝" width="100" show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="plan" label="计划数量" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="done" label="完成数量" show-overflow-tooltip>
@@ -71,8 +77,6 @@
                 <el-table-column prop="customer_total" label="客户费用" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="self_pay_sum" label="自费" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column prop="paypal_charge" label="paypal手续费" width="100" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="tax" label="税费" show-overflow-tooltip>
                 </el-table-column>

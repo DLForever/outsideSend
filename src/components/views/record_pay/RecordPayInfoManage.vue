@@ -120,11 +120,11 @@
                         <el-tag type="warning" v-else-if="scope.row.pay == false">否</el-tag>
                     </template>
                 </el-table-column>
-                <!-- <el-table-column prop="pay_type" label="类型" width="120">
+                <el-table-column prop="pay_reason_type" label="类型" width="120">
                     <template slot-scope="scope">
-                        <el-tag :type="scope.row.pay_type | statusFilter">{{getStatusPayType(scope.row.pay_type)}}</el-tag>
+                        <el-tag :type="scope.row.pay_reason_type | statusFilter">{{getStatusPayType(scope.row.pay_reason_type)}}</el-tag>
                     </template>
-                </el-table-column> -->
+                </el-table-column>
                <!--  <template v-if="isRestrict === 'false'">
                     <template v-if="filter_refund">
                         <el-table-column key="5" prop="total_price" label="总费用" show-overflow-tooltip>
@@ -1845,7 +1845,11 @@
                 }else if(status == 4) {
                     return "补款"
                 }else if(status == 5) {
-                    return "退款"
+                    return "本金退款"
+                }else if(status == 6) {
+                    return "佣金退款"
+                }else if(status == 7) {
+                    return "部分本金"
                 }else {
                     return '其他'
                 }

@@ -100,7 +100,7 @@ export default new Router({
                 },
                 {
                     path: '/fansmanage',
-                    component: resolve => require(['../components/views/reviewer/FansManage.vue'], resolve),
+                    component: resolve => require(['../components/views/reviewer_merge/FansManage.vue'], resolve),
                     meta: { title: '粉丝管理' }
                 },
                 {
