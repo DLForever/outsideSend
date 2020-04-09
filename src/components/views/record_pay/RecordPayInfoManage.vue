@@ -31,6 +31,12 @@
                         <el-option v-for="item in user_options2" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         <infinite-loading :on-infinite="onInfinite_user2" ref="infiniteLoading2"></infinite-loading>
                     </el-select>
+                    粉丝号:
+                    <el-input style="width:150px" placeholder="请输入粉丝号" v-model.trim="search_fan"></el-input>
+                    订单号:
+                    <el-input style="width:150px" placeholder="请输入订单号" v-model.trim="search_number"></el-input>
+                    ASIN:
+                    <el-input style="width:150px" placeholder="请输入ASIN" v-model.trim="search_asin"></el-input>
                     <!-- <el-checkbox v-model="is_pay_capital" label="未收本金" border></el-checkbox>
                     <el-checkbox v-model="is_pay_commission" label="未收佣金" border></el-checkbox>
                     <template v-if="search_show[0].dateDis">
@@ -94,7 +100,13 @@
                         <span v-else>无</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="price" label="支付价格" width="130" show-overflow-tooltip>
+                <el-table-column prop="asin" label="ASIN" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="paypal_account" label="粉丝号" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="price" label="支付价格" width="70" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="charge" label="手续费" width="70">
                 </el-table-column>
@@ -102,7 +114,7 @@
                 </el-table-column>
                 <el-table-column prop="customer_charge" label="客户支付手续费" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="need_charge" label="是否客户支付手续费" show-overflow-tooltip>
+                <el-table-column prop="need_charge" label="是否客户支付手续费" width="130" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <el-tag type="success" v-if="scope.row.need_charge == true">是</el-tag>
                         <el-tag type="warning" v-else-if="scope.row.need_charge == false">否</el-tag>
@@ -114,13 +126,13 @@
                         <el-tag type="warning" v-else-if="scope.row.charge_type == '2'">中介</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="pay" label="是否付款" show-overflow-tooltip>
+                <el-table-column prop="pay" label="是否付款" width="70">
                     <template slot-scope="scope">
                         <el-tag type="success" v-if="scope.row.pay == true">是</el-tag>
                         <el-tag type="warning" v-else-if="scope.row.pay == false">否</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="pay_reason_type" label="类型" width="120">
+                <el-table-column prop="pay_reason_type" label="类型" width="145">
                     <template slot-scope="scope">
                         <el-tag :type="scope.row.pay_reason_type | statusFilter">{{getStatusPayType(scope.row.pay_reason_type)}}</el-tag>
                     </template>
@@ -1023,11 +1035,14 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone
+                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
                             data.img_count = data.pictures.length
+                            data.asin = data.task_record.asin
+                            data.paypal_account = data.task_record.paypal_account
+                            data.order_number = data.task_record.order_number
                         })
                         this.tableData = res.data.data
                         this.totals = res.data.count
@@ -1066,7 +1081,7 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone
+                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {

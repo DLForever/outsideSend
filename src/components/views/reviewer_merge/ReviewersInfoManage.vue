@@ -87,9 +87,9 @@
                 </el-table-column>
                 <el-table-column prop="keyword" label="关键词" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column  prop="plan_date" label="计划日期" width="90">
+                </el-table-column>
                 <template v-if="isRestrict === 'false'">
-                    <el-table-column  prop="plan_date" label="计划日期" width="90">
-                    </el-table-column>
                     <el-table-column prop="pay_type" label="支付类型" width="70">
                     </el-table-column>
                     <el-table-column prop="currency" label="币种" width="45">
@@ -1873,11 +1873,9 @@
             getStatusName(status, done_direct) {
                 if(status == 1) {
                     return "正在进行中"
-                } else if(status == 2 && done_direct == true) {
+                } else if(status == 2) {
                     return "需返款"
-                } else if(status == 2 && done_direct == false) {
-                    return "先返本金"
-                } else if(status == 3) {
+                }else if(status == 3) {
                     return "已完成"
                 }else if(status == 4) {
                     return "已删除"

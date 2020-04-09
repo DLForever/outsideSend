@@ -106,9 +106,9 @@
                 </el-table-column>
                 <el-table-column prop="keyword" label="关键词" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column  prop="plan_date" label="计划日期" width="90">
+                </el-table-column>
                 <template v-if="isRestrict === 'false'">
-                    <el-table-column  prop="plan_date" label="计划日期" width="90">
-                    </el-table-column>
                     <el-table-column prop="pay_type" label="支付类型" width="70">
                     </el-table-column>
                     <el-table-column prop="currency" label="币种" width="45">
@@ -517,6 +517,8 @@
                 </el-table-column>
                 <el-table-column prop="tax" label="税费" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column prop="commission" label="佣金" show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="pay_tax" label="是否含税" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <el-tag type="warning" v-if="scope.row.pay_tax === true">是</el-tag>
@@ -527,9 +529,9 @@
             </el-table>
             <br>
             <el-table :data="review_details" border style="width: 100%">
-                <el-table-column prop="customer_commission" label="客户佣金" show-overflow-tooltip>
+                <el-table-column prop="customer_commission_total" label="应收客户佣金" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="customer_commission_total" label="客户佣金总费用" show-overflow-tooltip>
+                <el-table-column prop="customer_total" label="应收客户费用" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="fan_total" label="粉丝总费用" show-overflow-tooltip>
                 </el-table-column>
@@ -1615,7 +1617,7 @@
                     facebook_url: item.facebook_url,
                     remark: item.remark,
                     homepage: item.homepage,
-                    skip_review: item.skip_review,
+                    skip_review: (item.skip_review === true) ? '1' : '0',
                     fan: item.fan,
                     // title: item.title
                 }
@@ -2104,11 +2106,9 @@
             getStatusName(status, done_direct) {
                 if(status == 1) {
                     return "正在进行中"
-                } else if(status == 2 && done_direct == true) {
+                } else if(status == 2) {
                     return "需返款"
-                } else if(status == 2 && done_direct == false) {
-                    return "先返本金"
-                } else if(status == 3) {
+                }else if(status == 3) {
                     return "已完成"
                 }else if(status == 4) {
                     return "已删除"
