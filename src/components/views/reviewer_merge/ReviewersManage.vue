@@ -144,6 +144,9 @@
                                         <!-- <router-link to="./reviewersinfomanage"></router-link> -->
                                     </el-button>
                                 </el-dropdown-item>
+                                <el-dropdown-item>
+                                    <el-button @click="handleUpdate(scope.row)" type="text">&nbsp&nbsp&nbsp更新线性</el-button>
+                                </el-dropdown-item>
                                 <template v-if="isRestrict === 'false'">
                                     <el-dropdown-item>
                                         <el-button @click="handleRefuse(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp拒绝</el-button>
@@ -641,6 +644,26 @@
             <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?ids=' + exportIds + '&token=' + export_token">下载excel文件</a></el-button>
         </span>
         </el-dialog>
+        <!-- 变更线性 -->
+        <el-dialog title="变更线性" :visible.sync="updateVisble" width="50%">
+            <el-form ref="updateform" :model="updateform" label-width="130px">
+                <el-form-item label="是否按照总数进行">
+                    <el-radio v-model="updateform.by_sum" label="1">是</el-radio>
+                    <el-radio v-model="updateform.by_sum" label="0">否</el-radio>
+                </el-form-item>
+                <el-form-item label="是否线性送测">
+                    <el-radio v-model="updateform.is_line" label="1">是</el-radio>
+                    <el-radio v-model="updateform.is_line" label="0">否</el-radio>
+                </el-form-item>
+                <el-form-item label="线性计划数">
+                    <el-input-number style="margin-bottom: 5px;" v-model="updateform.line_sum" :min="0"></el-input-number>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="updateVisble = false">取 消</el-button>
+                <el-button type="primary" @click="saveUpdate" :disabled="submitDisabled">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -881,7 +904,13 @@
                 is_line: '',
                 line_sum: 0,
                 day: 0,
-                start_date: ''
+                start_date: '',
+                updateVisble: false,
+                updateform: {
+                    is_line: '',
+                    by_sum: '',
+                    line_sum: ''
+                },
             }
         },
         created() {
@@ -1895,6 +1924,34 @@
             },
             orderDel2(index) {
                 this.date_time.pop()
+            },
+            handleUpdate(row) {
+                const item = row
+                this.updateform = {
+                    id: item.id,
+                    is_line : (item.is_line === true) ? '1' : '0',
+                    by_sum : (item.by_sum === true) ? '1' : '0',
+                    line_sum : item.line_sum
+                }
+                this.updateVisble = true
+            },
+            saveUpdate() {
+                this.submitDisabled = true
+                let formData = new FormData()
+                formData.append('is_line', this.updateform.is_line)
+                formData.append('by_sum', this.updateform.by_sum)
+                formData.append('line_sum', this.updateform.line_sum)
+                this.$axios.post('/tasks/' + this.updateform.id + '/update_task_period', formData).then((res) => {
+                    if(res.data.code == 200) {
+                        this.$message.success(res.data.message)
+                        this.getData()
+                        this.updateVisble = false
+                    }
+                }).catch((res) => {
+                    console.log('err')
+                }).finally((res) => {
+                    this.submitDisabled = false
+                })
             },
             getStatusName(status) {
                 if(status == 1) {

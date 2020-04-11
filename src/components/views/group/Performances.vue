@@ -918,12 +918,13 @@
                         // console.log([res.data.data])
                         // console.log(Object.values(res.data.data))
                         Object.values(res.data.data).forEach((data) => {
-                            for (let i in data) {
-                                data[i].site = i
-                            }
+                            // console.log(data)
+                            // for (let i in data) {
+                            //     data[i].site = i
+                            // }
                             // 将对象转为数组
                             Object.values(data).forEach((data2) => {
-                                console.log(data2)
+                                // console.log(data2)
                                 tableDataFilter1.push(data2)
                             })
                         })

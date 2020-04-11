@@ -113,8 +113,8 @@
                     </el-table-column>
                     <el-table-column prop="currency" label="币种" width="45">
                     </el-table-column>
-                    <el-table-column prop="recommend_commission" label="建议佣金" width="45">
-                    </el-table-column>
+                    <!-- <el-table-column prop="recommend_commission" label="建议佣金" width="45">
+                    </el-table-column> -->
                 </template>
                 <!-- <el-table-column key="3" prop="pay_price" label="本金" width="65">
                 </el-table-column>
@@ -297,9 +297,9 @@
                 <el-form-item label="佣金" v-if="form.status == '6'">
                     <el-input-number v-model="form.commission" :min="0"></el-input-number>
                 </el-form-item> -->
-                <el-form-item label="建议佣金">
+                <!-- <el-form-item label="建议佣金">
                     <el-input-number v-model="form.recommend_commission" :min="0"></el-input-number>
-                </el-form-item>
+                </el-form-item> -->
                 <!-- <el-form-item label="返款时间" prop="pay_time">
                     <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="form.refund_time" type="datetime" placeholder="选择日期" ></el-date-picker>
                 </el-form-item> -->
@@ -384,12 +384,12 @@
                         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                     </el-upload>
                 </el-form-item>
-                <el-form-item label="退款截图">
+                <!-- <el-form-item label="退款截图">
                     <el-upload class="upload-demo" drag action="" :file-list="fileList2" :on-remove="handleRemove2" :auto-upload="false" :on-change="changeFile2" :limit="5" multiple>
                         <i class="el-icon-upload"></i>
                         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                     </el-upload>
-                </el-form-item>
+                </el-form-item> -->
                 <!-- <el-form-item label="总费用">
                     <el-button type="warning">{{sumPrice}}</el-button>
                 </el-form-item> -->
@@ -1383,7 +1383,7 @@
                 // formData.append('commission', this.form.commission)
                 // formData.append('charge_type', this.charge_type)
                 formData.append('review_url', this.review_url)
-                formData.append('recommend_commission', (this.form.recommend_commission == 0 ? '' : this.form.recommend_commission))
+                // formData.append('recommend_commission', (this.form.recommend_commission == 0 ? '' : this.form.recommend_commission))
                 // if(this.form.done_direct != undefined) {
                 //     formData.append('done_direct', this.form.done_direct)
                 // }
@@ -1660,9 +1660,9 @@
                         this.fileList.forEach((item) => {
                             formData.append('picture_review[]', item.raw)
                         })
-                        this.fileList2.forEach((item) => {
-                            formData.append('picture_refund[]', item.raw)
-                        })
+                        // this.fileList2.forEach((item) => {
+                        //     formData.append('picture_refund[]', item.raw)
+                        // })
                         this.$axios.patch('/task_records/' + this.idx, formData).then((res) => {
                             if(res.data.code == 200) {
                                 this.$message.success(res.data.message)

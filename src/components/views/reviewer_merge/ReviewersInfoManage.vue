@@ -142,7 +142,7 @@
                         <el-tag v-else-if="scope.row.is_pay_capital === true" type="success">已收</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="140">
+                <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <el-table-column prop="refund_time" label="返款时间" :formatter="formatter_refund_time" width="140">
@@ -166,6 +166,11 @@
                 </el-table-column>
                 <el-table-column prop="feedback" label="反馈" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column prop="review_url" label="评论链接" width="50">
+                    <template slot-scope="scope">
+                        <a v-if="scope.row.review_url != null && scope.row.review_url != '' && scope.row.review_url != 'null'" :href="scope.row.review_url" target="_blank">查看</a>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
@@ -182,9 +187,8 @@
                         </template>
                     </el-table-column>
                 </template>
-                <!-- <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
-                </el-table-column>
-                <el-table-column prop="updated_at" label="更新时间" :formatter="formatter_updated_at" width="150">
+                
+                <!-- <el-table-column prop="updated_at" label="更新时间" :formatter="formatter_updated_at" width="150">
                 </el-table-column> -->
                 <el-table-column label="操作" width="100" fixed="right">
                     <template slot-scope="scope">

@@ -90,7 +90,7 @@
                                 <el-dropdown-item>
                                     <el-button @click="handleDetails(scope.$index, scope.row)" type="text">详情</el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
+                                <el-dropdown-item v-if="isRestrict === 'false'">
                                     <el-button @click="handleAgree(scope.$index, scope.row)" type="text">处理</el-button>
                                 </el-dropdown-item>
                                 <!-- <el-dropdown-item>

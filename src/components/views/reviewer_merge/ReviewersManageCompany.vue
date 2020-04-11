@@ -727,8 +727,8 @@
             </span>
         </el-dialog>
 
-        <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="updateVisble" width="50%">
+        <!-- 变更线性 -->
+        <el-dialog title="变更线性" :visible.sync="updateVisble" width="50%">
             <el-form ref="updateform" :model="updateform" label-width="130px">
                 <el-form-item label="是否按照总数进行">
                     <el-radio v-model="updateform.by_sum" label="1">是</el-radio>
