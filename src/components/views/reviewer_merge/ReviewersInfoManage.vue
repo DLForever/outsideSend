@@ -75,10 +75,6 @@
                 </el-table-column>
                 <el-table-column prop="apply_username" label="申请人" width="70" show-overflow-tooltip>
                 </el-table-column>
-                <template v-if="is_company2 === '1'">
-                    <el-table-column prop="username" label="送测人" width="70" show-overflow-tooltip>
-                    </el-table-column>
-                </template>
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="country" label="站点" width="45">
@@ -220,13 +216,14 @@
                                 <el-dropdown-item>
                                     <el-button @click="handleFeedback(scope.$index, scope.row)" type="text">问题反馈</el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
-                                    <el-button @click="handleCheckFeedback(scope.$index, scope.row)" type="text">审核反馈</el-button>
-                                </el-dropdown-item>
+                                    
                                 <!-- <el-dropdown-item>
                                     <el-button @click="showPictures(scope.$index, scope.row)" type="text">图片</el-button>
                                 </el-dropdown-item> -->
                                 <template v-if="isRestrict === 'false'">
+                                    <el-dropdown-item>
+                                        <el-button @click="handleCheckFeedback(scope.$index, scope.row)" type="text">审核反馈</el-button>
+                                    </el-dropdown-item>
                                     <el-dropdown-item>
                                         <el-button @click="handleEdit(scope.$index, scope.row)" type="text">编辑</el-button>
                                     </el-dropdown-item>
@@ -242,7 +239,7 @@
             </el-table>
             </el-table>
             <div class="pagination" v-if="paginationShow && totals != 0">
-                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="50" layout="prev, pager, next" :total="totals">
+                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="20" layout="prev, pager, next" :total="totals">
                 </el-pagination>
             </div>
         </div>

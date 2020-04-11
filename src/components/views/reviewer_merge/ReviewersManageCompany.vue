@@ -292,9 +292,9 @@
                         <el-option v-for="item in currency_options" :key="item" :label="item" :value="item"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="支付时间" prop="pay_time">
+                <!-- <el-form-item label="支付时间" prop="pay_time">
                     <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="addReviewerForm.pay_time" type="datetime" placeholder="选择日期" ></el-date-picker>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="支付价格" prop="pay_price">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.pay_price" :min="0" :step="10" @change="totalPrice"></el-input-number>
                 </el-form-item>
@@ -328,7 +328,7 @@
                         <el-option v-for="item in pay_tax_options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="税前价格" prop="before_tax_price">
+                <el-form-item label="售价" prop="before_tax_price">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.before_tax_price" :min="0" :step="10"></el-input-number>
                 </el-form-item>
                 <el-form-item label="备注">
@@ -361,7 +361,7 @@
 
         <!-- 详情提示 -->
         <el-dialog title="详情" :visible.sync="detailVisible" width="90%">
-            <el-button type="primary" @click="handleAddPlan">增加任务</el-button>
+            <el-button type="primary" @click="handleAddPlan">添加计划</el-button>
             <!-- <el-button :disabled="submitDisabled" v-if="isaddPlan" type="success" size="small" icon="el-icon-circle-check-outline" @click="saveaddplan">确认</el-button>
             <el-button v-else type="primary" @click="isaddPlan=!isaddPlan">增加任务</el-button>
             <template v-if="isaddPlan">
@@ -570,7 +570,7 @@
         </el-dialog>
 
         <!-- 更新计划 -->
-        <el-dialog title="增加计划" :visible.sync="addplanVisible" width="50%">
+        <el-dialog title="添加计划" :visible.sync="addplanVisible" width="50%">
             <el-form ref="form" :model="form" label-width="110px">
                 <!-- <el-form-item label="日期/每日次数">
                     <table >
@@ -812,7 +812,7 @@
                 user_options2: [],
                 fileList2: [],
                 statusSelect: '',
-                statusOptions: [{value: 1, label: '待自审'}, {value: 2, label: '待审核'}, {value: 9, label: '已审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已完成'}, {value: 8, label: '已拒绝'}],
+                statusOptions: [{value: 1, label: '待自审'}, {value: 2, label: '待审核'}, {value: 9, label: '已审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已结束'}, {value: 8, label: '已拒绝'}],
                 picturestList2: [],
                 detailOptions: [],
                 detailOptions2: [],
@@ -1273,7 +1273,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success(res.data.message)           		
+            		this.$message.success(res.data.message)
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1302,6 +1302,7 @@
                 //     data.originalSum = data.plan_sum
                 // })
                 this.detailOptions2 = row.task_periods
+                console.log(this.detailOptions3)
                 this.detailVisible = true
             },
             changeFile(file) {
@@ -1383,7 +1384,7 @@
                         formData.append('task_record[order_number]', this.addReviewerForm.order_number)
                         formData.append('task_record[pay_type]', this.addReviewerForm.pay_type)
                         formData.append('task_record[currency]', this.addReviewerForm.currency)
-                        formData.append('task_record[pay_time]', this.addReviewerForm.pay_time)
+                        // formData.append('task_record[pay_time]', this.addReviewerForm.pay_time)
                         formData.append('task_record[pay_price]', this.addReviewerForm.pay_price)
                         formData.append('task_record[commission]', this.addReviewerForm.commission)
                         // formData.append('task_record[charge]', this.addReviewerForm.poundage)
@@ -1415,7 +1416,6 @@
                         })
                     } else {
                         this.$message.error("请填写完整信息")
-                        // return false
                     }
                 })
             },
@@ -1754,8 +1754,6 @@
                         row.originalaccept = row.accept_sum
                         this.$message.success(res.data.message)
                         row.editAccept = false
-                        // this.updateplanVisible = false
-                        // this.detailVisible = false
                     }
                 }).catch((res) => {
 
@@ -1789,7 +1787,6 @@
                     formData.append('line_sum', this.line_sum)
                     formData.append('day', this.day)
                     formData.append('start_date', this.start_date)
-                    // formData.append('task[by_sum]', this.by_sum)
                     formData.append('plan_date[]', '')
                     formData.append('plan_sum[]', '')
                 }
@@ -2171,7 +2168,7 @@
                 }else if(status == 6) {
                     return "已计划完成"
                 }else if(status == 7) {
-                    return "已完成"
+                    return "已结束"
                 }else if(status == 8) {
                     return "已拒绝"
                 }else if(status == 9) {

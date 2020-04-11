@@ -353,7 +353,7 @@
 
         <!-- 详情提示 -->
         <el-dialog title="详情" :visible.sync="detailVisible" width="90%">
-            <el-button type="primary" @click="handleAddPlan">增加任务</el-button>
+            <el-button type="primary" @click="handleAddPlan">添加计划</el-button>
             <!-- <el-button :disabled="submitDisabled" v-if="isaddPlan" type="success" size="small" icon="el-icon-circle-check-outline" @click="saveaddplan">确认</el-button>
             <el-button v-else type="primary" @click="isaddPlan=!isaddPlan">增加任务</el-button>
             <template v-if="isaddPlan">
@@ -538,7 +538,7 @@
         </el-dialog>
 
         <!-- 更新计划 -->
-        <el-dialog title="增加计划" :visible.sync="addplanVisible" width="50%">
+        <el-dialog title="添加计划" :visible.sync="addplanVisible" width="50%">
             <el-form ref="form" :model="form" label-width="110px">
                 <!-- <el-form-item label="日期/每日次数">
                     <table >
@@ -706,7 +706,7 @@
                 user_options2: [],
                 fileList2: [],
                 statusSelect: '',
-                statusOptions: [{value: 1, label: '待自审'}, {value: 2, label: '待审核'}, {value: 9, label: '已审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已完成'}, {value: 8, label: '已拒绝'}],
+                statusOptions: [{value: 1, label: '待自审'}, {value: 2, label: '待审核'}, {value: 9, label: '已审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已结束'}, {value: 8, label: '已拒绝'}],
                 picturestList2: [],
                 detailOptions: [],
                 detailOptions2: [],
@@ -1146,7 +1146,7 @@
             	if(res.data.code == 200){
             		this.tableData.splice(this.idx, 1)
             		this.getData()
-            		this.$message.success(res.data.message)           		
+            		this.$message.success(res.data.message)
             	}
             }).catch((res) => {
             	this.$message.error("删除失败")
@@ -1216,7 +1216,6 @@
             },
             deleteImg() {
                 let params = {
-                    // id: this.product_id,
                     img_id: this.picture_id
                 }
                 this.$axios.post('/tasks/' + this.product_id + '/delete_img', params
@@ -1911,7 +1910,7 @@
                 }else if(status == 6) {
                     return "已计划完成"
                 }else if(status == 7) {
-                    return "已完成"
+                    return "已结束"
                 }else if(status == 8) {
                     return "已拒绝"
                 }else if(status == 9) {

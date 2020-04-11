@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-row :gutter="20">
+        <el-row :gutter="20" v-if="authority === 0">
             <el-col :span="8">
                 <el-card shadow="hover" class="mgb20" style="height:252px;">
                     <div class="user-info">
@@ -14,21 +14,37 @@
                     <div class="user-info-list">上次登录地点：<span>东莞</span></div> -->
                 </el-card>
             </el-col>
+        </el-row>
             <template v-if="is_company === '1' && restrict === 'false' && authority === 1">
-            <el-col :span="16">
+            <!-- <el-col :span="16"> -->
                 <el-row :gutter="20" class="mgb20">
-                    <el-col :span="6">
+                    <el-col :span="5">
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
                             <div class="grid-content grid-con-4">
                                 <i class="el-icon-lx-recharge grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">{{total_price}}</div>
-                                    <div>总收入</div>
+                                    <div class="grid-num">{{commission_total}}</div>
+                                    <div>收取佣金</div>
+                                    <!-- <div class="grid-num">{{total_price}}</div>
+                                    <div>产品总价值</div> -->
                                 </div>
                             </div>
                         </el-card>
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :span="5">
+                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                            <div class="grid-content grid-con-5">
+                                <i class="el-icon-lx-recharge grid-con-icon"></i>
+                                <div class="grid-cont-right">
+                                    <div class="grid-num">{{total_price}}</div>
+                                    <div>产品总价值</div>
+                                    <!-- <div class="grid-num">{{total_price}}</div>
+                                    <div>产品总价值</div> -->
+                                </div>
+                            </div>
+                        </el-card>
+                    </el-col>
+                    <el-col :span="5">
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
                             <div class="grid-content grid-con-1">
                                 <i class="el-icon-lx-cart grid-con-icon"></i>
@@ -39,7 +55,7 @@
                             </div>
                         </el-card>
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :span="5">
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
                             <div class="grid-content grid-con-2">
                                 <i class="el-icon-lx-roundcheck grid-con-icon"></i>
@@ -50,7 +66,7 @@
                             </div>
                         </el-card>
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :span="4">
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
                             <div class="grid-content grid-con-3">
                                 <i class="el-icon-lx-warn grid-con-icon"></i>
@@ -62,10 +78,9 @@
                         </el-card>
                     </el-col>
                 </el-row>
-            </el-col>
+            <!-- </el-col> -->
             </template>
-
-        </el-row>
+        <!-- </el-row> -->
         <el-row :gutter="20" v-if="schart_show === 1 && is_company ==='1' && restrict === 'false' && authority === 1">
             <el-col :span="12">
                 <el-card shadow="hover">
@@ -194,11 +209,11 @@
                     labels: ['US', 'UK', 'DE', 'JP', 'CA'],
                     datasets: [
                         {
-                            label: '收款',
+                            label: '总价值',
                             data: [0, 0, 0, 0, 0]
                         },
                         {
-                            label: '佣金',
+                            label: '总佣金',
                             data: [0, 0, 0, 0, 0]
                         },
                     ]
@@ -231,7 +246,8 @@
                 block: 0,
                 is_company: '',
                 restrict: '',
-                authority: 0
+                authority: '',
+                commission_total: 0
             }
         },
         computed: {
@@ -275,6 +291,7 @@
                             this.total_price += parseFloat(res.data.data.US.pay_price)
                             this.done += parseFloat(res.data.data.US.done)
                             this.block += parseFloat(res.data.data.US.block)
+                            this.commission_total += parseFloat(res.data.data.US.commission)
                         }
 
                         if(res.data.data.UK != undefined) {
@@ -287,6 +304,7 @@
                             this.total_price += parseFloat(res.data.data.UK.pay_price)
                             this.done += parseFloat(res.data.data.UK.done)
                             this.block += parseFloat(res.data.data.UK.block)
+                            this.commission_total += parseFloat(res.data.data.UK.commission)
                         }
                         
                         if(res.data.data.DE != undefined) {
@@ -299,6 +317,7 @@
                             this.total_price += parseFloat(res.data.data.DE.pay_price)
                             this.done += parseFloat(res.data.data.DE.done)
                             this.block += parseFloat(res.data.data.DE.block)
+                            this.commission_total += parseFloat(res.data.data.DE.commission)
                         }
 
                         if(res.data.data.JP != undefined) {
@@ -311,6 +330,7 @@
                             this.total_price += parseFloat(res.data.data.JP.pay_price)
                             this.done += parseFloat(res.data.data.JP.done)
                             this.block += parseFloat(res.data.data.JP.block)
+                            this.commission_total += parseFloat(res.data.data.JP.commission)
                         }
 
                         if(res.data.data.CA != undefined) {
@@ -323,16 +343,15 @@
                             this.total_price += parseFloat(res.data.data.CA.pay_price)
                             this.done += parseFloat(res.data.data.CA.done)
                             this.block += parseFloat(res.data.data.CA.block)
+                            this.commission_total += parseFloat(res.data.data.CA.commission)
                         }
                         this.schart_show = 1
                         if(res.data.code != 300) {
                             this.authority = 1
                         }
-                        // setTimeout()
-                        // console.log(res.data.data.US)
-                        // res.data.data.forEach((data) => {
-                            
-                        // })
+                    }
+                    else if(res.data.code == 300) {
+                        this.authority = 0
                     }
                 }).catch((res) => {
                     console.log(res)
@@ -431,6 +450,14 @@
 
     .grid-con-4 .grid-num {
         color: rgb(245, 203, 66);
+    }
+
+    .grid-con-5 .grid-con-icon {
+        background: rgb(127, 3, 252);
+    }
+
+    .grid-con-5 .grid-num {
+        color: rgb(127, 3, 252);
     }
 
     .user-info {

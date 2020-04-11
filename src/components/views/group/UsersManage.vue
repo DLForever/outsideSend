@@ -270,7 +270,7 @@
                         this.paginationShow = true
                     }
                 }).catch((res) => {
-                	console.log('error')
+                	console.log(res)
                 }).finally(() => {
                     this.table_loading = false
                 })
@@ -492,7 +492,7 @@
                         this.editPoliciesVisible = false
                     }
                 }).catch((res) => {
-                    console.log('err')
+                    console.log(res)
                 }).finally((res) => {
                     this.submitDisabled = false
                 })

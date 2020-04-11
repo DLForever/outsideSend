@@ -44,7 +44,7 @@
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="paypal_account" label="粉丝名称" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="success_sum" label="成功数量" show-overflow-tooltip>
+                <el-table-column prop="success_sum" label="送测数量" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="review_sum" label="留评数量" show-overflow-tooltip>
                 </el-table-column>
@@ -145,12 +145,9 @@
                 </el-table-column>
                 <el-table-column prop="commission" label="佣金">
                 </el-table-column>
-                <el-table-column prop="charge" label="手续费" show-overflow-tooltip>
+                <el-table-column prop="self_pay_price" label="自费" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="sumPrice" label="总费用" show-overflow-tooltip>
-                    <template slot-scope="scope">
-                        <el-button type="warning">{{scope.row.sumPrice}}</el-button>
-                    </template>
+                <el-table-column prop="fan_total" label="总费用" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="need_refund2" label="是否需要返款" width="95">
                 </el-table-column>
@@ -163,8 +160,6 @@
                         </el-badge>
                         <span v-else>无</span>
                     </template>
-                </el-table-column>
-                <el-table-column prop="refund_time" label="返款时间" :formatter="formatter_refund_time" width="140">
                 </el-table-column>
                 <el-table-column prop="paypal_account" label="paypal账号" width="85" show-overflow-tooltip>
                 </el-table-column>

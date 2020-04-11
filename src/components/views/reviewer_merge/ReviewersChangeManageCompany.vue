@@ -325,7 +325,7 @@
                         this.paginationShow = true
                     }
                 }).catch((res) => {
-                	console.log('error')
+                	console.log(res)
                 }).finally(() => {
                     this.table_loading = false
                 })
@@ -355,7 +355,7 @@
                     }
                     this.paginationShow = true
                 }).catch((res) => {
-                    console.log('error')
+                    console.log(res)
                 }).finally(() => {
                     this.table_loading = false
                 })
@@ -371,7 +371,7 @@
                 this.getData()
             },
             formatter_created_at(row, column) {
-				return row.created_at.substr(0, 19);
+                return row.created_at.substr(0, 19);
 			},
 			formatter_updated_at(row, column) {
 				return row.updated_at.substr(0, 19);
@@ -537,7 +537,7 @@
                             }
                         }
                     }).catch((res) => {
-                        console.log('失败')
+                        console.log(res)
                     })
                 }
             },
@@ -585,7 +585,7 @@
                             }
                         }
                     }).catch((res) => {
-                        console.log('失败')
+                        console.log(res)
                     })
                 }
             },

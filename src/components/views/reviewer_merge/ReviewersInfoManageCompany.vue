@@ -12,7 +12,7 @@
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
                     <el-button type="primary" @click="exportReviewers">部分导出</el-button>
                     <el-button  type="success">
-                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&is_company=1'">导出全部</a>
+                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission">导出全部</a>
                     </el-button>
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template>
@@ -123,23 +123,15 @@
                 <el-table-column key="5" v-if="statusSelect != 7" prop="sumPrice" label="总费用" show-overflow-tooltip>
                 </el-table-column> -->
                 <template v-if="isRestrict === 'false'">
-                    <template v-if="filter_refund">
-                        <!-- <el-table-column key="3" prop="before_tax_price" label="支付价格"  show-overflow-tooltip>
-                        </el-table-column>
-                        <el-table-column key="4" prop="pay_charge" label="手续费" show-overflow-tooltip>
-                        </el-table-column> -->
+                    <!-- <template v-if="filter_refund">
                         <el-table-column key="5" prop="total_price" label="总费用" show-overflow-tooltip>
                         </el-table-column>
                     </template>
                     <template v-if="filter_commission">
-                        <!-- <el-table-column key="7" prop="commission" label="佣金" show-overflow-tooltip>
-                        </el-table-column>
-                        <el-table-column key="9" prop="commission_charge" label="佣金手续费" show-overflow-tooltip>
-                        </el-table-column> -->
                         <el-table-column key="10" prop="commission_total" label="总费用" show-overflow-tooltip>
                         </el-table-column>
-                    </template>
-                    <el-table-column prop="need_refund2" label="是否需要返款" show-overflow-tooltip>
+                    </template> -->
+                    <el-table-column prop="need_refund2" label="是否需要返款" width="65">
                         <template slot-scope="scope">
                             <el-tag type="warning" v-if="scope.row.need_refund2 == '是'">是</el-tag>
                             <el-tag type="success" v-else-if="scope.row.need_refund2 == '否'">否</el-tag>
@@ -166,18 +158,26 @@
                         <el-tag v-else-if="scope.row.is_pay_capital === true" type="success">已收</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="140">
-                </el-table-column>
-                <template v-if="isRestrict === 'false'">
-                    <el-table-column prop="refund_time" label="返款时间" :formatter="formatter_refund_time" width="140">
-                    </el-table-column>
-                </template>
-                <el-table-column prop="status" label="状态" width="120">
+                <el-table-column prop="status" label="状态" width="100">
                     <template slot-scope="scope">
                         <el-tag v-if="isRestrict === 'false'" :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status, scope.row.done_direct)}}</el-tag>
                         <el-tag v-else :type="scope.row.status | statusFilterRestrict">{{getStatusNameReStrict(scope.row.status, scope.row.done_direct)}}</el-tag>
                     </template>
                 </el-table-column>
+                <el-table-column prop="is_rebuy" label="新客户" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.is_rebuy === false" type="warning">是</el-tag>
+                        <el-tag v-else-if="scope.row.is_rebuy === true" type="success">否</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="is_bind" label="捆绑单" width="65">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.is_bind === false" type="warning">否</el-tag>
+                        <el-tag v-else-if="scope.row.is_bind === true" type="success">是</el-tag>
+                    </template>
+                </el-table-column>
+                <!-- <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="140">
+                </el-table-column> -->
                 <el-table-column prop="feedback" label="反馈" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
@@ -185,7 +185,7 @@
                 <template v-if="isRestrict === 'false'">
                     <el-table-column prop="paypal_account" label="paypal账号" show-overflow-tooltip>
                     </el-table-column>
-                    <el-table-column prop="profile_url" label="亚马逊profile url" show-overflow-tooltip>
+<!--                     <el-table-column prop="profile_url" label="亚马逊profile url" show-overflow-tooltip>
                         <template slot-scope="scope">
                             <a v-if="scope.row.profile_url != null && scope.row.profile_url != '' && scope.row.profile_url != 'null'" :href="scope.row.profile_url" target="_blank">查看链接</a>
                         </template>
@@ -194,7 +194,7 @@
                         <template slot-scope="scope">
                             <a v-if="scope.row.facebook_url != null && scope.row.facebook_url != '' && scope.row.facebook_url != 'null'" :href="scope.row.facebook_url" target="_blank">查看链接</a>
                         </template>
-                    </el-table-column>
+                    </el-table-column> -->
                 </template>
                 <!-- <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
                 </el-table-column>
@@ -236,13 +236,14 @@
                                 <el-dropdown-item>
                                     <el-button @click="handleFeedback(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp问题反馈</el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item>
-                                    <el-button @click="handleCheckFeedback(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp审核反馈</el-button>
-                                </el-dropdown-item>
+                                    
                                 <!-- <el-dropdown-item>
                                     <el-button @click="showPictures(scope.$index, scope.row)" type="text">图片</el-button>
                                 </el-dropdown-item> -->
                                 <template v-if="isRestrict === 'false'">
+                                    <el-dropdown-item>
+                                        <el-button @click="handleCheckFeedback(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp审核反馈</el-button>
+                                    </el-dropdown-item>
                                     <el-dropdown-item>
                                         <el-button @click="handleEdit(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp编辑</el-button>
                                     </el-dropdown-item>
@@ -258,7 +259,7 @@
             </el-table>
             </el-table>
             <div class="pagination" v-if="paginationShow && totals != 0">
-                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="50" layout="prev, pager, next" :total="totals">
+                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="20" layout="prev, pager, next" :total="totals">
                 </el-pagination>
             </div>
         </div>
@@ -341,9 +342,9 @@
                         <el-option v-for="item in currency_options" :key="item" :label="item" :value="item"></el-option>
                     </el-select>
                 </el-form-item> -->
-                <el-form-item label="支付时间" prop="pay_time">
+                <!-- <el-form-item label="支付时间" prop="pay_time">
                     <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="addReviewerForm.pay_time" type="datetime" placeholder="选择日期"></el-date-picker>
-                </el-form-item>
+                </el-form-item> -->
                 <!-- <el-form-item label="支付价格" prop="pay_price">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.pay_price" :min="0" :step="10" @change="totalPrice"></el-input-number>
                 </el-form-item>
@@ -359,10 +360,6 @@
                 <el-form-item label="是否免评" prop="skip_review">
                     <el-radio v-model="addReviewerForm.skip_review" label="1">是</el-radio>
                     <el-radio v-model="addReviewerForm.skip_review" label="0">否</el-radio>
-                </el-form-item>
-                <el-form-item label="是否粉丝库修改">
-                    <el-radio v-model="addReviewerForm.fan" label="1">是</el-radio>
-                    <el-radio v-model="addReviewerForm.fan" label="0">否</el-radio>
                 </el-form-item>
                 <el-form-item label="亚马逊profile url">
                     <el-input v-model="addReviewerForm.profile_url"></el-input>
@@ -511,7 +508,7 @@
             <el-table v-if="isRestrict === 'false'" :data="review_details" border style="width: 100%">
                 <el-table-column prop="pay_price" label="支付费用" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="before_tax_price" label="税前费用" show-overflow-tooltip>
+                <el-table-column prop="before_tax_price" label="售价" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="self_pay_price" label="自费" show-overflow-tooltip>
                 </el-table-column>
@@ -625,7 +622,7 @@
 
         <!-- 下载提示 -->
         <el-dialog title="下载" :visible.sync="exportVisible" width="35%" @close="closeExport">
-            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?ids=' + exportIds + '&token=' + export_token + '&is_company=1'">下载excel文件</a></el-button>
+            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?ids=' + exportIds + '&token=' + export_token">下载excel文件</a></el-button>
         </span>
         </el-dialog>
 
@@ -708,9 +705,9 @@
                         <el-option v-for="item in chargetypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="返款时间" prop="refund_time">
+                <!-- <el-form-item label="返款时间" prop="refund_time">
                     <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="refund_time" type="datetime" placeholder="选择日期" ></el-date-picker>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="类型">
                     <el-select v-model="pay_reason_type" class="handle-select">
                         <el-option v-for="item in reasontypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
@@ -764,12 +761,12 @@
                     <el-radio v-model="addReviewerForm2.isPay" label="1">是</el-radio>
                     <el-radio v-model="addReviewerForm2.isPay" label="0">否</el-radio>
                 </el-form-item>
-                <template v-if="addReviewerForm2.isPay == '1'">
+                <!-- <template v-if="addReviewerForm2.isPay == '1'">
                     <el-form-item label="是否完全返款">
                         <el-radio v-model="addReviewerForm2.done_direct" label="1">是</el-radio>
                         <el-radio v-model="addReviewerForm2.done_direct" label="0">否</el-radio>
                     </el-form-item>
-                </template>
+                </template> -->
                 <el-form-item label="自费金额" prop="self_pay_price">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm2.self_pay_price" :min="0" :step="10"></el-input-number>
                 </el-form-item>
@@ -778,7 +775,7 @@
                         <el-option v-for="item in pay_tax_options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="税前价格" prop="before_tax_price">
+                <el-form-item label="售价" prop="before_tax_price">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm2.before_tax_price" :min="0" :step="10"></el-input-number>
                 </el-form-item>
                 <el-form-item label="税费" prop="tax">
@@ -1363,8 +1360,8 @@
             },
             // 保存编辑
             saveDone() {
-                if(this.charge_type == '' || this.review_url == '') {
-                    this.$message.error('请填写完整信息')
+                if(this.review_url == '') {
+                    this.$message.error('请输入评论url')
                     return
                 }
                 if(this.form.status == '1') {
@@ -1999,7 +1996,7 @@
                         formData.append('task_record[commission]', this.addReviewerForm2.commission)
                         formData.append('task_record[charge]', this.addReviewerForm2.poundage)
                         formData.append('task_record[need_refund]', this.addReviewerForm2.isPay)
-                        formData.append('task_record[done_direct]', this.addReviewerForm2.done_direct)
+                        // formData.append('task_record[done_direct]', this.addReviewerForm2.done_direct)
                         formData.append('task_record[self_pay_price]', this.addReviewerForm2.self_pay_price)
                         formData.append('task_record[before_tax_price]', this.addReviewerForm2.before_tax_price)
                         formData.append('task_record[pay_tax]', this.addReviewerForm2.pay_tax)
@@ -2066,7 +2063,7 @@
                             console.log(this.role_options)
                         }
                     }).catch((res) => {
-                        console.log('失败')
+                        console.log(res)
                     })
                 }
             },
@@ -2089,7 +2086,7 @@
                     pay_reason_type: this.pay_reason_type,
                     charge_type: this.charge_type,
                     remark: this.remark,
-                    refund_time: this.refund_time
+                    // refund_time: this.refund_time
                 }
                 this.$axios.post('/record_pay_infos', params).then((res) => {
                     if(res.data.code == 200) {

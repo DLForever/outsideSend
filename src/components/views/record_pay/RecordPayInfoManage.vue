@@ -8,8 +8,9 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button  type="warning" @click="updateRate">更新汇率</el-button>
+                <el-button  type="warning" @click="updateBatchPay">批量完成返款</el-button>
                 <el-button type="primary" @click="exportRecord">导出</el-button>
+                <el-button type="success" @click="updateRate">更新汇率</el-button>
                 <!-- <template v-if="isRestrict === 'false'">
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
                     <el-button  type="success">
@@ -17,7 +18,11 @@
                     </el-button>
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template> -->
-                <div style="float: right;">
+                <br><br>
+                <div class="fnsku_filter">
+                    <el-select clearable placeholder="类型" class="mr10" v-model="pay_reason_type_filter">
+                        <el-option v-for="item in reasontypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
+                    </el-select>
                     <el-select clearable placeholder="是否付款" class="mr10" v-model="paydone">
                         <el-option v-for="item in paydoneoptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
@@ -37,6 +42,7 @@
                     <el-input style="width:150px" placeholder="请输入订单号" v-model.trim="search_number"></el-input>
                     ASIN:
                     <el-input style="width:150px" placeholder="请输入ASIN" v-model.trim="search_asin"></el-input>
+                    &nbsp
                     <!-- <el-checkbox v-model="is_pay_capital" label="未收本金" border></el-checkbox>
                     <el-checkbox v-model="is_pay_commission" label="未收佣金" border></el-checkbox>
                     <template v-if="search_show[0].dateDis">
@@ -90,6 +96,8 @@
             <br><br>
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="id" label="ID" show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="email" label="截图" width="120">
                     <template slot-scope="scope">
                         <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
@@ -105,6 +113,10 @@
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="paypal_account" label="粉丝号" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="pay_type" label="付款方式" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="currency" label="币种" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="price" label="支付价格" width="70" show-overflow-tooltip>
                 </el-table-column>
@@ -508,9 +520,9 @@
         </el-dialog>
 
         <!-- 查看产品图片 -->
-        <el-dialog title="测评截图" :visible.sync="productVisible" width="70%">
+        <el-dialog title="付款截图" :visible.sync="productVisible" width="70%">
             <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList.length != 0">
-                <span>评论截图</span>
+                <span>付款截图</span>
                 <el-carousel-item v-for="(item, index) in picturestList" :key="index">
                     <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
                 </el-carousel-item>
@@ -518,26 +530,26 @@
             <br>
             <!-- <template v-if="isRestrict === 'false'"> -->
             <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList2.length != 0">
-                <span class="demonstration">退款截图</span>
+                <span class="demonstration">付款截图</span>
                 <el-carousel-item v-for="(item, index) in picturestList2" :key="index">
                     <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
                 </el-carousel-item>
             </el-carousel>
             <!-- </template> -->
             <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList3.length != 0">
-                <span class="demonstration">反馈截图</span>
+                <span class="demonstration">付款截图</span>
                 <el-carousel-item v-for="(item, index) in picturestList3" :key="index">
                     <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
                 </el-carousel-item>
             </el-carousel>
             <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList4.length != 0">
-                <span class="demonstration">佣金截图</span>
+                <span class="demonstration">付款截图</span>
                 <el-carousel-item v-for="(item, index) in picturestList4" :key="index">
                     <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
                 </el-carousel-item>
             </el-carousel>
             <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList5.length != 0">
-                <span class="demonstration">定金/佣金截图</span>
+                <span class="demonstration">付款截图</span>
                 <el-carousel-item v-for="(item, index) in picturestList5" :key="index">
                     <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
                 </el-carousel-item>
@@ -565,7 +577,7 @@
                     </el-upload>
                 </el-form-item> -->
                 <el-form-item label="备注">
-                    <el-input v-model="form.remark"></el-input>
+                    <el-input v-model="remark"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -664,15 +676,43 @@
             </span>
         </el-dialog>
 
-        <!-- 更新汇率 -->
-        <el-dialog title="更新汇率" :visible.sync="rateVisible" width="50%">
+        <!-- 批量完成返款 -->
+        <el-dialog title="批量完成返款" :visible.sync="batchPayVisible" width="50%">
             <el-form label-width="100px">
-                <el-form-item label="汇率文件">
-                    <el-upload class="upload-demo" drag action="" :file-list="fileList4" :on-remove="handleRemove4" :auto-upload="false" :on-change="changeFile4" :limit="1" multiple>
+                <el-form-item label="文件">
+                    <el-upload class="upload-demo" drag action="" :file-list="fileList4" :on-remove="handleRemove4" :auto-upload="false" :on-change="changeFile4" multiple>
                         <i class="el-icon-upload"></i>
                         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                     </el-upload>
-                    <a :href="$axios.defaults.baseURL +'/batch_exchange_rate.xlsx'">模板下载</a>
+                    <!-- <a :href="$axios.defaults.baseURL +'/batch_exchange_rate.xlsx'">模板下载</a> -->
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="batchPayVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveBatchPay" :disabled="submitDisabled">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 更新汇率 -->
+        <el-dialog title="更新汇率" :visible.sync="rateVisible" width="50%">
+            <el-form label-width="100px">
+                <el-form-item label="币种/汇率">
+                    <table >
+                        <tbody v-for="(p,index) in keywordsArr">
+                            <td>
+                                <el-select v-model="p.keywords">
+                                    <el-option v-for="item in currency_options" :key="item" :label="item" :value="item"></el-option>
+                                </el-select>
+                            </td>
+                            &nbsp&nbsp
+                            <td>
+                                <el-input-number style="margin-bottom: 5px;" v-model="p.keyword_index" :min="0"></el-input-number>
+                            </td>
+                            <div v-if="index ==  0" style="margin-left: 10px; margin-top: 10px; font-size: 0px">
+                                <i style="margin-right: 5px;  font-size: 15px;cursor: pointer;" class="el-icon-circle-plus" @click="keywordsAdd(index)"></i>
+                                <i style="font-size: 15px;cursor: pointer;" class="el-icon-remove" @click="keywordsDel(index)" v-if="keywordsArr.length >1"></i>
+                            </div>
+                        </tbody>
+                    </table>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -942,7 +982,18 @@
               paydoneoptions: [{value: '0', label: '未付款'},  {value: '1', label: '已付款'}],
               paydone: '',
               rateVisible: false,
-              fileList4: []
+              fileList4: [],
+              batchPayVisible: false,
+              keywordsArr: [{
+                    keywords: '',
+                    keyword_index: ''
+                }],
+                add_keywords: {
+                    keywords: '',
+                    keyword_index: ''
+                },
+              pay_reason_type_filter: '',
+              reasontypeoptions: [{id: '1', type: '粉丝支付价格'}, {id: '2', type: '佣金'}, {id: '3', type: '粉丝支付价格+佣金'}, {id: '4', type: '补款'}, {id: '5', type: '本金退款'}, {id: '6', type: '佣金退款'}, {id: '7', type: '部分本金'}],
             }
         },
         created() {
@@ -1035,7 +1086,7 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin
+                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin + '&pay_reason_type=' + this.pay_reason_type_filter
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1081,11 +1132,14 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin
+                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin + '&pay_reason_type=' + this.pay_reason_type_filter
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
                             data.img_count = data.pictures.length
+                            data.asin = data.task_record.asin
+                            data.paypal_account = data.task_record.paypal_account
+                            data.order_number = data.task_record.order_number
                         })
                         this.tableData = res.data.data
                         this.totals = res.data.count
@@ -1115,6 +1169,7 @@
                 this.is_pay_commission = ''
                 this.is_pay_capital = ''
                 this.paydone = ''
+                this.pay_reason_type_filter = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
@@ -1333,7 +1388,7 @@
                     // id: this.product_id,
                     img_id: this.picture_id
                 }
-                this.$axios.post('/task_records/' + this.product_id + '/delete_img', params
+                this.$axios.post('/record_pay_infos/' + this.product_id + '/delete_img', params
                 ).then((res) => {
                     if(res.data.code == 200) {
                         if (this.remark == 'review') {
@@ -1545,7 +1600,7 @@
             saveRefund() {
                 this.submitDisabled = true
                 let formData = new FormData()
-                formData.append('remark', this.form.remark)
+                formData.append('remark', this.remark)
                 this.fileList2.forEach((item) => {
                     formData.append('picture_refund[]', item.file)
                 })
@@ -1794,15 +1849,42 @@
                     this.date_end_ex = ''
                 }
             },
-            updateRate() {
+            updateBatchPay() {
                 this.fileList4 = []
-                this.rateVisible = true
+                this.batchPayVisible = true
             },
-            saveRate() {
+            saveBatchPay() {
                 let formData = new FormData()
                 this.fileList4.forEach((item) => {
                     formData.append('file', item.raw)
                 })
+                this.$axios.post('/record_pay_infos/batch_done_pay', formData
+                ).then((res) => {
+                    if(res.data.code == 200) {
+                        this.getData()
+                        this.$message.success(res.data.message)
+                        this.batchPayVisible = false
+                    }
+                }).catch((res) => {
+
+                })
+            },
+            updateRate() {
+                this.keywordsArr = [{keywords: '',keyword_index: ''}]
+                this.rateVisible = true
+            },
+            saveRate() {
+                let currency = []
+                let exchange_rate = []
+                this.keywordsArr.forEach((data) => {
+                    if (data.keywords.trim() != '' && data.keyword_index != '') {
+                        currency.push(data.keywords)
+                        exchange_rate.push(data.keyword_index)
+                    }
+                })
+                let formData = new FormData()
+                formData.append('currency[]', currency)
+                formData.append('exchange_rate[]', exchange_rate)
                 this.$axios.post('/record_pay_infos/update_exchange_rate', formData
                 ).then((res) => {
                     if(res.data.code == 200) {
@@ -1813,6 +1895,16 @@
                 }).catch((res) => {
 
                 })
+            },
+            keywordsAdd() {
+                this.keywordsArr.push(this.add_keywords)
+                this.add_keywords = {
+                    keywords: '',
+                    keyword_index: ''
+                }
+            },
+            keywordsDel(index) {
+                this.keywordsArr.pop()
             },
             getStatusName(status, done_direct) {
                 if(status == 1) {
@@ -1925,6 +2017,7 @@
         max-width: 40rem;
     }
     .mr10{
+        width: 130px;
         margin-right: 10px;
     }
 </style>

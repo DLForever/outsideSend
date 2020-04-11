@@ -19,6 +19,9 @@ axios.interceptors.response.use(
     // ElementUI.Message.error('response in66666'),
     response => {
         // loadinginstace.close()
+        if (response.data.code == 300) {
+            return response
+        }
         if (response.data.code != 200) {
             ElementUI.Message.error(response.data.message)
         }

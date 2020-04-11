@@ -52,14 +52,22 @@
                         </el-row>
                     </el-col>
                 </el-row>
-                <div>
+                <div style="float: right;">
+                    <el-select v-model="category_filter" filterable remote :loading="loading4" @visible-change="selectVisble4" :remote-method="remoteMethod4" placeholder="选择分类" class="handle-select mr10">
+                        <el-option v-for="item in category_options" :key="item.id" :label="item.name" :value="item.id + '@' + item.name"></el-option>
+                        <infinite-loading :on-infinite="onInfinite_category" ref="infiniteLoading4"></infinite-loading>
+                    </el-select>
+                    <el-button style="margin-left: 5px" @click="clear_filter" type="default">重置</el-button>
+                    <el-button @click="filter_product" type="primary">查询</el-button>
                 </div>
                 <br>
                 <div class="fnsku_filter">
+                    ID:
+                    <el-input style="width:90px;" v-model.trim="filter_task_id" placeholder="请输入ID"></el-input>
                     产品名:
-                    <el-input style="width:150px;" v-model.trim="filter_name" placeholder="请输入产品名称"></el-input>
+                    <el-input style="width:130px;" v-model.trim="filter_name" placeholder="请输入产品名称"></el-input>
                     ASIN:
-                    <el-input style="width:150px" placeholder="请输入ASIN" v-model.trim="search_asin"></el-input>
+                    <el-input style="width:130px" placeholder="请输入ASIN" v-model.trim="search_asin"></el-input>
                     站点:
                     <el-select v-model="site_filter" class="handle-select">
                         <el-option v-for="item in site_options" :key="item" :label="item" :value="item"></el-option>
@@ -84,14 +92,13 @@
                     <el-select v-model="statusSelect" placeholder="请选择" class="handle-select mr10">
                         <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
-                    
-                    <el-button style="margin-left: 5px" @click="clear_filter" type="default">重置</el-button>
-                    <el-button @click="filter_product" type="primary">查询</el-button>
                 </div>
             </div>
             <br><br>
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="task_id" label="ID" width="80" fixed show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="email" label="图片" width="115" fixed>
                     <template slot-scope="scope">
                         <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
@@ -161,13 +168,13 @@
                             </el-button>
                             <el-dropdown-menu slot="dropdown">
                                 <el-dropdown-item>
-                                    <el-button @click="handleDetails(scope.$index, scope.row)" type="text">详情</el-button>
+                                    <el-button @click="handleDetails(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp详情</el-button>
                                 </el-dropdown-item>
                                 <!-- <el-dropdown-item v-if="isRestrict === 'false'">
                                     <el-button @click="handleCheck(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp审核</el-button>
-                                </el-dropdown-item>
+                                </el-dropdown-item> -->
                                 <el-dropdown-item>
-                                    <el-button type="text" @click="handleSetWeight(scope.$index, scope.row)">&nbsp&nbsp&nbsp设置权重
+                                    <el-button type="text" @click="handleCreate(scope.$index, scope.row)">添加送测记录
                                     </el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item>
@@ -178,7 +185,7 @@
                                     <el-button type="text" @click="toReviewersChange(scope.$index, scope.row)">查看变更记录
                                     </el-button>
                                 </el-dropdown-item>
-                                <template v-if="isRestrict === 'false'">
+                                <!-- <template v-if="isRestrict === 'false'">
                                     <el-dropdown-item>
                                         <el-button @click="handleRefuse(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp拒绝</el-button>
                                     </el-dropdown-item>
@@ -468,6 +475,13 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <br>
+            <el-table v-if="detailOptions3.length != 0" :data="detailOptions3" border style="width: 100%">
+                <el-table-column prop="keywords" label="关键词" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="keyword_index" label="关键词位置" show-overflow-tooltip>
+                </el-table-column>
+            </el-table>
         </el-dialog>
 
         <!-- 查看生成的大图 -->
@@ -626,7 +640,7 @@
         </el-dialog>
         <!-- 下载提示 -->
         <el-dialog title="下载" :visible.sync="exportVisible" width="35%" @close="closeExport">
-            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?ids=' + exportIds + '&token=' + export_token + '&is_company=1'">下载excel文件</a></el-button>
+            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/tasks/export_url?ids=' + exportIds + '&token=' + export_token">下载excel文件</a></el-button>
         </span>
         </el-dialog>
         <!-- 重新分配 -->
@@ -642,7 +656,6 @@
                 </el-table-column>
                 <el-table-column label="更新计划数量" show-overflow-tooltip>
                     <template slot-scope="scope">
-                        <!-- <el-input style="margin-bottom: 15px;" v-model="scope.row.change_sum"></el-input> -->
                         <el-input-number style="margin-bottom: 5px;" v-model="scope.row.change_sum" :min="0"></el-input-number>
                     </template>
                 </el-table-column>
@@ -760,7 +773,7 @@
                 user_options2: [],
                 fileList2: [],
                 statusSelect: '',
-                statusOptions: [{value: 1, label: '待自审'}, {value: 2, label: '待审核'}, {value: 9, label: '已审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已完成'}, {value: 8, label: '已拒绝'}],
+                statusOptions: [{value: 1, label: '待自审'}, {value: 2, label: '待审核'}, {value: 9, label: '已审核'}, {value: 4, label: '已分配送测人'}, {value: 5, label: '正在进行中'}, {value: 6, label: '已计划完成'}, {value: 7, label: '已结束'}, {value: 8, label: '已拒绝'}],
                 picturestList2: [],
                 detailOptions: [],
                 detailOptions2: [],
@@ -952,12 +965,13 @@
                     role_ids: '',
                     new_sum: 0
                 },
-                total: '',
-                done: '',
-                block: '',
+                total: 0,
+                done: 0,
+                block: 0,
                 done_filter: '',
                 bigPictureVisible: false,
-                bigpicturestList: []
+                bigpicturestList: [],
+                filter_task_id: ''
             }
         },
         created() {
@@ -1026,7 +1040,7 @@
                 this.export_token = localStorage.getItem('token')
                 // console.log(this.$store.getters.skipPage)
                 this.table_loading = true
-                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&done=' + (this.done_filter == true ? 1 : 0) + '&country=' + this.site_filter
+                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&done=' + (this.done_filter == true ? 1 : 0) + '&country=' + this.site_filter + '&category=' + this.category_filter + '&task_id=' + this.filter_task_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1074,7 +1088,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&done=' + (this.done_filter == true ? 1 : 0) + '&country=' + this.site_filter
+                this.$axios.get( '/tasks/today_tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&done=' + (this.done_filter == true ? 1 : 0) + '&country=' + this.site_filter + '&category=' + this.category_filter + '&task_id=' + this.filter_task_id
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1128,6 +1142,7 @@
                 this.apply_user_id = ''
                 this.statusSelect = ''
                 this.filter_name = '', this.search_asin = '', this.is_self = '', this.weight_filter = '', this.site_filter = ''
+                this.filter_task_id = '', this.category_filter = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
@@ -1254,12 +1269,23 @@
             		this.$message.success(res.data.message)
             	}
             }).catch((res) => {
-            	this.$message.error("删除失败")
+            	console.log(res)
             })
                 this.delVisible = false;
             },
             handleDetails(index, row) {
                 // this.task_id = row.id
+                this.username = row.username
+                this.detailOptions3 = []
+                if (row.keywords != '' || row.keyword_index != '') {
+                    let tempkeywords = row.task.keywords.split(',')
+                    let tempkeywordindex = row.task.keyword_index.split(',')
+                    tempkeywords.forEach((data, index) => {
+                        this.detailOptions3.push({keywords: data, keyword_index: tempkeywordindex[index]})
+                    })
+                } else {
+                    this.detailOptions3 = []
+                }
                 this.detailOptions = [row.task]
                 this.detailVisible = true
             },
@@ -1328,8 +1354,10 @@
                 return row.updated_at.substr(0, 19);
             },
             handleCreate(index, row) {
+                this.keyword_options = row.task.keywords.split(',')
+                this.addReviewerForm.asin = row.asin
                 this.addReviewerForm.task_id = row.task_id
-                this.addReviewerForm.task_period_id = row.id
+                this.addReviewerForm.task_period_id = row.task_period_id
                 this.addreviewerVisible = true
             },
             saveReviewer(formName) {
@@ -2114,7 +2142,7 @@
                 }else if(status == 6) {
                     return "已计划完成"
                 }else if(status == 7) {
-                    return "已完成"
+                    return "已结束"
                 }else if(status == 8) {
                     return "已拒绝"
                 }else if(status == 9) {
@@ -2163,7 +2191,9 @@
     }
 
     .fnsku_filter {
+        clear: both;
         float: right;
+        margin: 10px 0px 20px;
     }
 
     .img_fnsku {

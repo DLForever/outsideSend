@@ -28,7 +28,7 @@
 									<infinite-loading :on-infinite="onInfinite_category" ref="infiniteLoading4"></infinite-loading>
 								</el-select>
 							</el-form-item>
-							<el-form-item label="英文标题">
+							<el-form-item label="英文标题" prop="title">
 								<el-input v-model="form.title"></el-input>
 							</el-form-item>
 							<el-form-item label="产品名称" prop="name">
@@ -104,7 +104,7 @@
 									<div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
 								</el-upload>
 							</el-form-item>
-							<el-form-item label="产品无logo非产品主图图片">
+							<el-form-item label="主图">
 								<el-upload class="upload-demo" drag action="" :file-list="fileList2" :on-remove="handleRemove2" :auto-upload="false" :on-change="changeFile2" :limit="5" multiple>
 									<i class="el-icon-upload"></i>
 									<div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -229,6 +229,16 @@
 					by_sum: [{
 						required: true,
 						message: '请选择是否按照总数进行',
+						trigger: 'blur'
+					}],
+					title: [{
+						required: true,
+						message: '请输入标题',
+						trigger: 'blur'
+					}],
+					is_line: [{
+						required: true,
+						message: '请选择是否线性',
 						trigger: 'blur'
 					}],
 				},

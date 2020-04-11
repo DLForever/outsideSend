@@ -76,7 +76,9 @@
                 </el-table-column>
                 <el-table-column prop="customer_total" label="客户费用" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="self_pay_sum" label="自费" show-overflow-tooltip>
+                <el-table-column prop="self_pay_sum" label="自费数量" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="self_pay_price" label="自费金额" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="tax" label="税费" show-overflow-tooltip>
                 </el-table-column>
@@ -925,38 +927,38 @@
                                 tableDataFilter1.push(data2)
                             })
                         })
-                        tableDataFilter1.forEach((data) => {
-                            if (data.site == 'US') {
-                                this.us_length += 1
-                                tableDataFilter.push(data)
-                            }
-                        })
-                        tableDataFilter1.forEach((data) => {
-                            if (data.site == 'DE') {
-                                this.de_length += 1
-                                tableDataFilter.push(data)
-                            }
-                        })
-                        tableDataFilter1.forEach((data) => {
-                            if (data.site == 'CA') {
-                                this.ca_length += 1
-                                tableDataFilter.push(data)
-                            }
-                        })
-                        tableDataFilter1.forEach((data) => {
-                            if (data.site == 'UK') {
-                                this.uk_length += 1
-                                tableDataFilter.push(data)
-                            }
-                        })
-                        tableDataFilter1.forEach((data) => {
-                            if (data.site == 'JP') {
-                                this.jp_length += 1
-                                tableDataFilter.push(data)
-                            }
-                        })
-                        console.log(this.us_length)
-                        this.tableData = tableDataFilter
+                        // tableDataFilter1.forEach((data) => {
+                        //     if (data.site == 'US') {
+                        //         this.us_length += 1
+                        //         tableDataFilter.push(data)
+                        //     }
+                        // })
+                        // tableDataFilter1.forEach((data) => {
+                        //     if (data.site == 'DE') {
+                        //         this.de_length += 1
+                        //         tableDataFilter.push(data)
+                        //     }
+                        // })
+                        // tableDataFilter1.forEach((data) => {
+                        //     if (data.site == 'CA') {
+                        //         this.ca_length += 1
+                        //         tableDataFilter.push(data)
+                        //     }
+                        // })
+                        // tableDataFilter1.forEach((data) => {
+                        //     if (data.site == 'UK') {
+                        //         this.uk_length += 1
+                        //         tableDataFilter.push(data)
+                        //     }
+                        // })
+                        // tableDataFilter1.forEach((data) => {
+                        //     if (data.site == 'JP') {
+                        //         this.jp_length += 1
+                        //         tableDataFilter.push(data)
+                        //     }
+                        // })
+                        // console.log(this.us_length)
+                        this.tableData = tableDataFilter1
                         this.totals = res.data.count
                     }
                     this.paginationShow = true

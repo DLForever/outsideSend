@@ -590,7 +590,7 @@
                             }
                         }
                     }).catch((res) => {
-                        console.log('失败')
+                        console.log(res)
                     })
                 }
             },
