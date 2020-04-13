@@ -156,6 +156,7 @@
             // 分页导航
             handleCurrentChange(val) {
                 this.cur_page = val;
+                this.tableData = []
                 this.getData();
             },
             // 获取 easy-mock 的模拟数据

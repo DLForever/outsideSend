@@ -968,6 +968,7 @@
             handleCurrentChange(val) {
                 this.cur_page = val;
                 this.$store.dispatch('setSkipPage', this.cur_page)
+                this.tableData = []
                 this.getData();
             },
             // 获取 easy-mock 的模拟数据

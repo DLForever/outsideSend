@@ -349,7 +349,16 @@
             // 分页导航
             handleCurrentChange(val) {
                 this.cur_page = val;
+                // $('#table .el-table__body-wrapper').scrollTop(0)
+                // window.scrollTo(0, 0)
+                // document.documentElement.scrollTop = 0
+                this.tableData = []
                 this.getData();
+
+                // this.$refs.multipleTable.bodyWrapper.scrollTop = 0
+                // this.$nextTick(() => {
+                //     this.$refs.multipleTable.bodyWrapper.scrollTop = 0
+                // })
             },
             // 获取 easy-mock 的模拟数据
             getData() {
@@ -766,6 +775,14 @@
                 temp_data2.pay_price = temp_data.pay_price
                 temp_data2.charge = temp_data.charge
                 // console.log(index)
+            },
+            toTop() {
+                document.documentElement.scrollTop -= 50
+                if (document.documentElement.scrollTop >0) {
+                    var c = setTimeout(() => this.toTop(i), 16)
+                }else {
+                    clearTimeout(c)
+                }
             },
             getStatusName(status) {
                 if(status == 1) {
