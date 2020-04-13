@@ -12,7 +12,7 @@
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
                     <el-button type="primary" @click="exportReviewers">部分导出</el-button>
                     <el-button  type="success">
-                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&is_company=' + is_company">导出全部</a>
+                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&task_id=' + task_id_export">导出全部</a>
                     </el-button>
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template>
@@ -960,7 +960,8 @@
               commissionVisible: false,
               pay_tax_options: [{value: '0', label: '否'},  {value: '1', label: '是'}],
               is_company: '',
-              is_company2: ''
+              is_company2: '',
+              task_id_export: ''
             }
         },
         created() {
@@ -1041,6 +1042,7 @@
                 if (!this.$route.params.task_id) {
                     this.$route.params.task_id = ''
                 }
+                this.task_id_export = this.$route.params.task_id
                 let date_begin_temp = this.date_filter[0]
                 let date_end_temp = this.date_filter[1]
                 if(this.date_filter.length == 0) {

@@ -12,7 +12,7 @@
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
                     <el-button type="primary" @click="exportReviewers">部分导出</el-button>
                     <el-button  type="success">
-                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission">导出全部</a>
+                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&task_id=' + task_id_export">导出全部</a>
                     </el-button>
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template>
@@ -218,7 +218,7 @@
                                         <el-button @click="handleDone(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp完成评论</el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
-                                        <el-button @click="handleRecordPay(scope.$index, scope.row)" type="text">申请补款/退款</el-button>
+                                        <el-button @click="handleRecordPay(scope.$index, scope.row)" type="text">申请付款/退款</el-button>
                                     </el-dropdown-item>
                                     <!-- <el-dropdown-item>
                                         <el-button @click="handleDoneRefund(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp完成返款</el-button>
@@ -698,7 +698,7 @@
             </span>
         </el-dialog>
         <!-- 申请补款 -->
-        <el-dialog title="申请补款" :visible.sync="commissionVisible" width="60%">
+        <el-dialog title="申请付款" :visible.sync="commissionVisible" width="60%">
             <el-form ref="form" :model="form" label-width="70px">
                 <el-form-item label="返款方式">
                     <el-select v-model="charge_type" class="handle-select">
@@ -1079,7 +1079,8 @@
               pay_reason_type: '',
               reasontypeoptions: [{id: '1', type: '粉丝支付价格'}, {id: '2', type: '佣金'}, {id: '3', type: '粉丝支付价格+佣金'}, {id: '4', type: '补款'}, {id: '5', type: '本金退款'}, {id: '6', type: '佣金退款'}, {id: '7', type: '部分本金'}],
               price: '',
-              refund_time: ''
+              refund_time: '',
+              task_id_export: ''
             }
         },
         created() {
@@ -1153,6 +1154,7 @@
                 if (!this.$route.params.task_id) {
                     this.$route.params.task_id = ''
                 }
+                this.task_id_export = this.$route.params.task_id
                 let date_begin_temp = this.date_filter[0]
                 let date_end_temp = this.date_filter[1]
                 if(this.date_filter.length == 0) {
