@@ -151,11 +151,15 @@
                     {
                         icon: 'el-icon-lx-profile',
                         index: '8',
-                        title: '绩效管理',
+                        title: '信息统计',
                         subs: [
                         {
                             index: 'performances',
                             title: '绩效管理'
+                        },
+                        {
+                            index: 'asinstatistics',
+                            title: 'ASIN统计'
                         },
                         ]
                     },
@@ -381,6 +385,17 @@
                             index: 'paymanage',
                             title: '支付记录管理'
                         }]
+                    },
+                    {
+                        icon: 'el-icon-lx-profile',
+                        index: '4',
+                        title: '信息统计',
+                        subs: [
+                        {
+                            index: 'asinstatistics',
+                            title: 'ASIN统计'
+                        },
+                        ]
                     },
                 ]
             }

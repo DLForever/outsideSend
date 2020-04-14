@@ -94,6 +94,11 @@ export default new Router({
                     meta: { title: '绩效管理' }
                 },
                 {
+                    path: '/asinstatistics',
+                    component: resolve => require(['../components/views/group/AsinStatistics.vue'], resolve),
+                    meta: { title: 'ASIN统计' }
+                },
+                {
                     path: '/recordPay',
                     component: resolve => require(['../components/views/record_pay/RecordPayInfoManage.vue'], resolve),
                     meta: { title: '付款管理' }

@@ -1941,12 +1941,19 @@
                 }
             },
             dateChange() {
-                this.date_begin_ex = this.date_filter[0]
-                this.date_end_ex = this.date_filter[1]
-                if(this.date_filter.length == 0) {
+                if(this.date_filter === null) {
                     this.date_begin_ex = ''
                     this.date_end_ex = ''
+                } else {
+                    this.date_begin_ex = this.date_filter[0]
+                    this.date_end_ex = this.date_filter[1]
                 }
+                // this.date_begin_ex = this.date_filter[0]
+                // this.date_end_ex = this.date_filter[1]
+                // if(this.date_filter.length == 0) {
+                //     this.date_begin_ex = ''
+                //     this.date_end_ex = ''
+                // }
             },
             handleUpdatePay(index, row) {
                 this.idx = row.id

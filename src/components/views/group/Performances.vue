@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 绩效管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-goods"></i> 信息统计</el-breadcrumb-item>
                 <el-breadcrumb-item>绩效管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -987,7 +987,8 @@
                 this.apply_user_id = ''
                 this.is_pay_commission = ''
                 this.role_id_filter = ''
-                this.getData()
+                this.tableData = []
+                // this.getData()
             },
             formatter_created_at(row, column) {
 				return row.created_at.substr(0, 19);
@@ -1626,11 +1627,12 @@
                 }
             },
             dateChange() {
-                this.date_begin_ex = this.date_filter[0]
-                this.date_end_ex = this.date_filter[1]
-                if(this.date_filter.length == 0) {
+                if(this.date_filter === null) {
                     this.date_begin_ex = ''
                     this.date_end_ex = ''
+                } else {
+                    this.date_begin_ex = this.date_filter[0]
+                    this.date_end_ex = this.date_filter[1]
                 }
             },
             handleCommission(index, row) {
