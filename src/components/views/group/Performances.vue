@@ -1788,7 +1788,7 @@
                     sums[index] = '总计';
                     return;
                     }
-                    if (index === 1 || index === 2 || index === 3 || index === 4 || index === 5 || index === 6 || index === 7 || index === 8 || index === 9 || index === 10 || index === 11 || index === 12) {
+                    if (index != 0) {
                         const values = data.map(item => Number(item[column.property]));
                         if (!values.every(value => isNaN(value))) {
                             sums[index] = values.reduce((prev, curr) => {
