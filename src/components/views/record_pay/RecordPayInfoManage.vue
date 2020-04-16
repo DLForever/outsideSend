@@ -11,7 +11,7 @@
                 <el-button  type="warning" @click="updateBatchPay">批量完成返款</el-button>
                 <el-button type="primary" @click="exportRecord">导出</el-button>
                 <el-button type="success" @click="updateRate">更新汇率</el-button>
-                <el-button type="danger" @click="clearDownload">清楚付款标记</el-button>
+                <el-button type="danger" @click="clearDownload">清除付款标记</el-button>
                 <!-- <template v-if="isRestrict === 'false'">
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
                     <el-button  type="success">
