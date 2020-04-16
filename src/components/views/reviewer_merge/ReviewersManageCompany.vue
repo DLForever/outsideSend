@@ -62,9 +62,9 @@
                         <span v-else>无</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="asin" label="ASIN" width="150" fixed show-overflow-tooltip>
+                <el-table-column prop="asin" label="ASIN" width="100" fixed show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="sku" label="SKU" width="150" fixed show-overflow-tooltip>
+                <el-table-column prop="sku" label="SKU" width="100" fixed show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="country" label="站点" width="50">
                 </el-table-column>
@@ -87,6 +87,8 @@
                 </el-table-column>
                 <el-table-column prop="customer_commission" label="佣金" width="65">
                 </el-table-column>
+                <el-table-column prop="fan_commission" label="粉丝佣金" width="65">
+                </el-table-column>
                 <el-table-column prop="total" label="测评总数" width="65">
                 </el-table-column>
                 <el-table-column prop="current" label="当前进行数量" width="65">
@@ -95,16 +97,22 @@
                 </el-table-column>
                 <el-table-column prop="skip_review" label="免评数量" width="65">
                 </el-table-column>
+                <el-table-column prop="status" label="状态" width="115">
+                    <template slot-scope="scope">
+                        <el-tag :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status)}}</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="is_line" label="是否按照客户的佣金" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.by_real_commission === false" type="warning">否</el-tag>
+                        <el-tag v-else-if="scope.row.by_real_commission === true" type="success">是</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="url" label="url" width="50">
                     <template slot-scope="scope">
                         <a v-if="scope.row.url != null && scope.row.url != '' && scope.row.url != 'null'" :href="scope.row.url" target="_blank">链接</a>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="status" label="状态" width="115">
-                    <template slot-scope="scope">
-                        <el-tag :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status)}}</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
@@ -194,6 +202,9 @@
                 </el-form-item>
                 <el-form-item label="价格">
                     <el-input v-model="form.price"></el-input>
+                </el-form-item>
+                <el-form-item label="粉丝佣金">
+                    <el-input v-model="form.fan_commission"></el-input>
                 </el-form-item>
                 <el-form-item label="url">
                     <el-input v-model="form.url"></el-input>
@@ -628,11 +639,11 @@
 
         <!-- 审核提示框 -->
         <el-dialog title="审核" :visible.sync="checkVisible" width="50%">
-            <el-form label-width="100px">
-                <!-- <el-form-item label="请选择收取的款项">
-                    <el-radio v-model="isagree" label="1">审核通过</el-radio>
-                    <el-radio v-model="isagree" label="0">不通过</el-radio>
-                </el-form-item> -->
+            <el-form label-width="140px">
+                <el-form-item label="是否按照客户的佣金">
+                    <el-radio v-model="by_real_commission" label="1">是</el-radio>
+                    <el-radio v-model="by_real_commission" label="0">否</el-radio>
+                </el-form-item>
                 <el-form-item label="佣金">
                     <el-input-number v-model="customer_commission" :min="0"></el-input-number>
                 </el-form-item>
@@ -1012,7 +1023,8 @@
                 is_line: '',
                 line_sum: 0,
                 day: 0,
-                start_date: ''
+                start_date: '',
+                by_real_commission: ''
             }
         },
         created() {
@@ -1182,7 +1194,8 @@
                     keyword_index: item.keyword_index,
                     remark: item.remark,
                     sku: item.sku,
-                    title: item.title
+                    title: item.title,
+                    fan_commission: item.fan_commission
                 }
                 let tempkeywords = item.keywords.split(',')
                 let tempkeywordindex = item.keyword_index.split(',')
@@ -1900,14 +1913,15 @@
                 this.checkVisible = true
             },
             saveCheck() {
-                // if (this.isagree === '') {
-                //     this.$message.error('请选择是否通过')
-                //     return
-                // }
+                if (this.by_real_commission === '' || this.need_charge === '') {
+                    this.$message.info('请填写完整信息')
+                    return
+                }
                 this.submitDisabled = true
                 let params = {
                     customer_commission: this.customer_commission,
-                    need_charge: this.need_charge
+                    need_charge: this.need_charge,
+                    by_real_commission: this.by_real_commission
                 }
                 this.$axios.post('/tasks/' + this.form.id + '/manager_check', params).then((res) => {
                     if(res.data.code == 200) {

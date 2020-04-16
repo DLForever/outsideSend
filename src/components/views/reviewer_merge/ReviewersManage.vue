@@ -90,6 +90,8 @@
                 </el-table-column>
                 <el-table-column prop="customer_commission" label="佣金" width="65">
                 </el-table-column>
+                <el-table-column prop="fan_commission" label="粉丝佣金" width="65">
+                </el-table-column>
                 <el-table-column prop="total" label="测评总数" width="65">
                 </el-table-column>
                 <el-table-column prop="current" label="当前进行数量" width="65">
@@ -195,6 +197,9 @@
                 </el-form-item>
                 <el-form-item label="价格">
                     <el-input v-model="form.price"></el-input>
+                </el-form-item>
+                <el-form-item label="粉丝佣金">
+                    <el-input v-model="form.fan_commission"></el-input>
                 </el-form-item>
                 <el-form-item label="url">
                     <el-input v-model="form.url"></el-input>
@@ -1086,6 +1091,7 @@
                     keyword_index: item.keyword_index,
                     remark: item.remark,
                     sku: item.sku,
+                    fan_commission: item.fan_commission
                 }
                 let tempkeywords = item.keywords.split(',')
                 let tempkeywordindex = item.keyword_index.split(',')

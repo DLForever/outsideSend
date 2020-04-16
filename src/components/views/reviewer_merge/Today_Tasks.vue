@@ -132,7 +132,7 @@
                 </el-table-column>
                 <el-table-column prop="price" label="价格" width="70">
                 </el-table-column>
-                <el-table-column prop="customer_commission" label="佣金" width="65">
+                <el-table-column prop="fan_commission" label="粉丝佣金" width="65">
                 </el-table-column>
                 <el-table-column prop="plan_sum" label="计划数量" width="65">
                 </el-table-column>
@@ -1065,6 +1065,7 @@
                             data.remark = data.task.remark
                             data.status = data.task.status
                             data.pictures = data.task.pictures
+                            data.fan_commission = data.task.fan_commission
                             // })
                             // data.username = ''
                             // data.operate_users.forEach((data3) => {
@@ -1112,6 +1113,7 @@
                             data.remark = data.task.remark
                             data.status = data.task.status
                             data.pictures = data.task.pictures
+                            data.fan_commission = data.task.fan_commission
                             // data.task.role_name = data.role_name
                             // data.task.plan_sum = data.plan_sum
                             // data.task.done_sum = data.done_sum

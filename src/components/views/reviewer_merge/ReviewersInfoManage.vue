@@ -85,6 +85,16 @@
                 </el-table-column>
                 <el-table-column  prop="plan_date" label="计划日期" width="90">
                 </el-table-column>
+                <el-table-column prop="customer_commission_total" label="佣金" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="customer_total" label="费用" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="write_feedback" label="是否留feedback" width="110">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.write_feedback === false" type="warning">否</el-tag>
+                        <el-tag v-else-if="scope.row.write_feedback === true" type="success">是</el-tag>
+                    </template>
+                </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <el-table-column prop="pay_type" label="支付类型" width="70">
                     </el-table-column>
@@ -101,18 +111,10 @@
                 </el-table-column> -->
                 <template v-if="isRestrict === 'false'">
                     <template v-if="filter_refund">
-                        <!-- <el-table-column key="3" prop="before_tax_price" label="支付价格"  show-overflow-tooltip>
-                        </el-table-column>
-                        <el-table-column key="4" prop="pay_charge" label="手续费" show-overflow-tooltip>
-                        </el-table-column> -->
                         <el-table-column key="5" prop="total_price" label="总费用" show-overflow-tooltip>
                         </el-table-column>
                     </template>
                     <template v-if="filter_commission">
-                        <!-- <el-table-column key="7" prop="commission" label="佣金" show-overflow-tooltip>
-                        </el-table-column>
-                        <el-table-column key="9" prop="commission_charge" label="佣金手续费" show-overflow-tooltip>
-                        </el-table-column> -->
                         <el-table-column key="10" prop="commission_total" label="总费用" show-overflow-tooltip>
                         </el-table-column>
                     </template>
@@ -142,8 +144,7 @@
                         <el-tag v-else-if="scope.row.is_pay_capital === true" type="success">已收</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
-                </el-table-column>
+                
                 <template v-if="isRestrict === 'false'">
                     <el-table-column prop="refund_time" label="返款时间" :formatter="formatter_refund_time" width="140">
                     </el-table-column>
@@ -172,6 +173,8 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
                 </el-table-column>
                 <template v-if="isRestrict === 'false'">
                     <el-table-column prop="paypal_account" label="paypal账号" show-overflow-tooltip>

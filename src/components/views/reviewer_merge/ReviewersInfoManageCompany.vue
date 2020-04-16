@@ -218,7 +218,7 @@
                                         <el-button @click="handleDone(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp完成评论</el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
-                                        <el-button @click="handleRecordPay(scope.$index, scope.row)" type="text">申请付款/退款</el-button>
+                                        <el-button @click="handleRecordPay(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp申请付款</el-button>
                                     </el-dropdown-item>
                                     <!-- <el-dropdown-item>
                                         <el-button @click="handleDoneRefund(scope.$index, scope.row)" type="text">&nbsp&nbsp&nbsp&nbsp完成返款</el-button>
@@ -266,7 +266,7 @@
 
         <!-- 完成弹出框 -->
         <el-dialog title="完成测评" :visible.sync="doneVisible" width="50%">
-            <el-form ref="form" :model="form" label-width="100px">
+            <el-form ref="form" :model="form" label-width="100px" :rules="rules">
                 <el-form-item label="评论截图">
                     <el-upload class="upload-demo" drag action="" :file-list="fileList" :on-remove="handleRemove" :auto-upload="false" :on-change="changeFile" :limit="5" multiple>
                         <i class="el-icon-upload"></i>
@@ -515,6 +515,8 @@
                 <el-table-column prop="tax" label="税费" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="commission" label="佣金" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="fan_commission" label="客户提供佣金" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="pay_tax" label="是否含税" show-overflow-tooltip>
                     <template slot-scope="scope">
@@ -935,6 +937,11 @@
                         message: '请输入facebook url',
                         trigger: 'blur'
                     }],
+                    review_url: [{
+                        required: true,
+                        message: '请输入评论 url',
+                        trigger: 'blur'
+                    }],
                 },
                 rules2:{
                     pay_price: [{
@@ -1077,7 +1084,7 @@
               review_url: '',
               write_feedback: '',
               pay_reason_type: '',
-              reasontypeoptions: [{id: '1', type: '粉丝支付价格'}, {id: '2', type: '佣金'}, {id: '3', type: '粉丝支付价格+佣金'}, {id: '4', type: '补款'}, {id: '5', type: '本金退款'}, {id: '6', type: '佣金退款'}, {id: '7', type: '部分本金'}],
+              reasontypeoptions: [{id: '1', type: '粉丝支付价格'}, {id: '2', type: '佣金'}, {id: '3', type: '粉丝支付价格+佣金'}, {id: '4', type: '补款'}, {id: '7', type: '部分本金'}],
               price: '',
               refund_time: '',
               task_id_export: ''

@@ -20,6 +20,7 @@
                 </template> -->
                 <br><br>
                 <div class="fnsku_filter">
+                    <el-checkbox v-model="cancel_filter" label="退款" border></el-checkbox>
                     <el-select clearable placeholder="类型" class="mr10" v-model="pay_reason_type_filter">
                         <el-option v-for="item in reasontypeoptions" :key="item.id" :label="item.type" :value="item.id"></el-option>
                     </el-select>
@@ -114,9 +115,9 @@
                 </el-table-column>
                 <el-table-column prop="paypal_account" label="粉丝号" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="pay_type" label="付款方式" show-overflow-tooltip>
+                <el-table-column prop="pay_type" label="付款方式" width="70">
                 </el-table-column>
-                <el-table-column prop="currency" label="币种" show-overflow-tooltip>
+                <el-table-column prop="currency" label="币种" width="45">
                 </el-table-column>
                 <el-table-column prop="price" label="支付价格" width="70" show-overflow-tooltip>
                 </el-table-column>
@@ -126,13 +127,22 @@
                 </el-table-column>
                 <el-table-column prop="customer_charge" label="客户支付手续费" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="need_charge" label="是否客户支付手续费" width="130" show-overflow-tooltip>
+                <el-table-column prop="cancel_price" label="退款金额" width="70">
+                </el-table-column>
+                <el-table-column prop="need_charge" label="是否客户支付手续费" width="70" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <el-tag type="success" v-if="scope.row.need_charge == true">是</el-tag>
                         <el-tag type="warning" v-else-if="scope.row.need_charge == false">否</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="charge_type" label="返款方式" show-overflow-tooltip>
+                <el-table-column prop="cancel" label="是否退款" width="70" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tag type="success" v-if="scope.row.cancel == true">是</el-tag>
+                        <el-tag type="warning" v-else-if="scope.row.cancel == false">否</el-tag>
+                    </template>
+                </el-table-column>
+                
+                <el-table-column prop="charge_type" label="返款方式" width="70">
                     <template slot-scope="scope">
                         <el-tag type="success" v-if="scope.row.charge_type == '1'">自返</el-tag>
                         <el-tag type="warning" v-else-if="scope.row.charge_type == '2'">中介</el-tag>
@@ -220,6 +230,9 @@
                                     </el-dropdown-item>
                                     <el-dropdown-item>
                                         <el-button @click="handleAddRefund(scope.$index, scope.row)" type="text">添加返款</el-button>
+                                    </el-dropdown-item>
+                                    <el-dropdown-item>
+                                        <el-button @click="handleCancel(scope.$index, scope.row)" type="text">完成退款</el-button>
                                     </el-dropdown-item>
                                 </template>
                                 <template v-if="isRestrict === 'false'">
@@ -720,6 +733,20 @@
                 <el-button type="primary" @click="saveRate" :disabled="submitDisabled">确 定</el-button>
             </span>
         </el-dialog>
+        <!-- 退款弹出框 -->
+        <el-dialog title="添加退款" :visible.sync="cancelVisible" width="60%" @close="closeRefund3">
+            <mavon-editor ref="md3" @imgAdd="$imgAdd" @imgDel="$imgDel" style="min-height: 100px"/>
+            <br><br>
+            <el-form ref="form" :model="form" label-width="50px">
+                <el-form-item label="金额">
+                    <el-input-number style="margin-bottom: 5px;" v-model="cancel_price" :min="0"></el-input-number>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="cancelVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveCancel" :disabled="submitDisabled">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -993,7 +1020,10 @@
                     keyword_index: ''
                 },
               pay_reason_type_filter: '',
-              reasontypeoptions: [{id: '1', type: '粉丝支付价格'}, {id: '2', type: '佣金'}, {id: '3', type: '粉丝支付价格+佣金'}, {id: '4', type: '补款'}, {id: '5', type: '本金退款'}, {id: '6', type: '佣金退款'}, {id: '7', type: '部分本金'}],
+              reasontypeoptions: [{id: '1', type: '粉丝支付价格'}, {id: '2', type: '佣金'}, {id: '3', type: '粉丝支付价格+佣金'}, {id: '4', type: '补款'}, {id: '7', type: '部分本金'}],
+              cancelVisible: false,
+              cancel_price: 0,
+              cancel_filter: ''
             }
         },
         created() {
@@ -1087,7 +1117,7 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin + '&pay_reason_type=' + this.pay_reason_type_filter
+                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin + '&pay_reason_type=' + this.pay_reason_type_filter + '&cancel=' + (this.cancel_filter === true ? 1 : '')
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1133,7 +1163,7 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin + '&pay_reason_type=' + this.pay_reason_type_filter
+                this.$axios.get( '/record_pay_infos?page='+this.cur_page + '&user_id=' + this.user_id_filter  + '&apply_user_id=' + this.apply_user_id + '&pay=' + this.paydone + '&order_number=' + this.search_number + '&paypal_account=' + this.search_fan + '&asin=' + this.search_asin + '&pay_reason_type=' + this.pay_reason_type_filter + '&cancel=' + (this.cancel_filter === true ? 1 : '')
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1171,6 +1201,7 @@
                 this.is_pay_capital = ''
                 this.paydone = ''
                 this.pay_reason_type_filter = ''
+                this.cancel_filter = ''
                 this.getData()
             },
             formatter_created_at(row, column) {
@@ -1625,6 +1656,10 @@
                 this.$refs.md2.removeLine()
                 this.$refs.md2.$refs.toolbar_left.img_file = []
             },
+            closeRefund3() {
+                this.$refs.md3.removeLine()
+                this.$refs.md3.$refs.toolbar_left.img_file = []
+            },
             handleAddRefund(index, row) {
                 this.form = {
                     id: row.id,
@@ -1906,6 +1941,33 @@
             },
             keywordsDel(index) {
                 this.keywordsArr.pop()
+            },
+            handleCancel(index, row) {
+                this.form = {
+                    id: row.id,
+                }
+                this.cancel_price = 0
+                this.fileList2 = []
+                this.cancelVisible = true;
+            },
+            saveCancel() {
+                this.submitDisabled = true
+                let formData = new FormData()
+                formData.append('price', this.cancel_price)
+                this.fileList2.forEach((item) => {
+                    formData.append('picture_cancel[]', item.file)
+                })
+                this.$axios.post('/record_pay_infos/' + this.form.id + '/cancel', formData).then((res) => {
+                    if(res.data.code == 200) {
+                        this.$message.success(res.data.message)
+                        this.getData()
+                        this.cancelVisible = false
+                    }
+                }).catch((res) => {
+                    console.log(res)
+                }).finally((res) => {
+                    this.submitDisabled = false
+                })
             },
             getStatusName(status, done_direct) {
                 if(status == 1) {

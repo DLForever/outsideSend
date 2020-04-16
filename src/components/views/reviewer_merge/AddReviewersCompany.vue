@@ -35,7 +35,10 @@
 								<el-input v-model="form.name"></el-input>
 							</el-form-item>
 							<el-form-item label="价格" prop="price">
-								<el-input v-model.trim="form.price"></el-input>
+								<el-input-number style="margin-bottom: 5px;" v-model="form.price" :min="0"></el-input-number>
+							</el-form-item>
+							<el-form-item label="粉丝佣金" prop="fan_commission">
+								<el-input-number style="margin-bottom: 5px;" v-model="form.fan_commission" :min="0"></el-input-number>
 							</el-form-item>
 							<el-form-item label="店铺" prop="shopname">
 								<el-input v-model="form.shopname"></el-input>
@@ -172,7 +175,7 @@
 					adposition: '',
 					website: '',
 					shopname: '',
-					price: '',
+					price: 0,
 					remark: '',
 					sku: '',
 					is_line: '',
@@ -182,7 +185,8 @@
 					category_id: '',
 					category_filter: '',
 					by_sum: '',
-					title: ''
+					title: '',
+					fan_commission: 0
 				},
 				rules: {
 					name: [{
@@ -243,6 +247,11 @@
 					is_line: [{
 						required: true,
 						message: '请选择是否线性',
+						trigger: 'blur'
+					}],
+					fan_commission: [{
+						required: true,
+						message: '请输入粉丝佣金',
 						trigger: 'blur'
 					}],
 				},
