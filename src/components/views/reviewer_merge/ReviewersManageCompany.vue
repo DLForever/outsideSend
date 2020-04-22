@@ -1094,7 +1094,7 @@
                 this.export_token = localStorage.getItem('token')
                 // console.log(this.$store.getters.skipPage)
                 this.table_loading = true
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1126,7 +1126,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0)
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1572,17 +1572,14 @@
                 }
                 let isSingle = ''
                 this.multipleSelection.forEach((data) => {
-                    if(data.status != 9 && this.multipleSelection.length >= 2) {
+                    if(data.role_name != null && this.multipleSelection.length >= 2) {
                         isSingle = 1
                     }
-                    if(data.status == 1 || data.status == 2) {
-                        isSingle = 2
-                    }
+                    // if(data.status == 1 || data.status == 2) {
+                    //     isSingle = 2
+                    // }
                 })
-                if(isSingle == 2) {
-                    this.$message.error('有任务还未审核，请审核后再分配！')
-                    return
-                } else if(isSingle == 1) {
+                if(isSingle == 1) {
                     this.$message.error('已分配组的任务，只能单独选择！')
                     return
                 }else {
@@ -1630,18 +1627,15 @@
                 }
                 let isSingle = ''
                 this.multipleSelection.forEach((data) => {
-                    if(data.status != 9 && this.multipleSelection.length >= 2) {
+                    if(data.role_name != null && this.multipleSelection.length >= 2) {
                         isSingle = 1
                     }
-                    if(data.status == 1 || data.status == 2) {
-                        isSingle = 2
-                    }
+                    // if(data.status == 1 || data.status == 2) {
+                    //     isSingle = 2
+                    // }
                 })
-                if(isSingle == 2) {
-                    this.$message.error('有任务还未审核，请审核后再分配！')
-                    return
-                } else if(isSingle == 1) {
-                    this.$message.error('已分配送测人的任务，只能单独选择！')
+                if(isSingle == 1) {
+                    this.$message.error('已分配组的任务，只能单独选择！')
                     return
                 }else {
 

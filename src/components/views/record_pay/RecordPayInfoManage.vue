@@ -9,9 +9,14 @@
         <div class="container">
             <div class="handle-box">
                 <el-button  type="warning" @click="updateBatchPay">批量完成返款</el-button>
-                <el-button type="primary" @click="exportRecord">导出</el-button>
+                <el-button type="primary" @click="exportRecord">部分导出</el-button>
+                <el-button  type="warning">
+                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/record_pay_infos/export_url?token=' + export_token + '&user_id=' + user_id_filter  + '&apply_user_id=' + apply_user_id + '&pay=' + paydone + '&order_number=' + search_number + '&paypal_account=' + search_fan + '&asin=' + search_asin + '&pay_reason_type=' + pay_reason_type_filter + '&cancel=' + (cancel_filter === true ? 1 : '') + '&record_id='">导出全部</a>
+                </el-button>
                 <el-button type="success" @click="updateRate">更新汇率</el-button>
-                <el-button type="danger" @click="clearDownload">清除付款标记</el-button>
+                <!-- <el-popconfirm title="是否清除标记?"> -->
+                    <el-button type="danger" @click="clearDownload">清除付款标记</el-button>
+                <!-- </el-popconfirm> -->
                 <!-- <template v-if="isRestrict === 'false'">
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
                     <el-button  type="success">
@@ -98,7 +103,7 @@
             <br><br>
             <el-table v-loading="table_loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)" :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="id" label="ID" show-overflow-tooltip>
+                <el-table-column fixed prop="id" label="ID" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="email" label="截图" width="120">
                     <template slot-scope="scope">
@@ -124,9 +129,13 @@
                 </el-table-column>
                 <el-table-column prop="charge" label="手续费" width="70">
                 </el-table-column>
+                <el-table-column prop="price_total" label="总计" width="70">
+                </el-table-column>
                 <el-table-column prop="customer_price" label="收取客户价格" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="customer_charge" label="客户支付手续费" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="customer_price_total" label="总计" width="70">
                 </el-table-column>
                 <el-table-column prop="cancel_price" label="退款金额" width="70">
                 </el-table-column>
@@ -159,6 +168,8 @@
                     <template slot-scope="scope">
                         <el-tag :type="scope.row.pay_reason_type | statusFilter">{{getStatusPayType(scope.row.pay_reason_type)}}</el-tag>
                     </template>
+                </el-table-column>
+                <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
                 </el-table-column>
                <!--  <template v-if="isRestrict === 'false'">
                     <template v-if="filter_refund">
@@ -210,7 +221,7 @@
                 
                 <el-table-column prop="feedback" label="反馈" show-overflow-tooltip>
                 </el-table-column> -->
-                <el-table-column prop="remark" label="备注" show-overflow-tooltip>
+                <el-table-column prop="apply_remark" label="备注" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column label="操作" width="100" fixed="right">
                     <template slot-scope="scope">
@@ -252,7 +263,7 @@
             </el-table>
             </el-table>
             <div class="pagination" v-if="paginationShow && totals != 0">
-                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="50" layout="prev, pager, next" :total="totals">
+                <el-pagination  @current-change="handleCurrentChange" @size-change="handleSizeChange" :page-size="20" layout="prev, pager, next" :total="totals">
                 </el-pagination>
             </div>
         </div>
@@ -618,7 +629,7 @@
 
         <!-- 下载提示 -->
         <el-dialog title="下载" :visible.sync="exportVisible" width="35%" @close="closeExport">
-            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/record_pay_infos/export_url?ids=' + exportIds + '&token=' + export_token + '&pay=' + paydone + '&user_id=' + user_id_filter + '&apply_user_id=' + apply_user_id + '&record_id='">下载excel文件</a></el-button>
+            <el-button type="primary"><a style="color:#fff;" :href="$axios.defaults.baseURL + '/record_pay_infos/export_url?ids=' + exportIds + '&token=' + export_token + '&user_id=' + user_id_filter  + '&apply_user_id=' + apply_user_id + '&pay=' + paydone + '&order_number=' + search_number + '&paypal_account=' + search_fan + '&asin=' + search_asin + '&pay_reason_type=' + pay_reason_type_filter + '&cancel=' + (cancel_filter === true ? 1 : '') + '&record_id='">下载excel文件</a></el-button>
         </span>
         </el-dialog>
 
@@ -1126,6 +1137,8 @@
                             data.asin = data.task_record.asin
                             data.paypal_account = data.task_record.paypal_account
                             data.order_number = data.task_record.order_number
+                            data.price_total = parseFloat((Number(data.price) + Number(data.charge)).toPrecision(12))
+                            data.customer_price_total = parseFloat((Number(data.customer_price) + Number(data.customer_charge)).toPrecision(12))
                         })
                         this.tableData = res.data.data
                         this.totals = res.data.count
@@ -1172,6 +1185,8 @@
                             data.asin = data.task_record.asin
                             data.paypal_account = data.task_record.paypal_account
                             data.order_number = data.task_record.order_number
+                            data.price_total = parseFloat((Number(data.price) + Number(data.charge)).toPrecision(12))
+                            data.customer_price_total = parseFloat((Number(data.customer_price) + Number(data.customer_charge)).toPrecision(12))
                         })
                         this.tableData = res.data.data
                         this.totals = res.data.count
@@ -1971,13 +1986,20 @@
                 })
             },
             clearDownload() {
-                this.$axios.post('/record_pay_infos/clear_download').then((res) => {
-                    if(res.data.code == 200) {
-                        this.$message.success(res.data.message)
-                    }
-                }).catch((res) => {
-                    console.log(res)
-                }).finally((res) => {
+                this.$confirm('清除付款标记, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'info'
+                }).then(() => {
+                    this.$axios.post('/record_pay_infos/clear_download').then((res) => {
+                        if(res.data.code == 200) {
+                            this.$message.success(res.data.message)
+                        }
+                    }).catch((res) => {
+                        console.log(res)
+                    }).finally((res) => {
+                    })
+                }).catch(() => {
                 })
             },
             getStatusName(status, done_direct) {

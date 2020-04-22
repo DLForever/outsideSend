@@ -62,7 +62,7 @@
                 </el-table-column>
                 <el-table-column prop="rebuy" label="复购单" width="100" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="bind" label="捆版单" width="100" show-overflow-tooltip>
+                <el-table-column prop="bind" label="捆绑单" width="100" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="new_fan" label="新粉丝" width="100" show-overflow-tooltip>
                 </el-table-column>

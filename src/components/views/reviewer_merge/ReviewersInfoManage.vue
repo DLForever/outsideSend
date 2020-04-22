@@ -10,12 +10,12 @@
             <div class="handle-box">
                 <template v-if="is_company2 === '1'">
                     <el-button  type="warning" @click="handleComRes">佣金/本金</el-button>
-                    <el-button type="primary" @click="exportReviewers">部分导出</el-button>
-                    <el-button  type="success">
-                        <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&task_id=' + task_id_export">导出全部</a>
-                    </el-button>
-                    <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template>
+                <el-button type="primary" @click="exportReviewers">部分导出</el-button>
+                <el-button  type="success">
+                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&task_id=' + task_id_export">导出全部</a>
+                </el-button>
+                <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 <div style="float: right;">
                     <el-checkbox v-model="is_pay_capital" label="未收本金" border></el-checkbox>
                     <el-checkbox v-model="is_pay_commission" label="未收佣金" border></el-checkbox>
@@ -88,6 +88,8 @@
                 <el-table-column prop="customer_commission_total" label="佣金" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="customer_total" label="费用" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="pay_price" label="粉丝价格" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="write_feedback" label="是否留feedback" width="110">
                     <template slot-scope="scope">
@@ -1614,7 +1616,7 @@
                         this.refundVisible = false
                     }
                 }).catch((res) => {
-                    console.log('err')
+                    console.log(res)
                 }).finally((res) => {
                     this.submitDisabled = false
                 })

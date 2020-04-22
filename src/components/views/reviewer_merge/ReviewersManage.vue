@@ -991,7 +991,7 @@
                 }
                 // console.log(this.$store.getters.skipPage)
                 this.table_loading = true
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=' + this.is_company
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=' + this.is_company
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
@@ -1023,7 +1023,7 @@
                 this.table_loading = true
                 this.cur_page = 1
                 this.paginationShow = false
-                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&user_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=' + this.is_company
+                this.$axios.get( '/tasks?page='+this.cur_page + '&status=' + this.statusSelect + '&role_id=' + this.user_id_filter + '&apply_user_id=' + this.apply_user_id + '&asin=' + this.search_asin + '&product_name=' + this.filter_name + '&self=' + (this.is_self == true ? 1 : 0) + '&wight=' + (this.weight_filter == true ? 1 : 0) + '&is_company=' + this.is_company
                 ).then((res) => {
                     if(res.data.code == 200) {
                         res.data.data.forEach((data) => {
