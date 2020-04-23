@@ -81,8 +81,8 @@
                 <el-table-column fixed prop="email" label="图片" width="120">
                     <template slot-scope="scope">
                         <el-badge :value="scope.row.img_count" class="item" v-if="scope.row.img_count != 0">
-                            <span v-if="scope.row.pictures.length === 0">无</span>
-                            <img style="cursor: pointer;" v-else-if="scope.row.pictures[0] != undefined && scope.row.pictures[0].url.thumb.url != null && !(scope.row.pictures[0].url.url.match(/.pdf/))" :src="$axios.defaults.baseURL+scope.row.pictures[0].url.thumb.url" @click="showPictures(scope.$index, scope.row)"/>
+                            <span v-if="scope.row.pictures_temp.length === 0">无</span>
+                            <img style="cursor: pointer;" v-else-if="scope.row.pictures_temp[0] != undefined && scope.row.pictures_temp[0].url.thumb.url != null && !(scope.row.pictures_temp[0].url.url.match(/.pdf/))" :src="$axios.defaults.baseURL+scope.row.pictures_temp[0].url.thumb.url" @click="showPictures(scope.$index, scope.row)"/>
                             <span v-else>无</span>
                         </el-badge>
                         <span v-else>无</span>
@@ -540,7 +540,7 @@
         </el-dialog>
 
         <!-- 查看产品图片 -->
-        <el-dialog title="测评截图" :visible.sync="productVisible" width="70%">
+        <el-dialog title="评论/反馈截图" :visible.sync="productVisible" width="70%">
             <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList.length != 0">
                 <span>评论截图</span>
                 <el-carousel-item v-for="(item, index) in picturestList" :key="index">
@@ -550,9 +550,9 @@
             <br>
             <!-- <template v-if="isRestrict === 'false'"> -->
             <el-carousel height="600px" arrow="always" :autoplay="false" v-if="picturestList2.length != 0">
-                <span class="demonstration">退款截图</span>
+                <span class="demonstration">反馈截图</span>
                 <el-carousel-item v-for="(item, index) in picturestList2" :key="index">
-                    <img class="img_carousel" @click="handleDeletePic(item.remark, item.id, index)" :src="$axios.defaults.baseURL+item.url.url" />
+                    <img class="img_carousel" :src="$axios.defaults.baseURL+item.url.url" />
                 </el-carousel-item>
             </el-carousel>
             <!-- </template> -->
@@ -1202,12 +1202,19 @@
                             // data.pay_records.forEach((data2) => {
                             //     data.pictures.push(data2.pictures[0])
                             // })
-                            data.img_count = data.pictures.length
+                                // data.pictures_temp = data.pictures.concat(data.pay_pictures)
+                                // print(data.pictures_temp)
+                            data.pictures_temp = []
+                            data.pictures.forEach((data2) => {
+                                data.pictures_temp.push(data2)
+                            })
+                            data.pay_pictures.forEach((data3) => {
+                                data.pictures_temp.push(data3)
+                            })
+                            data.img_count = data.pictures_temp.length
                         })
                         // console.log(res.data.data.splice(81))
                         this.tableData = res.data.data
-                        // this.tableData = res.data.data.splice(0,50)
-                        // this.tableData = this.tableData.concat(res.data.data.splice(21))
                         this.totals = res.data.count
                         this.paginationShow = true
                     }
@@ -1264,18 +1271,28 @@
                             // data.pay_records.forEach((data2) => {
                             //     data.pictures.push(data2.pictures[0])
                             // })
-                            data.img_count = data.pictures.length
+                            // data.pictures_temp = data.pictures.concat(data.pay_pictures)
+                            // print(data.pictures_temp)
+                            data.pictures_temp = []
+                            data.pictures.forEach((data2) => {
+                                data.pictures_temp.push(data2)
+                            })
+                            data.pay_pictures.forEach((data3) => {
+                                data.pictures_temp.push(data3)
+                            })
+                            console.log(data.pictures_temp)
+                            data.img_count = data.pictures_temp.length
                         })
-                        if(this.statusSelect == 2) {
-                            this.filter_refund = true
-                            this.filter_commission = false
-                        } else if(this.statusSelect == 7) {
-                            this.filter_refund = false
-                            this.filter_commission = true
-                        } else {
-                            this.filter_refund = false
-                            this.filter_commission = false
-                        }
+                        // if(this.statusSelect == 2) {
+                        //     this.filter_refund = true
+                        //     this.filter_commission = false
+                        // } else if(this.statusSelect == 7) {
+                        //     this.filter_refund = false
+                        //     this.filter_commission = true
+                        // } else {
+                        //     this.filter_refund = false
+                        //     this.filter_commission = false
+                        // }
                         this.tableData = res.data.data
                         this.totals = res.data.count
                     }
@@ -1313,7 +1330,7 @@
 				return row.updated_at.substr(0, 19);
 			},
             formatter_pay_time(row, column) {
-                return row.pay_time.substr(0, 19);
+                return row.pay_time != null ?row.pay_time.substr(0, 19) : '';
             },
             formatter_refund_time(row, column) {
                 if (row.refund_time != null) {
@@ -1480,17 +1497,10 @@
                 this.product_id = row.id
                 const item = this.tableData[index]
                 item.pictures.forEach((data) => {
-                    if (data.remark == 'review') {
-                        this.picturestList.push(data)
-                    } else if (data.remark == 'refund'){
-                        this.picturestList2.push(data)
-                    } else if (data.remark == 'commission'){
-                        this.picturestList4.push(data)
-                    } else if (data.remark == 'capital'){
-                        this.picturestList5.push(data)
-                    } else {
-                        this.picturestList3.push(data)
-                    }
+                    this.picturestList.push(data)
+                })
+                item.pay_pictures.forEach((data) => {
+                    this.picturestList2.push(data)
                 })
                 this.productVisible = true;
             },

@@ -142,7 +142,7 @@
                         <span>{{scope.row.done_sum}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="block" label="失败数量" width="65">
+                <el-table-column prop="block_sum" label="失败数量" width="65">
                 </el-table-column>
                 <el-table-column prop="shopname" label="店铺" show-overflow-tooltip>
                 </el-table-column>
@@ -1506,11 +1506,11 @@
                 }
             },
             toReviewers(index, row) {
-                this.$router.push({name: 'Reviewersinfomanagecompany', params: {task_id: row.id}})
+                this.$router.push({name: 'Reviewersinfomanagecompany', params: {task_id: row.task.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
             toReviewersChange(index, row) {
-                this.$router.push({name: 'Reviewerschangemanagecompany', params: {task_id: row.id}})
+                this.$router.push({name: 'Reviewerschangemanagecompany', params: {task_id: row.task.id}})
                 this.$store.dispatch('setIsSkip', true)
             },
             toReviewersChange2(index, row) {

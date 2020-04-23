@@ -288,6 +288,7 @@
                             this.options30.datasets[0].data[0] = parseFloat(res.data.data.US.pay_price)
                             this.options30.datasets[1].data[0] = parseFloat(res.data.data.US.commission)
                             this.total += parseFloat(res.data.data.US.plan)
+
                             this.total_price += parseFloat(res.data.data.US.pay_price)
                             this.done += parseFloat(res.data.data.US.done)
                             this.block += parseFloat(res.data.data.US.block)
@@ -345,6 +346,7 @@
                             this.block += parseFloat(res.data.data.CA.block)
                             this.commission_total += parseFloat(res.data.data.CA.commission)
                         }
+                        this.total_price=this.total_price.toFixed(2)
                         this.schart_show = 1
                         if(res.data.code != 300) {
                             this.authority = 1
@@ -353,6 +355,7 @@
                     else if(res.data.code == 300) {
                         this.authority = 0
                     }
+
                 }).catch((res) => {
                     console.log(res)
                 })
