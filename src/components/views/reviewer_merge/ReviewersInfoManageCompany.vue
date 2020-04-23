@@ -282,6 +282,10 @@
                     <el-radio v-model="form.need_refund" label="1">是</el-radio>
                     <el-radio v-model="form.need_refund" label="0">否</el-radio>
                 </el-form-item>
+                <el-form-item label="是否变成已完成状态" prop="isPay">
+                    <el-radio v-model="done" label="1">是</el-radio>
+                    <el-radio v-model="done" label="0">否</el-radio>
+                </el-form-item>
                 <!-- </template> -->
                 <!-- <template v-if="form.need_refund=='1'">
                     <el-form-item label="是否完全返款">
@@ -304,7 +308,7 @@
                     <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="form.refund_time" type="datetime" placeholder="选择日期" ></el-date-picker>
                 </el-form-item> -->
                 <el-form-item label="评论url" prop="review_url">
-                    <el-input v-model="review_url"></el-input>
+                    <el-input v-model="form.review_url"></el-input>
                 </el-form-item>
                 <el-form-item label="备注">
                     <el-input v-model="remark"></el-input>
@@ -830,7 +834,8 @@
                     done_direct: '',
                     skip_review: '',
                     recommend_commission: '',
-                    commission: ''
+                    commission: '',
+                    review_url: ''
                 },
                 idx: -1,
                 productVisible: false,
@@ -1081,13 +1086,13 @@
               role_options: [],
               chargetypeoptions: [{id: '1', type: '自返'}, {id: '2', type: '中介'}],
               charge_type: '',
-              review_url: '',
               write_feedback: '',
               pay_reason_type: '',
               reasontypeoptions: [{id: '1', type: '粉丝支付价格'}, {id: '2', type: '佣金'}, {id: '3', type: '粉丝支付价格+佣金'}, {id: '4', type: '补款'}, {id: '7', type: '部分本金'}],
               price: '',
               refund_time: '',
-              task_id_export: ''
+              task_id_export: '',
+              done: ''
             }
         },
         created() {
@@ -1359,12 +1364,13 @@
                     id: item.id,
                     status: item.status,
                     commission: '',
-                    recommend_commission: ''
+                    recommend_commission: '',
+                    review_url: ''
                 }
                 this.charge_type = ''
-                this.review_url = ''
                 this.remark = ''
                 this.fileList = []
+                this.done = ''
                 // this.fileList2 = []
                 this.doneVisible = true;
             },
@@ -1387,8 +1393,12 @@
             },
             // 保存编辑
             saveDone() {
-                if(this.review_url == '') {
+                if(this.form.review_url == '') {
                     this.$message.error('请输入评论url')
+                    return
+                }
+                if(this.done == '') {
+                    this.$message.info('请选择是否变成已完成状态')
                     return
                 }
                 if(this.form.status == '1') {
@@ -1409,7 +1419,8 @@
                 formData.append('skip_review', this.form.skip_review)
                 // formData.append('commission', this.form.commission)
                 // formData.append('charge_type', this.charge_type)
-                formData.append('review_url', this.review_url)
+                formData.append('review_url', this.form.review_url)
+                formData.append('done', this.done)
                 // formData.append('recommend_commission', (this.form.recommend_commission == 0 ? '' : this.form.recommend_commission))
                 // if(this.form.done_direct != undefined) {
                 //     formData.append('done_direct', this.form.done_direct)
@@ -1424,7 +1435,7 @@
                         this.doneVisible = false
                     }
                 }).catch((res) => {
-                    console.log('err')
+                    console.log(res)
                 }).finally((res) => {
                     this.submitDisabled = false
                 })
