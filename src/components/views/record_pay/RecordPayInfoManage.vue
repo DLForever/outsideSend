@@ -169,7 +169,9 @@
                         <el-tag :type="scope.row.pay_reason_type | statusFilter">{{getStatusPayType(scope.row.pay_reason_type)}}</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="created_at" label="创建时间" :formatter="formatter_created_at" width="150">
+                <el-table-column prop="created_at" label="申请时间" :formatter="formatter_created_at" width="150">
+                </el-table-column>
+                <el-table-column prop="refund_time" label="付款时间" :formatter="formatter_refund_time" width="150">
                 </el-table-column>
                <!--  <template v-if="isRestrict === 'false'">
                     <template v-if="filter_refund">
@@ -454,7 +456,7 @@
                         <el-tag type="success" v-else-if="scope.row.need_refund2 == '否'">否</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="refund_time" label="返款时间" :formatter="formatter_refund_time" width="140">
+                <el-table-column prop="refund_time" label="付款时间" :formatter="formatter_refund_time" width="140">
                 </el-table-column>
                 <el-table-column prop="email" label="截图" width="120">
                     <template slot-scope="scope">
@@ -1135,7 +1137,7 @@
                         res.data.data.forEach((data) => {
                             data.img_count = data.pictures.length
                             data.asin = data.task_record.asin
-                            data.paypal_account = data.task_record.paypal_account
+                            // data.paypal_account = data.task_record.paypal_account
                             data.order_number = data.task_record.order_number
                             data.price_total = parseFloat((Number(data.price) + Number(data.charge)).toPrecision(12))
                             data.customer_price_total = parseFloat((Number(data.customer_price) + Number(data.customer_charge)).toPrecision(12))
@@ -1183,7 +1185,7 @@
                         res.data.data.forEach((data) => {
                             data.img_count = data.pictures.length
                             data.asin = data.task_record.asin
-                            data.paypal_account = data.task_record.paypal_account
+                            // data.paypal_account = data.task_record.paypal_account
                             data.order_number = data.task_record.order_number
                             data.price_total = parseFloat((Number(data.price) + Number(data.charge)).toPrecision(12))
                             data.customer_price_total = parseFloat((Number(data.customer_price) + Number(data.customer_charge)).toPrecision(12))
@@ -1230,11 +1232,7 @@
                 // return row.pay_time.substr(0, 19);
             },
             formatter_refund_time(row, column) {
-                if (row.refund_time != null) {
-                    return row.refund_time.substr(0, 19);
-                }else {
-                    return
-                }
+                return row.refund_time != null ? row.refund_time.substr(0, 19) : '';
             },
             search() {
                 this.is_search = true;

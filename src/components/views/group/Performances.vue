@@ -8,6 +8,9 @@
         </div>
         <div class="container">
             <div class="handle-box">
+                <el-button  type="success" v-if="exportbutton === 1">
+                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/performances?token=' + export_token + '&begin_date=' + date_begin_temp_export +'&end_date=' + date_end_temp_export + '&user_id=' + user_id_filter + '&role_id=' + role_id_filter + '&asin=' + search_asin + '&export=1'">导出</a>
+                </el-button>
                 <!-- <template v-if="isRestrict === 'false'">
                     <el-button  type="success">
                         <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&is_company=1'">导出全部</a>
@@ -16,7 +19,7 @@
                 </template> -->
                 <div style="float: right;">
                     日期:
-                    <el-date-picker class="mr10" v-model="date_filter" @change="dateChange" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions2" unlink-panels value-format="yyyy-MM-dd"></el-date-picker>
+                    <el-date-picker class="mr10" v-model="date_filter" @change="dateChange" type="daterange" range-separator="至" start-placeholder="开始日期" :clearable="false" end-placeholder="结束日期" :picker-options="pickerOptions2" unlink-panels value-format="yyyy-MM-dd"></el-date-picker>
                     <!-- <el-select class="mr10" v-model="search_selects" multiple placeholder="展示其他搜索栏目" @change="showSearch">
                         <el-option v-for="item in isRestrict === 'false'?search_options:search_options2" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select> -->
@@ -78,7 +81,11 @@
                 </el-table-column>
                 <el-table-column prop="self_pay_sum" label="自费数量" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column prop="should_self_pay_sum" label="应自费数量" show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="self_pay_price" label="自费金额" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="pay_total" label="自费单支付价格" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="tax" label="税费" show-overflow-tooltip>
                 </el-table-column>
@@ -779,11 +786,15 @@
               uk_length: 0,
               de_length: 0,
               jp_length: 0,
-              ca_length: 0
+              ca_length: 0,
+              date_begin_temp_export: '',
+              date_end_temp_export: '',
+              exportbutton: 0
             }
         },
         created() {
             this.isRestrict = localStorage.getItem('restrict')
+            this.export_token = localStorage.getItem('token')
             // this.getData();
         },
         watch: {
@@ -874,6 +885,8 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
+                this.date_begin_temp_export = date_begin_temp
+                this.date_end_temp_export = date_end_temp
                 this.$axios.get( '/performances?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&user_id=' + this.user_id_filter + '&role_id=' + this.role_id_filter + '&asin=' + this.search_asin
                 ).then((res) => {
                     if(res.data.code == 200) {
@@ -899,6 +912,10 @@
                 if (!this.$route.params.task_id) {
                     this.$route.params.task_id = ''
                 }
+                // if (this.date_filter == null) {
+                //     this.$message.info('请选择时间')
+                //     return
+                // }
                 let date_begin_temp = this.date_filter[0]
                 let date_end_temp = this.date_filter[1]
                 if(this.date_filter.length == 0) {
@@ -911,6 +928,9 @@
                 } else {
                     tempStatus = '&status=' + this.statusSelect
                 }
+                this.date_begin_temp_export = date_begin_temp
+                this.date_end_temp_export = date_end_temp
+                this.export_token = localStorage.getItem('token')
                 this.$axios.get( '/performances?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&user_id=' + this.user_id_filter + '&role_id=' + this.role_id_filter + '&asin=' + this.search_asin
                 ).then((res) => {
                     if(res.data.code == 200) {
@@ -962,6 +982,7 @@
                         // console.log(this.us_length)
                         this.tableData = tableDataFilter1
                         this.totals = res.data.count
+                        this.exportbutton = 1
                     }
                     this.paginationShow = true
                 }).catch((res) => {
@@ -988,6 +1009,7 @@
                 this.is_pay_commission = ''
                 this.role_id_filter = ''
                 this.tableData = []
+                this.exportbutton = 0
                 // this.getData()
             },
             formatter_created_at(row, column) {

@@ -176,9 +176,20 @@
                         <el-tag v-else-if="scope.row.is_bind === true" type="success">是</el-tag>
                     </template>
                 </el-table-column>
+                <el-table-column prop="write_feedback" label="留feedback" width="90">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.write_feedback === false" type="warning">否</el-tag>
+                        <el-tag v-else-if="scope.row.write_feedback === true" type="success">是</el-tag>
+                    </template>
+                </el-table-column>
                 <!-- <el-table-column prop="pay_time" label="支付时间" :formatter="formatter_pay_time" width="140">
                 </el-table-column> -->
                 <el-table-column prop="feedback" label="反馈" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="review_url" label="评论链接" width="50">
+                    <template slot-scope="scope">
+                        <a v-if="scope.row.review_url != null && scope.row.review_url != '' && scope.row.review_url != 'null'" :href="scope.row.review_url" target="_blank">查看</a>
+                    </template>
                 </el-table-column>
                 <el-table-column prop="remark" label="备注" show-overflow-tooltip>
                 </el-table-column>
@@ -307,7 +318,7 @@
                 <!-- <el-form-item label="返款时间" prop="pay_time">
                     <el-date-picker style="margin-right: 10px; margin-bottom: 5px;" v-model="form.refund_time" type="datetime" placeholder="选择日期" ></el-date-picker>
                 </el-form-item> -->
-                <el-form-item label="评论url" prop="review_url">
+                <el-form-item label="评论url">
                     <el-input v-model="form.review_url"></el-input>
                 </el-form-item>
                 <el-form-item label="备注">
@@ -365,8 +376,15 @@
                     <el-radio v-model="addReviewerForm.skip_review" label="1">是</el-radio>
                     <el-radio v-model="addReviewerForm.skip_review" label="0">否</el-radio>
                 </el-form-item>
+                <el-form-item label="是否留feedback" prop="skip_review">
+                    <el-radio v-model="addReviewerForm.write_feedback" label="1">是</el-radio>
+                    <el-radio v-model="addReviewerForm.write_feedback" label="0">否</el-radio>
+                </el-form-item>
                 <el-form-item label="亚马逊profile url">
                     <el-input v-model="addReviewerForm.profile_url"></el-input>
+                </el-form-item>
+                <el-form-item label="评论 url">
+                    <el-input v-model="addReviewerForm.review_url"></el-input>
                 </el-form-item>
                 <!-- <el-form-item label="自费金额" prop="self_pay_price">
                     <el-input-number style="margin-bottom: 5px;" v-model="addReviewerForm.self_pay_price" :min="0" :step="10"></el-input-number>
@@ -1393,24 +1411,20 @@
             },
             // 保存编辑
             saveDone() {
-                if(this.form.review_url == '') {
-                    this.$message.error('请输入评论url')
-                    return
-                }
                 if(this.done == '') {
                     this.$message.info('请选择是否变成已完成状态')
                     return
                 }
-                if(this.form.status == '1') {
-                    if (this.form.need_refund == '' || this.form.need_refund == undefined) {
-                        this.$message.error('请选择是否需要返款')
-                        return
-                    }
-                    if (this.form.skip_review == '') {
-                        this.$message.error('请选择是否免评')
-                        return
-                    }
+                // if(this.form.status == '1') {
+                if (this.form.need_refund == '' || this.form.need_refund == undefined) {
+                    this.$message.error('请选择是否需要返款')
+                    return
                 }
+                if (this.form.skip_review == '') {
+                    this.$message.error('请选择是否免评')
+                    return
+                }
+                // }
                 this.submitDisabled = true
                 let formData = new FormData()
                 formData.append('remark', this.remark)
@@ -1647,6 +1661,8 @@
                     homepage: item.homepage,
                     skip_review: (item.skip_review === true) ? '1' : '0',
                     fan: item.fan,
+                    review_url: item.review_url,
+                    write_feedback: (item.write_feedback === true) ? '1' : '0',
                     // title: item.title
                 }
                 // if(this.addReviewerForm.isPay == 'true') {
@@ -1688,6 +1704,8 @@
                         // formData.append('task_record[task_id]', this.addReviewerForm.task_id)
                         // formData.append('task_record[task_period_id]', this.addReviewerForm.task_period_id)
                         formData.append('task_record[homepage]', this.addReviewerForm.homepage)
+                        formData.append('task_record[review_url]', this.addReviewerForm.review_url)
+                        formData.append('task_record[write_feedback]', this.addReviewerForm.write_feedback)
                         this.fileList.forEach((item) => {
                             formData.append('picture_review[]', item.raw)
                         })

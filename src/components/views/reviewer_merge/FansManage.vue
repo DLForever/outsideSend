@@ -403,7 +403,7 @@
 				return row.updated_at.substr(0, 19);
 			},
             formatter_pay_time(row, column) {
-                return row.pay_time.substr(0, 19);
+                return row.pay_time != null ? row.pay_time.substr(0, 19) : '';
             },
             search() {
                 this.is_search = true;
