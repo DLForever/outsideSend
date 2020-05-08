@@ -102,7 +102,7 @@
                         <el-tag :type="scope.row.status | statusFilter">{{getStatusName(scope.row.status)}}</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="is_line" label="是否按照客户的佣金" show-overflow-tooltip>
+                <el-table-column prop="is_line" label="是否按照真实佣金收费" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <el-tag v-if="scope.row.by_real_commission === false" type="warning">否</el-tag>
                         <el-tag v-else-if="scope.row.by_real_commission === true" type="success">是</el-tag>
@@ -640,7 +640,7 @@
         <!-- 审核提示框 -->
         <el-dialog title="审核" :visible.sync="checkVisible" width="50%">
             <el-form label-width="140px">
-                <el-form-item label="是否按照客户的佣金">
+                <el-form-item label="是否按照真实佣金收费">
                     <el-radio v-model="by_real_commission" label="1">是</el-radio>
                     <el-radio v-model="by_real_commission" label="0">否</el-radio>
                 </el-form-item>

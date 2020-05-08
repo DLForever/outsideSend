@@ -156,6 +156,7 @@
                     <template slot-scope="scope">
                         <el-tag type="success" v-if="scope.row.charge_type == '1'">自返</el-tag>
                         <el-tag type="warning" v-else-if="scope.row.charge_type == '2'">中介</el-tag>
+                        <el-tag type="warning" v-else-if="scope.row.charge_type == '3'">礼品卡</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column prop="pay" label="是否付款" width="70">

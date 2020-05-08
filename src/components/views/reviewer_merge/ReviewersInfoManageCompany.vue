@@ -657,11 +657,15 @@
                     <el-radio v-model="isProblem" label="1">是</el-radio>
                     <el-radio v-model="isProblem" label="0">否</el-radio>
                 </el-form-item>
-                <el-form-item label="是否变成留feedback" >
-                    <el-radio v-model="write_feedback" label="1">是</el-radio>
-                    <el-radio v-model="write_feedback" label="0">否</el-radio>
-                </el-form-item>
                 <template v-if="isProblem == '0'">
+                    <el-form-item label="是否变成留feedback" >
+                        <el-radio v-model="write_feedback" label="1">是</el-radio>
+                        <el-radio v-model="write_feedback" label="0">否</el-radio>
+                    </el-form-item>
+                    <el-form-item label="是否恢复付款申请" >
+                        <el-radio v-model="recover" label="1">是</el-radio>
+                        <el-radio v-model="recover" label="0">否</el-radio>
+                    </el-form-item>
                     <el-form-item label="变更状态">
                         <el-select v-model="checkStatus" placeholder="请选择" class="handle-select mr10">
                             <el-option v-for="item in checkOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -1102,7 +1106,7 @@
               role_total: 0,
               loading3: false,
               role_options: [],
-              chargetypeoptions: [{id: '1', type: '自返'}, {id: '2', type: '中介'}],
+              chargetypeoptions: [{id: '1', type: '自返'}, {id: '2', type: '中介'}, {id: '3', type: '礼品卡'}],
               charge_type: '',
               write_feedback: '',
               pay_reason_type: '',
@@ -1110,7 +1114,8 @@
               price: '',
               refund_time: '',
               task_id_export: '',
-              done: ''
+              done: '',
+              recover: ''
             }
         },
         created() {
@@ -1842,6 +1847,7 @@
                 this.checkStatus = ''
                 this.isProblem = ''
                 this.write_feedback = ''
+                this.recover = ''
                 this.checkVisible = true
             },
             saveCheck() {
@@ -1853,7 +1859,8 @@
                 let params = {
                     status: this.checkStatus,
                     pass: this.isProblem,
-                    write_feedback: this.write_feedback
+                    write_feedback: this.write_feedback,
+                    recover: this.recover
                 }
                 this.$axios.post('/task_records/' + this.product_id + '/process_feedback', params
                 ).then((res) => {

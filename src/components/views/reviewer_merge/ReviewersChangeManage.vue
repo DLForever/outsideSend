@@ -68,6 +68,7 @@
                 <el-table-column prop="c_type" label="状态" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <el-tag v-if="scope.row.c_type === 1" type="warning">更新</el-tag>
+                        <el-tag v-else-if="scope.row.c_type === 3" type="warning">创建</el-tag>
                         <el-tag v-else type="danger">删除</el-tag>
                     </template>
                 </el-table-column>
