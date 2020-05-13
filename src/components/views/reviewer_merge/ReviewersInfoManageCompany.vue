@@ -98,6 +98,8 @@
                     <el-table-column prop="username" label="送测人" width="70" show-overflow-tooltip>
                     </el-table-column>
                 </template>
+                <!-- <el-table-column prop="homepage" label="主页" show-overflow-tooltip>
+                </el-table-column> -->
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="country" label="站点" width="45">
@@ -344,6 +346,9 @@
                 <el-form-item label="订单号" prop="order_number">
                     <el-input v-model="addReviewerForm.order_number"></el-input>
                 </el-form-item>
+                <el-form-item label="主页" prop="homepage">
+                    <el-input v-model="addReviewerForm.homepage"></el-input>
+                </el-form-item>
                 <!-- <el-form-item label="标题" prop="item">
                     <el-input v-model="addReviewerForm.title"></el-input>
                 </el-form-item> -->
@@ -460,6 +465,8 @@
                 <el-table-column prop="plan_date" label="计划日期" width="90">
                 </el-table-column>
                 <el-table-column prop="keyword" label="关键词" show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column prop="homepage" label="主页" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
                 </el-table-column>
@@ -2143,6 +2150,7 @@
                 if (this.pay_reason_type === '' || this.pay_reason_type === '1' || this.pay_reason_type === '2' || this.pay_reason_type === '3') {
                     this.price = ''
                 }
+                this.submitDisabled = true
                 let params = {
                     record_id: this.form.id,
                     price: this.price,

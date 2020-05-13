@@ -75,6 +75,8 @@
                 </el-table-column>
                 <el-table-column prop="apply_username" label="申请人" width="70" show-overflow-tooltip>
                 </el-table-column>
+                <el-table-column v-if="is_company2 === '1'" prop="username" label="送测人" width="70" show-overflow-tooltip>
+                </el-table-column>
                 <el-table-column prop="order_number" label="订单号" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="country" label="站点" width="45">
