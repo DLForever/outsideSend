@@ -74,7 +74,7 @@
                     </el-select>
                     <template v-if="isRestrict === 'false'">
                         送测组:
-                        <el-select v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择组" class="handle-select mr10">
+                        <el-select multiple v-model="user_id_filter" filterable remote :loading="loading" @visible-change="selectVisble" :remote-method="remoteMethod" placeholder="选择组" class="handle-select mr10">
                             <el-option v-for="item in user_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
                             <infinite-loading :on-infinite="onInfinite_user" ref="infiniteLoading"></infinite-loading>
                         </el-select>
@@ -759,7 +759,7 @@
                 search_keyword: '',
                 addreviewerVisible: false,
                 status: '',
-                user_id_filter: '',
+                user_id_filter: [],
                 query: undefined,
                 user_page: 1,
                 user_total: 0,
@@ -1141,7 +1141,7 @@
             clear_filter() {
                 this.paginationShow = false
                 this.cur_page = 1
-                this.user_id_filter = ''
+                this.user_id_filter = []
                 this.apply_user_id = ''
                 this.statusSelect = ''
                 this.filter_name = '', this.search_asin = '', this.is_self = '', this.weight_filter = '', this.site_filter = ''
