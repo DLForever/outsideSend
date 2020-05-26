@@ -15,6 +15,13 @@
                     <span style="margin-left: 20px;" v-if="multipleSelection.length != 0">共选择了{{multipleSelection.length}} 条数据</span>
                 </template> -->
                 <div style="float: right;">
+                    <template v-if="isRestrict === 'false'">
+                        送测组:
+                        <el-select multiple v-model="role_id_filter" filterable clearable remote :loading="loading3" @visible-change="selectVisble3" :remote-method="remoteMethod3" placeholder="选择组" class="handle-select mr10">
+                            <el-option v-for="item in role_options" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            <infinite-loading :on-infinite="onInfinite_role" ref="infiniteLoading3"></infinite-loading>
+                        </el-select>
+                    </template>
                     日期:
                     <el-date-picker class="mr10" v-model="date_filter" @change="dateChange" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions2" unlink-panels value-format="yyyy-MM-dd"></el-date-picker>
                     站点:
@@ -773,7 +780,7 @@
               commissionVisible: false,
               pay_tax_options: [{value: '0', label: '否'},  {value: '1', label: '是'}],
               updatePayVisible: false,
-              role_id_filter: '',
+              role_id_filter: [],
               query3: undefined,
               role_page: 1,
               role_total: 0,
@@ -880,7 +887,7 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
-                this.$axios.get( '/performances/asin_info?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&country=' + this.site_filter + '&asin=' + this.search_asin
+                this.$axios.get( '/performances/asin_info?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&country=' + this.site_filter + '&asin=' + this.search_asin + '&role_id=' + this.role_id_filter
                 ).then((res) => {
                     if(res.data.code == 200) {
                         // res.data.data.forEach((data) => {
@@ -921,7 +928,7 @@
                 } else {
                     tempStatus = '&status=' + this.statusSelect
                 }
-                this.$axios.get( '/performances/asin_info?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&country=' + this.site_filter + '&asin=' + this.search_asin
+                this.$axios.get( '/performances/asin_info?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&country=' + this.site_filter + '&asin=' + this.search_asin + '&role_id=' + this.role_id_filter
                 ).then((res) => {
                     if(res.data.code == 200) {
                         let tableDataFilter1 = []
@@ -996,7 +1003,7 @@
                 this.filter_commission = false
                 this.apply_user_id = ''
                 this.is_pay_commission = ''
-                this.role_id_filter = ''
+                this.role_id_filter = []
                 this.tableData = []
                 // this.getData()
             },
