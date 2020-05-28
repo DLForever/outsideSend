@@ -8,6 +8,9 @@
         </div>
         <div class="container">
             <div class="handle-box">
+                <el-button  type="success" v-if="exportbutton === 1">
+                    <a style="color:#fff;" :href="$axios.defaults.baseURL + '/performances/asin_info?token=' + export_token + '&begin_date=' + date_begin_temp_export +'&end_date=' + date_end_temp_export + '&country=' + site_filter + '&role_id=' + role_id_filter + '&asin=' + search_asin + '&export=1'">导出</a>
+                </el-button>
                 <!-- <template v-if="isRestrict === 'false'">
                     <el-button  type="success">
                         <a style="color:#fff;" :href="$axios.defaults.baseURL + '/task_records/export_url?token=' + export_token + '&user_id=' + user_id_filter + '&status=' + statusSelect + '&asin=' + search_asin + '&number=' + search_number + '&p_account=' + search_fan + '&date_begin=' + date_begin_ex + '&date_end=' + date_end_ex + '&shopname=' + filter_shopname + '&product_name=' + filter_name + '&country=' + site_filter + '&apply_user_id=' + apply_user_id + '&is_pay_capital=' + is_pay_capital + '&is_pay_commission=' + is_pay_commission + '&is_company=1'">导出全部</a>
@@ -791,12 +794,16 @@
               de_length: 0,
               jp_length: 0,
               ca_length: 0,
-              is_company: ''
+              is_company: '',
+              exportbutton: 0,
+              date_begin_temp_export: '',
+              date_end_temp_export: '',
             }
         },
         created() {
             this.isRestrict = localStorage.getItem('restrict')
             this.is_company = localStorage.getItem('is_company')
+            this.export_token = localStorage.getItem('token')
             // this.getData();
         },
         watch: {
@@ -887,6 +894,8 @@
                 if (this.is_pay_capital === true) {
                     temp_capital = 1
                 }
+                this.date_begin_temp_export = date_begin_temp
+                this.date_end_temp_export = date_end_temp
                 this.$axios.get( '/performances/asin_info?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&country=' + this.site_filter + '&asin=' + this.search_asin + '&role_id=' + this.role_id_filter
                 ).then((res) => {
                     if(res.data.code == 200) {
@@ -928,6 +937,8 @@
                 } else {
                     tempStatus = '&status=' + this.statusSelect
                 }
+                this.date_begin_temp_export = date_begin_temp
+                this.date_end_temp_export = date_end_temp
                 this.$axios.get( '/performances/asin_info?page='+this.cur_page + '&begin_date=' + date_begin_temp +'&end_date=' + date_end_temp + '&country=' + this.site_filter + '&asin=' + this.search_asin + '&role_id=' + this.role_id_filter
                 ).then((res) => {
                     if(res.data.code == 200) {
@@ -979,6 +990,7 @@
                         // console.log(this.us_length)
                         this.tableData = tableDataFilter1
                         this.totals = res.data.count
+                        this.exportbutton = 1
                     }
                     this.paginationShow = true
                 }).catch((res) => {
@@ -1005,6 +1017,7 @@
                 this.is_pay_commission = ''
                 this.role_id_filter = []
                 this.tableData = []
+                this.exportbutton = 0
                 // this.getData()
             },
             formatter_created_at(row, column) {
